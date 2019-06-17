@@ -85,12 +85,11 @@ set_caliper_ui <- function(ui = "gis_ui") {
 #' Runs a macro (function) in GISDK
 #'
 #' @param macro_name \code{string} Name of the GISDK macro to run
-#' @param ui \code{string} Can be used to point to a custom UI compiled by the
-#'   user.
+#' @param ui \code{string} Optional. Can be used to point to a custom UI
+#'   compiled by the user. Defaults to \code{Sys.getenv("CALIPER_UI")}.
 #' @param ... Used to pass arguments to the GISDK macro
 
 run_macro <- function(macro_name = NULL, ...) {
-
   # Check for COM connection to Caliper software
   obs <- objects(envir = .GlobalEnv)
   if (!("caliper_dk" %in% obs)) {
@@ -113,17 +112,23 @@ run_macro <- function(macro_name = NULL, ...) {
   }
   gisdk_args <- process_gisdk_args(...)
 
-  # Attempt to call the GISDK macro through the RunUIMacro interface
-  try({
-    args <- c(list(macro_name, ui), gisdk_args)
-    result <- do.call(dk$RunUIMacro, args)
-  }, silent = TRUE)
+  # Attempt to call the GISDK macro through the RunMacro interface. These
+  # functions never contain spaces.
+  if (!grepl(" ", macro_name)) {
+    try({
+      args <- c(list(macro_name), gisdk_args)
+      result <- do.call(dk$RunMacro, args)
+    }, silent = TRUE)
+  }
 
   # If that doesn't work, try the RunMacro interface
   if (!exists("result")) {
     try({
-      args <- c(list(macro_name), gisdk_args)
-      result <- do.call(dk$RunMacro, args)
+      args <- c(list(macro_name, ui), gisdk_args)
+      suppressMessages(
+
+      result <- do.call(dk$RunUIMacro, args)
+      )
     }, silent = TRUE)
   }
 
