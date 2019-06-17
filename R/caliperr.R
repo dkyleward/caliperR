@@ -139,10 +139,9 @@ run_macro <- function(macro_name = NULL, ...) {
 
 #' Convert R arguments into GISDK
 
-process_gisdk_args <- function(...) {
+process_gisdk_args <- function(arg_list) {
 
-  if (missing(...)) return(NULL)
-  arg_list <- list(...)
+  if (missing(arg_list)) return(NULL)
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
     if (!is.null(names(arg))) {
@@ -183,6 +182,8 @@ convert_to_gisdk_null <- function(arg) {
   } else if (is.na(arg)) {
     arg <- NA_complex_
   }
-  arg[is.na(arg) | is.null(arg)] <- NA_complex_
+  if (length(arg[is.na(arg) | is.null(arg)]) > 0){
+    arg[is.na(arg) | is.null(arg)] <- NA_complex_
+  }
   return(arg)
 }
