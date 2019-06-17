@@ -13,6 +13,7 @@
 
 connect <- function(software = NULL){
 
+  # Argument checking
   valid_software_values <- c("TransCAD", "TransModeler", "Maptitude")
   if (!is.null(software)){
     if (!(software %in% valid_software_values)) {
@@ -28,7 +29,7 @@ connect <- function(software = NULL){
   # Try to connect if the user provided a value for `software`
   if (!is.null(software)) {
     tryCatch(
-      dk <-  COMCreate(paste0(software, ".AutomationServer")),
+      dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer")),
       error = function(c) {
         c$message <- paste0(
           "Could not create a connection to ", software, ". ",
@@ -43,7 +44,7 @@ connect <- function(software = NULL){
     for (software in softwares){
       suppressWarnings(
         try(
-          dk <-  COMCreate(paste0(software, ".AutomationServer")),
+          dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer")),
           silent = TRUE
         )
       )
@@ -58,4 +59,26 @@ connect <- function(software = NULL){
   ))
 
   assign("dk", dk, envir = .GlobalEnv)
+}
+
+#' Used internally to convert R's named lists to GISDK named arrays.
+#'
+#' @param named_list
+#' @import RDCOMClient
+#' @return a pointer object that GISDK will interpret as a named array
+#' @keywords internal
+
+create_named_array <- function(named_list) {
+
+  # Argument checking
+  if (is.null(names(named_list))) stop(
+    "caliperr::create_opts_array: 'named_list' is not a named list"
+  )
+
+  df <- data.frame(
+    names = names(named_list),
+    values = unname(named_list)
+  )
+
+  RDCOMClient::asCOMArray(as.matrix(df))
 }
