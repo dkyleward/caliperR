@@ -169,7 +169,7 @@ create_named_array <- function(named_list) {
 
   df <- data.frame(
     names = names(named_list),
-    values = unname(named_list)
+    values = unlist(unname(named_list))
   )
   df <- df[!is.null(df$values) & !is.na(df$values), ]
 
@@ -177,13 +177,16 @@ create_named_array <- function(named_list) {
 }
 
 convert_to_gisdk_null <- function(arg) {
-  if (is.null(arg)) {
-    arg <- NA_complex_
-  } else if (is.na(arg)) {
-    arg <- NA_complex_
+  if (length(arg) == 1){
+    if (is.null(arg)) {
+      arg <- NA_complex_
+    } else if (is.na(arg)) {
+      arg <- NA_complex_
+    }
   }
   if (length(arg[is.na(arg) | is.null(arg)]) > 0){
     arg[is.na(arg) | is.null(arg)] <- NA_complex_
   }
   return(arg)
 }
+
