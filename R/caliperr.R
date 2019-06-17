@@ -3,13 +3,13 @@
 #'Will create a connection over COM to one of Caliper's installed software
 #'products. (The software must be installed with a valid license.)
 #'
-#'@param software One of either "TransCAD", "TransModeler", or "Maptitude". If
+#' @param software One of either "TransCAD", "TransModeler", or "Maptitude". If
 #'  left \code{NULL}, the function will search (in that order) and create the first
 #'  connection it can.
-#'@import RDCOMClient
-#'@return Nothing. Sets the COM object to a global environment variable
-#'  (\code{caliper_dk})
-#'@export
+#' @import RDCOMClient
+#' @return Nothing. Sets the COM object to a global environment variable
+#'   (\code{caliper_dk})
+#' @export
 
 connect <- function(software = NULL){
 
@@ -58,8 +58,51 @@ connect <- function(software = NULL){
     paste(softwares, collapse = ", ")
   ))
 
-  assign("dk", dk, envir = .GlobalEnv)
+  assign("caliper_dk", dk, envir = .GlobalEnv)
+  Sys.setenv(CALIPER_UI = "gis_ui")
 }
+
+#' Changes the default UI
+#'
+#' The default UI is simply "gis_ui", which Caliper software understands. If
+#' several functions are going to be called from a custom UI compiled by the
+#' user, this function can be used to change the default.
+#'
+#' @param ui \code{string} File name of the custom UI compiled by a user.
+
+set_caliper_ui <- function(ui = "gis_ui") {
+
+  # Argument checking
+  if (ui != "gis_ui"){
+    if (!file.exists(ui)) {
+      stop("caliperr::set_caliper_ui: 'ui' file not found")
+    }
+  }
+
+  Sys.setenv(CALIPER_UI = ui)
+}
+
+#' Runs a macro (function) in GISDK
+#'
+#' @param macro_name \code{string} Name of the GISDK macro to run
+#' @param ui \code{string} Can be used to point to a custom UI compiled by the
+#'   user.
+#' @param ... Used to pass arguments to the GISDK macro
+
+run_macro <- function(macro_name = NULL, ui = Sys.getenv("CALIPER_UI"), ...) {
+
+  # Argument checking
+  if (is.null(macro_name)) stop(
+    "caliperr::run_macro: 'macro_name' must be provided"
+  )
+  if (ui != "gis_ui") {
+    if (!file.exists(ui)) {
+      stop("caliperr::run_macro: 'ui' file not found")
+    }
+  }
+}
+
+
 
 #' Used internally to convert R's named lists to GISDK named arrays.
 #'
