@@ -89,23 +89,29 @@ set_caliper_ui <- function(ui = "gis_ui") {
 #'   user.
 #' @param ... Used to pass arguments to the GISDK macro
 
-run_macro <- function(macro_name = NULL, ui = Sys.getenv("CALIPER_UI"), ...) {
+run_macro <- function(macro_name = NULL, ...) {
+
+  # Check for COM connection to Caliper software
+  obs <- objects(envir = .GlobalEnv)
+  if (!("caliper_dk" %in% obs)) {
+    caliperr::connect()
+  }
+  dk <- get("caliper_dk", envir=.GlobalEnv)
 
   # Argument checking
   if (is.null(macro_name)) stop(
     "caliperr::run_macro: 'macro_name' must be provided"
   )
+  gisdk_args <- list(...)
+  ui <- gisdk_args$ui
+  gisdk_args$ui <- NULL
+  if (is.null(ui)) ui <- Sys.getenv("CALIPER_UI")
   if (ui != "gis_ui") {
     if (!file.exists(ui)) {
       stop("caliperr::run_macro: 'ui' file not found")
     }
   }
   gisdk_args <- process_gisdk_args(...)
-  obs <- objects(envir = .GlobalEnv)
-  if (!("caliper_dk" %in% obs)) {
-    caliperr::connect()
-  }
-  dk <- get("caliper_dk", envir=.GlobalEnv)
 
   # Attempt to call the GISDK macro through the RunUIMacro interface
   try({
