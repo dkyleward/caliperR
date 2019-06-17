@@ -90,6 +90,7 @@ set_caliper_ui <- function(ui = "gis_ui") {
 #' @param ... Used to pass arguments to the GISDK macro
 
 run_macro <- function(macro_name = NULL, ...) {
+
   # Check for COM connection to Caliper software
   obs <- objects(envir = .GlobalEnv)
   if (!("caliper_dk" %in% obs)) {
@@ -104,7 +105,7 @@ run_macro <- function(macro_name = NULL, ...) {
   gisdk_args <- list(...)
   ui <- gisdk_args$ui
   gisdk_args$ui <- NULL
-  if (is.null(ui)) ui <- Sys.getenv("CALIPER_UI")
+  if (is.null(ui)) {ui <- Sys.getenv("CALIPER_UI")}
   if (ui != "gis_ui") {
     if (!file.exists(ui)) {
       stop("caliperr::run_macro: 'ui' file not found")
@@ -144,8 +145,9 @@ process_gisdk_args <- function(...) {
   arg_list <- list(...)
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
-    if (!is.null(names(arg))) arg <- create_named_array(arg)
-    else arg <- convert_to_gisdk_null(arg)
+    if (!is.null(names(arg))) {
+      arg <- create_named_array(arg)
+      } else arg <- convert_to_gisdk_null(arg)
     arg_list[[i]] <- arg
   }
   return(arg_list)
@@ -176,6 +178,11 @@ create_named_array <- function(named_list) {
 }
 
 convert_to_gisdk_null <- function(arg) {
+  if (is.null(arg)) {
+    arg <- NA_complex_
+  } else if (is.na(arg)) {
+    arg <- NA_complex_
+  }
   arg[is.na(arg) | is.null(arg)] <- NA_complex_
   return(arg)
 }
