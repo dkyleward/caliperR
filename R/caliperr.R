@@ -100,13 +100,50 @@ run_macro <- function(macro_name = NULL, ui = Sys.getenv("CALIPER_UI"), ...) {
       stop("caliperr::run_macro: 'ui' file not found")
     }
   }
+  gisdk_args <- process_gisdk_args(...)
+  obs <- objects(envir = .GlobalEnv)
+  if (!("caliper_dk" %in% obs)) {
+    caliperr::connect()
+  }
+  dk <- get("caliper_dk", envir=.GlobalEnv)
+
+  # Attempt to call the GISDK macro through the RunUIMacro interface
+  try({
+    args <- c(list(macro_name, ui), gisdk_args)
+    result <- do.call(dk$RunUIMacro, args)
+  }, silent = TRUE)
+
+  # If that doesn't work, try the RunMacro interface
+  if (!exists("result")) {
+    try({
+      args <- c(list(macro_name), gisdk_args)
+      result <- do.call(dk$RunMacro, args)
+    }, silent = TRUE)
+  }
+
+  if (!exists("result")) stop("caliperr::run_macro failed")
+  return(result)
+}
+
+#' Convert R arguments into GISDK
+
+process_gisdk_args <- function(...) {
+
+  if (missing(...)) return(NULL)
+  arg_list <- list(...)
+  for (i in 1:length(arg_list)) {
+    arg <- arg_list[[i]]
+    if (!is.null(names(arg))) arg <- create_named_array(arg)
+    else arg <- convert_to_gisdk_null(arg)
+    arg_list[[i]] <- arg
+  }
+  return(arg_list)
 }
 
 
-
-#' Used internally to convert R's named lists to GISDK named arrays.
+#' Used internally to convert R's named vectors/lists to GISDK named arrays.
 #'
-#' @param named_list
+#' @param named_list A named list (or vector)
 #' @import RDCOMClient
 #' @return a pointer object that GISDK will interpret as a named array
 #' @keywords internal
@@ -122,6 +159,12 @@ create_named_array <- function(named_list) {
     names = names(named_list),
     values = unname(named_list)
   )
+  df <- df[!is.null(df$values) & !is.na(df$values), ]
 
-  RDCOMClient::asCOMArray(as.matrix(df))
+  return(RDCOMClient::asCOMArray(as.matrix(df)))
+}
+
+convert_to_gisdk_null <- function(arg) {
+  arg[is.na(arg) | is.null(arg)] <- NA_complex_
+  return(arg)
 }
