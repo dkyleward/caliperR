@@ -111,7 +111,7 @@ run_macro <- function(macro_name = NULL, ...) {
       stop("caliperr::run_macro: 'ui' file not found")
     }
   }
-  gisdk_args <- process_gisdk_args(...)
+  gisdk_args <- process_gisdk_args(gisdk_args)
 
   # Attempt to call the GISDK macro through the RunMacro interface. These
   # functions never contain spaces.
