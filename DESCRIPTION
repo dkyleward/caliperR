@@ -13,6 +13,6 @@ Description: Provides access to the Caliper API. Use this to run GISDK
 License: Apache 2.0 + LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports:
+Depends:
   RDCOMClient
 RoxygenNote: 6.1.0
