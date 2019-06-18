@@ -77,6 +77,38 @@ connect <- function(software = NULL){
   assign("CALIPER_UI", "gis_ui", envir = .GlobalEnv)
 }
 
+#' Close the COM connection to Caliper software and kills the process
+#'
+#' @return Nothing.
+#' @export
+
+disconnect <- function() {
+
+  try(
+    software <- get("CALIPER_SOFTWARE", envir = .GlobalEnv),
+    silent = TRUE
+  )
+  if (exists("software", inherits = FALSE)) {
+    process_names <- list(
+      "TransCAD" = "tcw",
+      "TransModeler" = "tsm",
+      "Maptitude" = "mapt"
+    )
+    process <- process_names[[software]]
+    system(paste0("tskill ", process))
+  }
+
+  if (exists("CALIPER_DK", envir = .GlobalEnv)){
+    remove("CALIPER_DK", envir = .GlobalEnv)
+  }
+  if (exists("CALIPER_SOFTWARE", envir = .GlobalEnv)){
+    remove("CALIPER_SOFTWARE", envir = .GlobalEnv)
+  }
+  if (exists("CALIPER_UI", envir = .GlobalEnv)){
+    remove("CALIPER_UI", envir = .GlobalEnv)
+  }
+}
+
 #' Changes the default UI
 #'
 #' The default UI is "gis_ui", which Caliper software understands. If several
