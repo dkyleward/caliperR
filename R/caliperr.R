@@ -88,6 +88,15 @@ set_caliper_ui <- function(ui = "gis_ui") {
 #' @param ui \code{string} Optional. Can be used to point to a custom UI
 #'   compiled by the user. Defaults to \code{Sys.getenv("CALIPER_UI")}.
 #' @param ... Used to pass arguments to the GISDK macro
+#' @examples
+#' \dontrun{
+#' # These won't work unless Caliper software is installed.
+#' run_macro("G30 Tutorial Folder")
+#' run_macro("add", ui = ui_path, 1, 2)
+#' # 3
+#' run_macro("parse opts array", ui = ui_path, list("one" = 1, "two" = 2))
+#' # "The first option name is one. The first option value is 1."
+#' }
 
 run_macro <- function(macro_name = NULL, ...) {
 
@@ -103,9 +112,13 @@ run_macro <- function(macro_name = NULL, ...) {
     "caliperr::run_macro: 'macro_name' must be provided"
   )
   gisdk_args <- list(...)
-  ui <- gisdk_args$ui
+  ui_passed_as_arg <- gisdk_args$ui
   gisdk_args$ui <- NULL
-  if (is.null(ui)) {ui <- Sys.getenv("CALIPER_UI")}
+  if (is.null(ui_passed_as_arg)) {
+    ui <- Sys.getenv("CALIPER_UI")
+  } else {
+    ui <- ui_passed_as_arg
+  }
   if (ui != "gis_ui") {
     if (!file.exists(ui)) {
       stop("caliperr::run_macro: 'ui' file not found")
@@ -113,16 +126,35 @@ run_macro <- function(macro_name = NULL, ...) {
   }
   gisdk_args <- process_gisdk_args(gisdk_args)
 
-  # Attempt to call the GISDK macro through the RunMacro interface. These
-  # functions never contain spaces.
-  if (!grepl(" ", macro_name)) {
+  # The following code attempts to work around a limitation in the
+  # RDCOMClient (and SWinTypeLibs) libraries. In current versions of R,
+  # they cannot inspect the methods of the COM class. In addition, if the
+  # wrong method is called, the error message can be caught but not fully
+  # suppressed.
+
+  # In the following cases, RunUIMacro() should be used
+  if (
+    !is.null(ui_passed_as_arg) |
+    ui != "gis_ui" |
+    grepl(" ", macro_name)
+  ) {
+    try({
+      args <- c(list(macro_name, ui), gisdk_args)
+      result <- do.call(dk$RunUIMacro, args)
+    }, silent = TRUE)
+  }
+
+  # If no output was created, attempt to call the GISDK macro through the
+  # RunMacro interface.
+  if (!exists("result")) {
     try({
       args <- c(list(macro_name), gisdk_args)
       result <- do.call(dk$RunMacro, args)
     }, silent = TRUE)
   }
 
-  # If that doesn't work, try the RunMacro interface
+  # Finally, use the RunUIMacro interface if neither of the above code
+  # blocks produced output.
   if (!exists("result")) {
     try({
       args <- c(list(macro_name, ui), gisdk_args)
@@ -134,11 +166,17 @@ run_macro <- function(macro_name = NULL, ...) {
   return(result)
 }
 
-#' Convert R arguments into GISDK
+#' Convert R arguments into GISDK flavors
+#'
+#' It calls \code{\link{create_named_array}} and
+#' \code{\link{convert_to_gisdk_null}} as appropriate on each argument passed.
+#'
+#' @param arg_list \code{list} of args that are converted.
+#' @keywords internal
 
 process_gisdk_args <- function(arg_list) {
 
-  if (missing(arg_list)) return(NULL)
+  if (length(arg_list) == 0) return(NULL)
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
     if (!is.null(names(arg))) {
@@ -173,11 +211,15 @@ create_named_array <- function(named_list) {
   return(RDCOMClient::asCOMArray(as.matrix(df)))
 }
 
+#' Converts R's \code{NA} and \code{NULL} to \code{NA_complex_)}
+#'
+#' \code{NA_complex_} is understood by GISDK/C++ as null.
+#' @return Returns the argument passed in with any \code{NA/NULL} converted.
+#' @keywords internal
+
 convert_to_gisdk_null <- function(arg) {
   if (length(arg) == 1){
-    if (is.null(arg)) {
-      arg <- NA_complex_
-    } else if (is.na(arg)) {
+    if (is.null(arg) | is.na(arg)) {
       arg <- NA_complex_
     }
   }
@@ -186,4 +228,3 @@ convert_to_gisdk_null <- function(arg) {
   }
   return(arg)
 }
-
