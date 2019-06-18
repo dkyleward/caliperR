@@ -13,7 +13,7 @@ connection it can.}
 }
 \value{
 Nothing. Sets the COM object to a global environment variable
-  (\code{caliper_dk})
+  (\code{CALIPER_DK})
 }
 \description{
 Will create a connection over COM to one of Caliper's installed software

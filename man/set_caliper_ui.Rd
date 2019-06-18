@@ -10,7 +10,9 @@ set_caliper_ui(ui = "gis_ui")
 \item{ui}{\code{string} File name of the custom UI compiled by a user.}
 }
 \description{
-The default UI is simply "gis_ui", which Caliper software understands. If
-several functions are going to be called from a custom UI compiled by the
-user, this function can be used to change the default.
+The default UI is "gis_ui", which Caliper software understands. If several
+functions are going to be called from a custom GISDK UI compiled by the user,
+this function can be used to change the default. Doing so is merely
+convenience and avoids having to pass the custom UI path into each call to
+\code{run_macro()}.
 }
