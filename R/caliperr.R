@@ -1,3 +1,13 @@
+#' caliperr: Communicate with Caliper software from R
+#'
+#' The caliperr package provides functions to make it easier to communicate
+#' with Caliper software over COM.
+#'
+#'
+#' @docType package
+#' @name caliperr
+NULL
+
 #'Create a connection to a Caliper software product
 #'
 #'Will create a connection over COM to one of Caliper's installed software
