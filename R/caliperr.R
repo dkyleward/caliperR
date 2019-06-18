@@ -8,7 +8,7 @@
 #'  connection it can.
 #' @import RDCOMClient
 #' @return Nothing. Sets the COM object to a global environment variable
-#'   (\code{caliper_dk})
+#'   (\code{CALIPER_DK})
 #' @export
 
 connect <- function(software = NULL){
@@ -29,7 +29,10 @@ connect <- function(software = NULL){
   # Try to connect if the user provided a value for `software`
   if (!is.null(software)) {
     tryCatch(
-      dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer")),
+      {
+        dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
+        assign("CALIPER_SOFTWARE", software, envir = .GlobalEnv)
+      },
       error = function(c) {
         c$message <- paste0(
           "Could not create a connection to ", software, ". ",
@@ -40,11 +43,13 @@ connect <- function(software = NULL){
     )
   # If the user didn't provide a value for `software`
   } else {
-    softwares <- valid_software_values[!is.null(valid_software_values)]
-    for (software in softwares){
+    for (software in valid_software_values){
       suppressWarnings(
         try(
-          dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer")),
+          {
+            dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
+            assign("CALIPER_SOFTWARE", software, envir = .GlobalEnv)
+          },
           silent = TRUE
         )
       )
@@ -55,18 +60,20 @@ connect <- function(software = NULL){
   if (!exists("dk")) stop(paste0(
     "Could not connect to any Caliper software. ",
     "Check that one of the following is installed: ",
-    paste(softwares, collapse = ", ")
+    paste(valid_software_values, collapse = ", ")
   ))
 
-  assign("caliper_dk", dk, envir = .GlobalEnv)
-  Sys.setenv(CALIPER_UI = "gis_ui")
+  assign("CALIPER_DK", dk, envir = .GlobalEnv)
+  assign("CALIPER_UI", "gis_ui", envir = .GlobalEnv)
 }
 
 #' Changes the default UI
 #'
-#' The default UI is simply "gis_ui", which Caliper software understands. If
-#' several functions are going to be called from a custom UI compiled by the
-#' user, this function can be used to change the default.
+#' The default UI is "gis_ui", which Caliper software understands. If several
+#' functions are going to be called from a custom GISDK UI compiled by the user,
+#' this function can be used to change the default. Doing so is merely
+#' convenience and avoids having to pass the custom UI path into each call to
+#' \code{run_macro()}.
 #'
 #' @param ui \code{string} File name of the custom UI compiled by a user.
 
@@ -79,7 +86,7 @@ set_caliper_ui <- function(ui = "gis_ui") {
     }
   }
 
-  Sys.setenv(CALIPER_UI = ui)
+  assign("CALIPER_UI", ui, envir = .GlobalEnv)
 }
 
 #' Runs a macro (function) in GISDK
@@ -102,10 +109,10 @@ run_macro <- function(macro_name = NULL, ...) {
 
   # Check for COM connection to Caliper software
   obs <- objects(envir = .GlobalEnv)
-  if (!("caliper_dk" %in% obs)) {
+  if (!("CALIPER_DK" %in% obs)) {
     caliperr::connect()
   }
-  dk <- get("caliper_dk", envir=.GlobalEnv)
+  dk <- get("CALIPER_DK", envir=.GlobalEnv)
 
   # Argument checking
   if (is.null(macro_name)) stop(
@@ -115,14 +122,12 @@ run_macro <- function(macro_name = NULL, ...) {
   ui_passed_as_arg <- gisdk_args$ui
   gisdk_args$ui <- NULL
   if (is.null(ui_passed_as_arg)) {
-    ui <- Sys.getenv("CALIPER_UI")
+    ui <- get("CALIPER_UI", envir=.GlobalEnv)
   } else {
     ui <- ui_passed_as_arg
   }
-  if (ui != "gis_ui") {
-    if (!file.exists(ui)) {
-      stop("caliperr::run_macro: 'ui' file not found")
-    }
+  if (!(ui == "gis_ui" | file.exists(ui))){
+    stop("caliperr::run_macro: 'ui' file not found")
   }
   gisdk_args <- process_gisdk_args(gisdk_args)
 
