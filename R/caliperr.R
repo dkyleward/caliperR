@@ -126,10 +126,7 @@ run_macro <- function(macro_name = NULL, ...) {
   if (!exists("result")) {
     try({
       args <- c(list(macro_name, ui), gisdk_args)
-      suppressMessages(
-
       result <- do.call(dk$RunUIMacro, args)
-      )
     }, silent = TRUE)
   }
 
