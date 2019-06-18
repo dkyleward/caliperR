@@ -154,7 +154,7 @@ run_macro <- function(macro_name = NULL, ...) {
 
   # If no output was created, attempt to call the GISDK macro through the
   # RunMacro interface.
-  if (!exists("result")) {
+  if (!exists("result", inherits = FALSE)) {
     try({
       args <- c(list(macro_name), gisdk_args)
       result <- do.call(dk$RunMacro, args)
@@ -163,14 +163,14 @@ run_macro <- function(macro_name = NULL, ...) {
 
   # Finally, use the RunUIMacro interface if neither of the above code
   # blocks produced output.
-  if (!exists("result")) {
+  if (!exists("result", inherits = FALSE)) {
     try({
       args <- c(list(macro_name, ui), gisdk_args)
       result <- do.call(dk$RunUIMacro, args)
     }, silent = TRUE)
   }
 
-  if (!exists("result")) stop("caliperr::run_macro failed")
+  if (!exists("result", inherits = FALSE)) stop("caliperr::run_macro failed")
   return(result)
 }
 
