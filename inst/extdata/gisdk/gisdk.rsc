@@ -27,3 +27,23 @@ Macro "parse opts array" (opts)
         "The first option value is " + first_value + "."
     )
 endmacro
+
+// R can understand a simple array returned
+Macro "return array"
+    return({1, 2})
+endmacro
+
+// R flattens a nested array into a single vector
+Macro "return nested array"
+    return({{1, 2}, {3, 4}})
+endmacro
+
+// R returns a list of lists
+Macro "return named array"
+    return({{"one", 1}, {"two", 2}})
+endmacro
+
+// R does not understand a returned vector
+Macro "return vector"
+    return(A2V({1, 2}))
+endmacro

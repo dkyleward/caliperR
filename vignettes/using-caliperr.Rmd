@@ -2,7 +2,8 @@
 title: "Using caliperr"
 author: "Kyle Ward"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using caliperr}
   %\VignetteEncoding{UTF-8}
@@ -18,13 +19,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-`caliperr` makes it easy to work with Caliper software from R.
+`caliperr` makes it easy to work with Caliper software from R. Supported
+software includes:
 
   * [TransCAD](https://www.caliper.com/tcovu.htm)
   * [TransModeler](https://www.caliper.com/transmodeler/default.htm)
   * [Maptitude](https://www.caliper.com/maptovu.htm)
 
-The examples below show how to work with the package.
+The sections below show how to work with the package.
 
 ## Connecting
 
@@ -68,8 +70,8 @@ The code block below introduces two important ideas:
   * Use `NA` in R when you would use `null` in GISDK.
 
 ```{r}
-table_name = run_macro("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
-num_rows = run_macro("GetRecordCount", table_name, NA)
+table_name <- run_macro("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+num_rows <- run_macro("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
@@ -86,15 +88,16 @@ should be called using GISDKs `RunMacro("G30 Tutorial Folder")` while
 `"OpenTable"` should be called using `OpenTable()`. The same internal logic
 makes it easy to use `run_macro()` to call your own functions.
 
-The `caliperr` package comes with a toy GISDK script and the compiled version of
-that script. In order to call one of your own functions from R, it must be
-compiled into a UI. The provided functions are simple, but illustrate some
-important points.
+In order to call one of your own functions from R, it must be compiled into a
+UI. The `caliperr` package comes with a toy GISDK script and the compiled
+version of that script. 
 
 ```{r}
 rsc_file <- system.file("extdata", "gisdk", "gisdk.rsc", package = "caliperr")
 ui_path <- system.file("extdata", "gisdk", "my_ui.dbd", package = "caliperr")
 ```
+
+The provided functions are simple, but illustrate some important points.
 
 ### Example 3
 
@@ -109,8 +112,8 @@ run_macro("first macro", ui = ui_path)
 
 As a convenience, you can change the default UI of the package using
 `set_caliper_ui()`. This is done simply to avoid having to provide the `ui`
-argument to multiple function calls if they are all using a custom UI. You can
-call it again to return to Caliper's default.
+argument to multiple function calls if they are all using the same custom UI.
+You can call it again to return to Caliper's default.
 
 ```{r}
 set_caliper_ui(ui_path)
@@ -120,6 +123,8 @@ set_caliper_ui()
 ```
 
 ## Named Arrays
+
+### Example 5
 
 Many GISDK functions take named arrays (aka options arrays) as input. `caliperr` allows you to pass named lists/vectors as an equivalent.
 
@@ -136,6 +141,8 @@ run_macro(
 
 ## Message Boxes
 
+### Example 6
+
 If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
 similar, R will wait until you have closed that pop up before continuing. You
 can test the behavior by running the code below.
@@ -151,3 +158,48 @@ run_macro(
 )
 ```
 
+## Limitations
+
+### Returned values
+
+Sending data from R -> GISDK works well; however, data from GISDK -> R currently
+has some limitations. The code block below gives a snippet of what the GISDK is
+returning, and shows what it looks like in R.
+
+  * Arrays are returned as vectors
+  * Nested arrays are returned as flattened vectors
+  * Named/Options arrays are returned as nested lists
+  * Vectors are returned as an unusable formal class
+
+```{r}
+# return({1, 2})
+str(run_macro("return array", ui = ui_path))
+
+# return({{1, 2}, {3, 4}})
+str(run_macro("return nested array", ui = ui_path))
+
+# return({{"one", 1}, {"two", 2}})
+str(run_macro("return named array", ui = ui_path))
+
+# return(A2V({1, 2}))
+str(run_macro("return vector", ui = ui_path))
+```
+
+### Error messages
+
+`caliperr` uses [COM](https://en.wikipedia.org/wiki/Component_Object_Model) to
+communicate between R and Caliper software. In general, the error messages
+returned aren't helpful.
+
+## Recommended use of caliperr
+
+Given the limitations above, the most effective use of `caliperr` is as a
+wrapper. It can be used to call the GISDK macros that make up a model. Better
+yet, it can call a control macro that in turn calls all the macros, handles
+feedback, etc.
+
+In addition, small, custom UIs can be created to perform specific tasks. For
+instance, an R program might have need of the skim routines in TransCAD. A small
+macro can be written in GISDK to perform the skim and write the results out to a
+CSV file that R can then read. This can be called directly from R using
+`caliperr` to streamline the application.
