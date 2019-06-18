@@ -175,7 +175,7 @@ run_macro <- function(macro_name = NULL, ...) {
 #' Convert R arguments into GISDK flavors
 #'
 #' It calls \code{\link{create_named_array}} and
-#' \code{\link{convert_to_gisdk_null}} as appropriate on each argument passed.
+#' \code{\link{convert_nulls_and_slashes}} as appropriate on each argument passed.
 #'
 #' @param arg_list \code{list} of args that are converted.
 #' @keywords internal
@@ -185,10 +185,9 @@ process_gisdk_args <- function(arg_list) {
   if (length(arg_list) == 0) return(NULL)
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
-    arg <- gsub("/", "\\", arg, fixed = TRUE)
     if (!is.null(names(arg))) {
       arg <- create_named_array(arg)
-      } else arg <- convert_to_gisdk_null(arg)
+      } else arg <- convert_nulls_and_slashes(arg)
     arg_list[[i]] <- arg
   }
   return(arg_list)
@@ -218,20 +217,25 @@ create_named_array <- function(named_list) {
   return(RDCOMClient::asCOMArray(as.matrix(df)))
 }
 
-#' Converts R's \code{NA} and \code{NULL} to \code{NA_complex_)}
+#' Converts R's \code{NA}, \code{NULL}, and \code{/} formats GISDK can use
 #'
-#' \code{NA_complex_} is understood by GISDK/C++ as null.
+#' \code{NA} and \code{NULL} are converted to \code{NA_complex_} and is
+#' understood by GISDK/C++ as null. \code{/} is converted to \code{\\}.
 #' @return Returns the argument passed in with any \code{NA/NULL} converted.
 #' @keywords internal
 
-convert_to_gisdk_null <- function(arg) {
+convert_nulls_and_slashes <- function(arg) {
   if (length(arg) == 1){
     if (is.null(arg) | is.na(arg)) {
       arg <- NA_complex_
     }
+    if (is.character(arg)) arg <- gsub("/", "\\", arg, fixed = TRUE)
   }
   if (length(arg[is.na(arg) | is.null(arg)]) > 0){
     arg[is.na(arg) | is.null(arg)] <- NA_complex_
+  }
+  if (length(arg[unlist(lapply(arg, is.character))]) > 0){
+    arg[grep("/", unlist(arg))] <- gsub("/", "\\", arg[grep("/", unlist(arg))], fixed = TRUE)
   }
   return(arg)
 }
