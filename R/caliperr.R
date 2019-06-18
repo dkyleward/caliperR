@@ -126,6 +126,7 @@ run_macro <- function(macro_name = NULL, ...) {
   } else {
     ui <- ui_passed_as_arg
   }
+  ui <- gsub("/", "\\", ui, fixed = TRUE)
   if (!(ui == "gis_ui" | file.exists(ui))){
     stop("caliperr::run_macro: 'ui' file not found")
   }
@@ -184,6 +185,7 @@ process_gisdk_args <- function(arg_list) {
   if (length(arg_list) == 0) return(NULL)
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
+    arg <- gsub("/", "\\", arg, fixed = TRUE)
     if (!is.null(names(arg))) {
       arg <- create_named_array(arg)
       } else arg <- convert_to_gisdk_null(arg)
