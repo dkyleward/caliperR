@@ -5,8 +5,10 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using caliperr}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
@@ -22,7 +24,119 @@ knitr::opts_chunk$set(
   * [TransModeler](https://www.caliper.com/transmodeler/default.htm)
   * [Maptitude](https://www.caliper.com/maptovu.htm)
 
+The examples below show how to work with the package.
 
+## Connecting
+
+When you load the library, it will automatically find and connect to installed
+Caliper software.
+
+```{r}
+library(caliperr)
+```
+
+It does so using the `caliperr::connect()` function. If you have multiple
+software applications installed, you can call this directly to specify which you
+want to connect to.
+
+```{r}
+# connect("Maptitude")
+```
+
+## Basic Macros
+
+Caliper software comes with a scripting language called GISDK. In this language,
+functions are referred to as "macros". Running one from R with `caliperr` is as
+simple as calling `run_macro()`.
+
+### Example 1
+
+```{r}
+folder <- run_macro("G30 Tutorial Folder")
+folder
+```
+
+This is the equivalent of writing `RunMacro("G30 Tutorial Folder")` in GISDK.
+The change from `RunMacro` to `run_macro` is to conform to the [R style
+guide](https://style.tidyverse.org/index.html) created by Hadley Wickham.
+
+### Example 2
+
+The code block below introduces two important ideas:
+
+  * Use a `list` in R when you would use an `array` in GISDK.
+  * Use `NA` in R when you would use `null` in GISDK.
+
+```{r}
+table_name = run_macro(
+  "OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA)
+)
+num_rows = run_macro("GetRecordCount", table_name, NA)
+paste0("The table '", table_name, "' has ", num_rows, " rows.")
+
+# Equivalent in GISDK
+# table_name = OpenTable("airports", "ffb", {folder + "airports.bin"}, )
+# num_rows = GetRecordCount(table_name, )
+# ShowMessage(
+#   "The table '" + table_name + "' has " + String(num_rows) + " rows."
+# )
+```
+
+## Custom Macros
+
+If you were paying close attention in the first two examples, you may have
+noticed that `caliperr::run_macro()` determined that `"G30 Tutorial Folder"`
+should be called using GISDKs `RunMacro("G30 Tutorial Folder")` while
+`"OpenTable"` should be called using `OpenTable()`. This makes it easy to use
+`run_macro()` to call your own functions.
+
+The `caliperr` package comes with a toy GISDK script and the compiled version of
+that script. In order to call one of your own functions from R, it must be
+compiled into a UI. The provided functions are simple, but illustrate some
+important points.
+
+```{r}
+rsc_file <- system.file("extdata", "gisdk", "gisdk.rsc", package = "caliperr")
+ui_path <- system.file("extdata", "gisdk", "my_ui.dbd", package = "caliperr")
+```
+
+### Example 3
+
+To reference a custom function that you have written and compiled, include the
+named argument `ui` in the call and point it to your compiled UI.
+
+```{r}
+run_macro("first macro", ui = ui_path)
+```
+
+### Example 4
+
+As a convenience, you can change the default UI of the package using
+`set_caliper_ui()`. This is done simply to avoid having to provide the `ui`
+argument to multiple function calls if they are all using a custom UI. You can
+call it again to return to the package default.
+
+```{r}
+set_caliper_ui(ui_path)
+run_macro("add", 5, 6)
+run_macro("add", "a", "b")
+set_caliper_ui()
+```
+
+## Named Arrays
+
+Many GISDK functions take named arrays (aka options arrays) as input. `caliperr` allows you to pass named lists/vectors as an equivalent.
+
+```{r}
+run_macro(
+  "parse opts array",
+  ui = ui_path,
+  list(
+    one = 1,
+    two = 2
+  )
+)
+```
 
 
 

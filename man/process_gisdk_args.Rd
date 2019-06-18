@@ -11,6 +11,6 @@ process_gisdk_args(arg_list)
 }
 \description{
 It calls \code{\link{create_named_array}} and
-\code{\link{convert_to_gisdk_null}} as appropriate on each argument passed.
+\code{\link{convert_nulls_and_slashes}} as appropriate on each argument passed.
 }
 \keyword{internal}

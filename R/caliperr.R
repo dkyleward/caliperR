@@ -76,6 +76,7 @@ connect <- function(software = NULL){
 #' \code{run_macro()}.
 #'
 #' @param ui \code{string} File name of the custom UI compiled by a user.
+#' @export
 
 set_caliper_ui <- function(ui = "gis_ui") {
 
@@ -95,6 +96,7 @@ set_caliper_ui <- function(ui = "gis_ui") {
 #' @param ui \code{string} Optional. Can be used to point to a custom UI
 #'   compiled by the user. Defaults to \code{Sys.getenv("CALIPER_UI")}.
 #' @param ... Used to pass arguments to the GISDK macro
+#' @export
 #' @examples
 #' \dontrun{
 #' # These won't work unless Caliper software is installed.
