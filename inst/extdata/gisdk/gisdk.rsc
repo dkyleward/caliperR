@@ -1,6 +1,6 @@
 // Most basic
 Macro "first macro"
-    return(3)
+    return("Hello World!")
 endmacro
 
 // With basic arguments

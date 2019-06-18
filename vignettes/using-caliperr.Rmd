@@ -58,7 +58,7 @@ folder
 
 This is the equivalent of writing `RunMacro("G30 Tutorial Folder")` in GISDK.
 The change from `RunMacro` to `run_macro` is to conform to the [R style
-guide](https://style.tidyverse.org/index.html) created by Hadley Wickham.
+guide](https://style.tidyverse.org/index.html) by Hadley Wickham.
 
 ### Example 2
 
@@ -68,18 +68,14 @@ The code block below introduces two important ideas:
   * Use `NA` in R when you would use `null` in GISDK.
 
 ```{r}
-table_name = run_macro(
-  "OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA)
-)
+table_name = run_macro("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
 num_rows = run_macro("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
 # table_name = OpenTable("airports", "ffb", {folder + "airports.bin"}, )
 # num_rows = GetRecordCount(table_name, )
-# ShowMessage(
-#   "The table '" + table_name + "' has " + String(num_rows) + " rows."
-# )
+# ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
 ```
 
 ## Custom Macros
@@ -87,8 +83,8 @@ paste0("The table '", table_name, "' has ", num_rows, " rows.")
 If you were paying close attention in the first two examples, you may have
 noticed that `caliperr::run_macro()` determined that `"G30 Tutorial Folder"`
 should be called using GISDKs `RunMacro("G30 Tutorial Folder")` while
-`"OpenTable"` should be called using `OpenTable()`. This makes it easy to use
-`run_macro()` to call your own functions.
+`"OpenTable"` should be called using `OpenTable()`. The same internal logic
+makes it easy to use `run_macro()` to call your own functions.
 
 The `caliperr` package comes with a toy GISDK script and the compiled version of
 that script. In order to call one of your own functions from R, it must be
@@ -114,7 +110,7 @@ run_macro("first macro", ui = ui_path)
 As a convenience, you can change the default UI of the package using
 `set_caliper_ui()`. This is done simply to avoid having to provide the `ui`
 argument to multiple function calls if they are all using a custom UI. You can
-call it again to return to the package default.
+call it again to return to Caliper's default.
 
 ```{r}
 set_caliper_ui(ui_path)
@@ -138,67 +134,20 @@ run_macro(
 )
 ```
 
+## Message Boxes
 
+If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
+similar, R will wait until you have closed that pop up before continuing. You
+can test the behavior by running the code below.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
-
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
-
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r, eval=FALSE}
+run_macro(
+  "show array",
+  ui = ui_path,
+  list(
+    one = 1,
+    two = 2
+  )
+)
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
