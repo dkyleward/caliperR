@@ -41,7 +41,7 @@ connect <- function(software = NULL){
     tryCatch(
       {
         dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
-        assign("CALIPER_SOFTWARE", software, envir = .GlobalEnv)
+        assign("CALIPER_SOFTWARE", software, envir = caliper_env)
       },
       error = function(c) {
         c$message <- paste0(
@@ -58,7 +58,7 @@ connect <- function(software = NULL){
         try(
           {
             dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
-            assign("CALIPER_SOFTWARE", software, envir = .GlobalEnv)
+            assign("CALIPER_SOFTWARE", software, envir = caliper_env)
           },
           silent = TRUE
         )
@@ -73,8 +73,8 @@ connect <- function(software = NULL){
     paste(valid_software_values, collapse = ", ")
   ))
 
-  assign("CALIPER_DK", dk, envir = .GlobalEnv)
-  assign("CALIPER_UI", "gis_ui", envir = .GlobalEnv)
+  assign("CALIPER_DK", dk, envir = caliper_env)
+  assign("CALIPER_UI", "gis_ui", envir = caliper_env)
 }
 
 #' Close the COM connection to Caliper software and kills the process
@@ -85,7 +85,7 @@ connect <- function(software = NULL){
 disconnect <- function() {
 
   try(
-    software <- get("CALIPER_SOFTWARE", envir = .GlobalEnv),
+    software <- get("CALIPER_SOFTWARE", envir = caliper_env),
     silent = TRUE
   )
   if (exists("software", inherits = FALSE)) {
@@ -96,16 +96,6 @@ disconnect <- function() {
     )
     process <- process_names[[software]]
     system(paste0("tskill ", process))
-  }
-
-  if (exists("CALIPER_DK", envir = .GlobalEnv)){
-    remove("CALIPER_DK", envir = .GlobalEnv)
-  }
-  if (exists("CALIPER_SOFTWARE", envir = .GlobalEnv)){
-    remove("CALIPER_SOFTWARE", envir = .GlobalEnv)
-  }
-  if (exists("CALIPER_UI", envir = .GlobalEnv)){
-    remove("CALIPER_UI", envir = .GlobalEnv)
   }
 }
 
@@ -129,7 +119,7 @@ set_caliper_ui <- function(ui = "gis_ui") {
     }
   }
 
-  assign("CALIPER_UI", ui, envir = .GlobalEnv)
+  assign("CALIPER_UI", ui, envir = caliper_env)
 }
 
 #' Runs a macro (function) in GISDK
@@ -152,11 +142,11 @@ set_caliper_ui <- function(ui = "gis_ui") {
 run_macro <- function(macro_name = NULL, ...) {
 
   # Check for COM connection to Caliper software
-  obs <- objects(envir = .GlobalEnv)
+  obs <- objects(envir = caliper_env)
   if (!("CALIPER_DK" %in% obs)) {
     caliperr::connect()
   }
-  dk <- get("CALIPER_DK", envir=.GlobalEnv)
+  dk <- get("CALIPER_DK", envir=caliper_env)
 
   # Argument checking
   if (is.null(macro_name)) stop(
@@ -166,7 +156,7 @@ run_macro <- function(macro_name = NULL, ...) {
   ui_passed_as_arg <- gisdk_args$ui
   gisdk_args$ui <- NULL
   if (is.null(ui_passed_as_arg)) {
-    ui <- get("CALIPER_UI", envir=.GlobalEnv)
+    ui <- get("CALIPER_UI", envir=caliper_env)
   } else {
     ui <- ui_passed_as_arg
   }
