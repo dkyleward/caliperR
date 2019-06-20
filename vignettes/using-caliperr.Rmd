@@ -169,23 +169,22 @@ Sending data from R -> GISDK works well; however, data from GISDK -> R currently
 has some limitations. The code block below gives a snippet of what the GISDK is
 returning, and shows what it looks like in R.
 
-  * Arrays are returned as vectors
+  * Arrays and vectors are returned as vectors
   * Nested arrays are returned as flattened vectors
   * Named/Options arrays are returned as nested lists
-  * Vectors are returned as an unusable formal class
 
 ```{r}
 # return({1, 2})
 str(run_macro("return array", ui = ui_path))
+
+# return(A2V({1, 2}))
+str(run_macro("return vector", ui = ui_path))
 
 # return({{1, 2}, {3, 4}})
 str(run_macro("return nested array", ui = ui_path))
 
 # return({{"one", 1}, {"two", 2}})
 str(run_macro("return named array", ui = ui_path))
-
-# return(A2V({1, 2}))
-str(run_macro("return vector", ui = ui_path))
 ```
 
 ### Error messages

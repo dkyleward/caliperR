@@ -203,6 +203,7 @@ run_macro <- function(macro_name = NULL, ...) {
   }
 
   if (!exists("result", inherits = FALSE)) stop("caliperr::run_macro failed")
+  result <- process_gisdk_result(result)
   return(result)
 }
 
@@ -273,4 +274,24 @@ convert_nulls_and_slashes <- function(arg) {
     arg[grep("/", unlist(arg))] <- gsub("/", "\\", arg[grep("/", unlist(arg))], fixed = TRUE)
   }
   return(arg)
+}
+
+#' Converts GISDK output into R structures
+#'
+#' Simple objects pass through the COM interface as usable R structures.
+#' GISDK arrays, for example, become R vectors. Other things, like GISDK
+#' vectors, come across as pointers to the object inside the Caliper
+#' process. This function attemps to coerce those pointers into usable
+#' R data structures.
+#'
+#' @param result A returned value from Caliper software.
+#' @keywords internal
+
+process_gisdk_result <- function(result) {
+  if (class(result) != "COMIDispatch") return(result)
+  try({
+    result <- run_macro("V2A", result)
+    return(result)
+  }, silent = TRUE)
+
 }
