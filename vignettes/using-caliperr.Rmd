@@ -57,7 +57,7 @@ simple as calling `run_macro()`.
 ### Example 1
 
 ```{r}
-folder <- run_macro("G30 Tutorial Folder")
+folder <- RunMacro("G30 Tutorial Folder")
 folder
 ```
 
@@ -73,8 +73,8 @@ The code block below introduces two important ideas:
   * Use `NA` in R when you would use `null` in GISDK.
 
 ```{r}
-table_name <- run_macro("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
-num_rows <- run_macro("GetRecordCount", table_name, NA)
+table_name <- RunFunction("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+num_rows <- RunFunction("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
@@ -93,36 +93,44 @@ makes it easy to use `run_macro()` to call your own functions.
 
 In order to call one of your own functions from R, it must be compiled into a
 UI. The `caliperr` package comes with a toy GISDK script and the compiled
-version of that script. 
+version of that script (zipped). The toy UI must be unzipped, which adds a few
+lines of code in the block below. The important variable is `ui_path`, which
+needs to poin to your compiled UI file (.dbd).
 
 ```{r}
 rsc_file <- system.file("extdata", "gisdk", "gisdk.rsc", package = "caliperr")
-ui_path <- system.file("extdata", "gisdk", "my_ui.dbd", package = "caliperr")
+zip_file <- system.file("extdata", "gisdk", "my_ui.zip", package = "caliperr")
+tempdir <- tempdir()
+unzip(zip_file, exdir = tempdir)
+
+ui_path <- file.path(tempdir, "my_ui.dbd")
 ```
 
 The provided functions are simple, but illustrate some important points.
 
 ### Example 3
 
-To reference a custom function that you have written and compiled, include the
-named argument `ui` in the call and point it to your compiled UI.
+To reference a custom function that you have written and compiled, first use 
+`SetAlternateInterface()` as shown below.
 
 ```{r}
-run_macro("first macro", ui = ui_path)
+SetAlternateInterface(ui_path)
+RunMacro("first macro")
 ```
 
-### Example 4
-
-As a convenience, you can change the default UI of the package using
-`set_caliper_ui()`. This is done simply to avoid having to provide the `ui`
-argument to multiple function calls if they are all using the same custom UI.
-You can call it again to return to Caliper's default.
+You can see the current interface using
 
 ```{r}
-set_caliper_ui(ui_path)
-run_macro("add", 5, 6)
-run_macro("add", "a", "b")
-set_caliper_ui()
+GetInterface()
+```
+
+and set it back to the default interface with
+
+```{r}
+SetAlternateInterface()
+
+# to check
+GetInterface()
 ```
 
 ## Named Arrays
@@ -132,9 +140,8 @@ set_caliper_ui()
 Many GISDK functions take named arrays (aka options arrays) as input. `caliperr` allows you to pass named lists/vectors as an equivalent.
 
 ```{r}
-run_macro(
+RunMacro(
   "parse opts array",
-  ui = ui_path,
   list(
     one = 1,
     two = 2
@@ -151,9 +158,8 @@ similar, R will wait until you have closed that pop up before continuing. You
 can test the behavior by running the code below.
 
 ```{r, eval=FALSE}
-run_macro(
+RunMacro(
   "show array",
-  ui = ui_path,
   list(
     one = 1,
     two = 2
