@@ -1,11 +1,10 @@
-#' caliperr: Communicate with Caliper software from R
+#' caliper: Communicate with Caliper software from R
 #'
-#' The caliperr package provides functions to make it easier to communicate
+#' The caliper package provides functions to make it easier to communicate
 #' with Caliper software over COM.
 #'
-#'
 #' @docType package
-#' @name caliperr
+#' @name caliper
 NULL
 
 #'Create a connection to a Caliper software product
@@ -29,7 +28,7 @@ connect <- function(software = NULL){
     if (!(software %in% valid_software_values)) {
       stop(
         paste0(
-          "(caliperr::connect) Invalid value for 'software'. Valid values are: ",
+          "(caliper::connect) Invalid value for 'software'. Valid values are: ",
           paste(valid_software_values, collapse = ", ")
         )
       )
@@ -179,7 +178,7 @@ SetAlternateInterface <- function(ui_file = NULL) {
   } else {
     ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)
     if (!file.exists(ui_file)){
-      stop("caliperr::SetAlternateInterface: 'ui_file' not found")
+      stop("caliper::SetAlternateInterface: 'ui_file' not found")
     }
   }
   assign("CALIPER_UI", ui_file, envir = caliper_env)
@@ -235,7 +234,7 @@ create_named_array <- function(named_list) {
 
   # Argument checking
   if (is.null(names(named_list))) stop(
-    "caliperr::create_opts_array: 'named_list' is not a named list"
+    "caliper::create_opts_array: 'named_list' is not a named list"
   )
 
   df <- data.frame(

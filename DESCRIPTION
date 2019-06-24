@@ -1,4 +1,4 @@
-Package: caliperr
+Package: caliper
 Type: Package
 Title: Interacct with Caliper Software from R
 Version: 0.1.0
