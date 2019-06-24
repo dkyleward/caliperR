@@ -239,8 +239,8 @@ RunFunction <- function(macro_name,...) {
 #'
 #' @export
 
-SetAlternateInterface <- function(ui_file) {
-  if (is.null(ui_file) | ui_file == "default" | ui_file == "gis_ui") {
+SetAlternateInterface <- function(ui_file = NULL) {
+  if (is.null(ui_file) || ui_file == "default" || ui_file == "gis_ui") {
     ui_file = "gis_ui"
   } else {
     ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)

@@ -4,7 +4,7 @@
 \alias{SetAlternateInterface}
 \title{Change the Caliper UI}
 \usage{
-SetAlternateInterface(ui_file)
+SetAlternateInterface(ui_file = NULL)
 }
 \description{
 Change the Caliper UI
