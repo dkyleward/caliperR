@@ -99,117 +99,26 @@ disconnect <- function() {
   }
 }
 
-#' Changes the default UI
+#' Runs a GISDK macro
 #'
-#' The default UI is "gis_ui", which Caliper software understands. If several
-#' functions are going to be called from a custom GISDK UI compiled by the user,
-#' this function can be used to change the default. Doing so is merely
-#' convenience and avoids having to pass the custom UI path into each call to
-#' \code{run_macro()}.
+#' A GISDK macro is a function defined in a GISDK scrip (.rsc). When working in
+#' Caliper software, these are always called in GISDK using the
+#' \code{RunMacro()} function.
 #'
-#' @param ui \code{string} File name of the custom UI compiled by a user.
-#' @export
-
-set_caliper_ui <- function(ui = "gis_ui") {
-
-  # Argument checking
-  if (ui != "gis_ui"){
-    if (!file.exists(ui)) {
-      stop("caliperr::set_caliper_ui: 'ui' file not found")
-    }
-  }
-
-  assign("CALIPER_UI", ui, envir = caliper_env)
-}
-
-#' Runs a macro (function) in GISDK
+#' To run GISDK functions (like \code{OpenTable()}) see \code{\link{RunFunction}}.
 #'
 #' @param macro_name \code{string} Name of the GISDK macro to run
-#' @param ui \code{string} Optional. Can be used to point to a custom UI
-#'   compiled by the user. Defaults to \code{Sys.getenv("CALIPER_UI")}.
 #' @param ... Used to pass arguments to the GISDK macro
 #' @export
 #' @examples
 #' \dontrun{
 #' # These won't work unless Caliper software is installed.
-#' run_macro("G30 Tutorial Folder")
-#' run_macro("add", ui = ui_path, 1, 2)
-#' # 3
-#' run_macro("parse opts array", ui = ui_path, list("one" = 1, "two" = 2))
-#' # "The first option name is one. The first option value is 1."
+#' RunMacro("G30 Tutorial Folder")
+#' RunMacro("add", 1, 2)
+#' #> 3
+#' RunMacro("parse opts array", list("one" = 1, "two" = 2))
+#' #> "The first option name is one. The first option value is 1."
 #' }
-
-run_macro <- function(macro_name = NULL, ...) {
-
-  # Check for COM connection to Caliper software
-  obs <- objects(envir = caliper_env)
-  if (!("CALIPER_DK" %in% obs)) {
-    caliperr::connect()
-  }
-  dk <- get("CALIPER_DK", envir=caliper_env)
-
-  # Argument checking
-  if (is.null(macro_name)) stop(
-    "caliperr::run_macro: 'macro_name' must be provided"
-  )
-  gisdk_args <- list(...)
-  ui_passed_as_arg <- gisdk_args$ui
-  gisdk_args$ui <- NULL
-  if (is.null(ui_passed_as_arg)) {
-    ui <- get("CALIPER_UI", envir=caliper_env)
-  } else {
-    ui <- ui_passed_as_arg
-  }
-  ui <- gsub("/", "\\", ui, fixed = TRUE)
-  if (!(ui == "gis_ui" | file.exists(ui))){
-    stop("caliperr::run_macro: 'ui' file not found")
-  }
-  gisdk_args <- process_gisdk_args(gisdk_args)
-
-  # The following code attempts to work around a limitation in the
-  # RDCOMClient (and SWinTypeLibs) libraries. In current versions of R,
-  # they cannot inspect the methods of the COM class. In addition, if the
-  # wrong method is called, the error message can be caught but not fully
-  # suppressed.
-
-  # In the following cases, RunUIMacro() should be used
-  if (
-    !is.null(ui_passed_as_arg) |
-    ui != "gis_ui" |
-    grepl(" ", macro_name)
-  ) {
-    try({
-      args <- c(list(macro_name, ui), gisdk_args)
-      result <- do.call(dk$RunUIMacro, args)
-    }, silent = TRUE)
-  }
-
-  # If no output was created, attempt to call the GISDK macro through the
-  # RunMacro interface.
-  if (!exists("result", inherits = FALSE)) {
-    try({
-      args <- c(list(macro_name), gisdk_args)
-      result <- do.call(dk$RunMacro, args)
-    }, silent = TRUE)
-  }
-
-  # Finally, use the RunUIMacro interface if neither of the above code
-  # blocks produced output.
-  if (!exists("result", inherits = FALSE)) {
-    try({
-      args <- c(list(macro_name, ui), gisdk_args)
-      result <- do.call(dk$RunUIMacro, args)
-    }, silent = TRUE)
-  }
-
-  if (!exists("result", inherits = FALSE)) stop("caliperr::run_macro failed")
-  result <- process_gisdk_result(result)
-  return(result)
-}
-
-#' #' Runs a macro in GISDK
-#'
-#' @export
 
 RunMacro <- function(macro_name,...) {
   dk <- get("CALIPER_DK", envir = caliper_env)
@@ -225,7 +134,23 @@ RunMacro <- function(macro_name,...) {
 
 #' Runs a GISDK function
 #'
+#' A GISDK function are core functions (like \code{OpenTable()}) that are called
+#' in Caliper software without using \code{RunMacro()}.
+#'
+#' To run GISDK macros (like \code{RunMacro("G30 Tutorial Folder")}) see
+#' \code{\link{RunMacro}}.
+#'
+#' @param macro_name \code{string} Name of the GISDK function to run
+#' @param ... Used to pass arguments to the GISDK function
 #' @export
+#' @examples
+#' \dontrun{
+#' # These won't work unless Caliper software is installed.
+#' table_name <- RunFunction("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+#' num_rows <- RunFunction("GetRecordCount", table_name, NA)
+#' num_rows
+#' #> 280
+#' }
 
 RunFunction <- function(macro_name,...) {
   dk <- get("CALIPER_DK", envir = caliper_env)
@@ -237,6 +162,15 @@ RunFunction <- function(macro_name,...) {
 
 #' Change the Caliper UI
 #'
+#' Often, a user will have created their own GISDK functions and compiled them
+#' to a UI file (.dbd). To run them (using \code{\link{RunMacro}}), first use
+#' this function to point to the custom UI. This can also be used to set the
+#' UI back to the default.
+#'
+#' To see the current UI, use \code{\link{GetInterface}}.
+#'
+#' @param ui_file \code{string} File path to the custom UI. If null, will set
+#'   the interface back to the default.
 #' @export
 
 SetAlternateInterface <- function(ui_file = NULL) {
@@ -251,7 +185,9 @@ SetAlternateInterface <- function(ui_file = NULL) {
   assign("CALIPER_UI", ui_file, envir = caliper_env)
 }
 
-#' Retrieves the currently-set GISDK interface
+#' Retrieves the current GISDK interface
+#'
+#' To set the current UI, use \code{\link{SetAlternateInterface}}.
 #'
 #' @export
 

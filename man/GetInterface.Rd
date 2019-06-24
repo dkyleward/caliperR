@@ -2,10 +2,10 @@
 % Please edit documentation in R/caliperr.R
 \name{GetInterface}
 \alias{GetInterface}
-\title{Retrieves the currently-set GISDK interface}
+\title{Retrieves the current GISDK interface}
 \usage{
 GetInterface()
 }
 \description{
-Retrieves the currently-set GISDK interface
+To set the current UI, use \code{\link{SetAlternateInterface}}.
 }

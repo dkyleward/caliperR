@@ -6,6 +6,25 @@
 \usage{
 RunFunction(macro_name, ...)
 }
+\arguments{
+\item{macro_name}{\code{string} Name of the GISDK function to run}
+
+\item{...}{Used to pass arguments to the GISDK function}
+}
 \description{
-Runs a GISDK function
+A GISDK function are core functions (like \code{OpenTable()}) that are called
+in Caliper software without using \code{RunMacro()}.
+}
+\details{
+To run GISDK macros (like \code{RunMacro("G30 Tutorial Folder")}) see
+\code{\link{RunMacro}}.
+}
+\examples{
+\dontrun{
+# These won't work unless Caliper software is installed.
+table_name <- RunFunction("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+num_rows <- RunFunction("GetRecordCount", table_name, NA)
+num_rows
+#> 280
+}
 }

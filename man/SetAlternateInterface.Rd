@@ -6,6 +6,16 @@
 \usage{
 SetAlternateInterface(ui_file = NULL)
 }
+\arguments{
+\item{ui_file}{\code{string} File path to the custom UI. If null, will set
+the interface back to the default.}
+}
 \description{
-Change the Caliper UI
+Often, a user will have created their own GISDK functions and compiled them
+to a UI file (.dbd). To run them (using \code{\link{RunMacro}}), first use
+this function to point to the custom UI. This can also be used to set the
+UI back to the default.
+}
+\details{
+To see the current UI, use \code{\link{GetInterface}}.
 }

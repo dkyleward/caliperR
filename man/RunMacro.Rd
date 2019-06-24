@@ -2,10 +2,30 @@
 % Please edit documentation in R/caliperr.R
 \name{RunMacro}
 \alias{RunMacro}
-\title{#' Runs a macro in GISDK}
+\title{Runs a GISDK macro}
 \usage{
 RunMacro(macro_name, ...)
 }
+\arguments{
+\item{macro_name}{\code{string} Name of the GISDK macro to run}
+
+\item{...}{Used to pass arguments to the GISDK macro}
+}
 \description{
-#' Runs a macro in GISDK
+A GISDK macro is a function defined in a GISDK scrip (.rsc). When working in
+Caliper software, these are always called in GISDK using the
+\code{RunMacro()} function.
+}
+\details{
+To run GISDK functions (like \code{OpenTable()}) see \code{\link{RunFunction}}.
+}
+\examples{
+\dontrun{
+# These won't work unless Caliper software is installed.
+RunMacro("G30 Tutorial Folder")
+RunMacro("add", 1, 2)
+#> 3
+RunMacro("parse opts array", list("one" = 1, "two" = 2))
+#> "The first option name is one. The first option value is 1."
+}
 }

@@ -135,11 +135,13 @@ GetInterface()
 
 ## Named Arrays
 
-### Example 5
+### Example 4
 
 Many GISDK functions take named arrays (aka options arrays) as input. `caliperr` allows you to pass named lists/vectors as an equivalent.
 
 ```{r}
+SetAlternateInterface(ui_path)
+
 RunMacro(
   "parse opts array",
   list(
@@ -151,7 +153,7 @@ RunMacro(
 
 ## Message Boxes
 
-### Example 6
+### Example 5
 
 If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
 similar, R will wait until you have closed that pop up before continuing. You
@@ -181,16 +183,16 @@ returning, and shows what it looks like in R.
 
 ```{r}
 # return({1, 2})
-str(run_macro("return array", ui = ui_path))
+str(RunMacro("return array"))
 
 # return(A2V({1, 2}))
-str(run_macro("return vector", ui = ui_path))
+str(RunMacro("return vector"))
 
 # return({{1, 2}, {3, 4}})
-str(run_macro("return nested array", ui = ui_path))
+str(RunMacro("return nested array"))
 
 # return({{"one", 1}, {"two", 2}})
-str(run_macro("return named array", ui = ui_path))
+str(RunMacro("return named array"))
 ```
 
 ### Error messages
