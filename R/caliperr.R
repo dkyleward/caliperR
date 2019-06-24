@@ -240,7 +240,7 @@ RunFunction <- function(macro_name,...) {
 #' @export
 
 SetAlternateInterface <- function(ui_file) {
-  if (is.null(ui_file)) {
+  if (is.null(ui_file) | ui_file == "default" | ui_file == "gis_ui") {
     ui_file = "gis_ui"
   } else {
     ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)
@@ -251,7 +251,19 @@ SetAlternateInterface <- function(ui_file) {
   assign("CALIPER_UI", ui_file, envir = caliper_env)
 }
 
+#' Retrieves the currently-set GISDK interface
+#'
+#' @export
 
+GetInterface <- function() {
+  ui_file <- get("CALIPER_UI", envir = caliper_env)
+  if (ui_file == "gis_ui") {
+    return("default")
+  } else {
+    ui_file <- gsub("\\", "/", ui_file, fixed = TRUE)
+    return(ui_file)
+  }
+}
 
 #' Convert R arguments into GISDK flavors
 #'
