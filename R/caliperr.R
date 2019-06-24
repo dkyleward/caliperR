@@ -207,6 +207,52 @@ run_macro <- function(macro_name = NULL, ...) {
   return(result)
 }
 
+#' #' Runs a macro in GISDK
+#'
+#' @export
+
+RunMacro <- function(macro_name,...) {
+  dk <- get("CALIPER_DK", envir = caliper_env)
+  dk_ui <- get("CALIPER_UI", envir = caliper_env)
+  if (is.null(dk_ui)) {
+    dk_ui = "gis_ui"
+  }
+  gisdk_args <- process_gisdk_args(list(...))
+  args <- c(list(macro_name, dk_ui), gisdk_args)
+  result <- do.call(dk$RunUIMacro, args)
+  return(result)
+}
+
+#' Runs a GISDK function
+#'
+#' @export
+
+RunFunction <- function(macro_name,...) {
+  dk <- get("CALIPER_DK", envir = caliper_env)
+  gisdk_args <- process_gisdk_args(list(...))
+  args <- c(list(macro_name), gisdk_args)
+  result <- do.call(dk$RunMacro, args)
+  return(result)
+}
+
+#' Change the Caliper UI
+#'
+#' @export
+
+SetAlternateInterface <- function(ui_file) {
+  if (is.null(ui_file)) {
+    ui_file = "gis_ui"
+  } else {
+    ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)
+    if (!file.exists(ui_file)){
+      stop("caliperr::SetAlternateInterface: 'ui_file' not found")
+    }
+  }
+  assign("CALIPER_UI", ui_file, envir = caliper_env)
+}
+
+
+
 #' Convert R arguments into GISDK flavors
 #'
 #' It calls \code{\link{create_named_array}} and
