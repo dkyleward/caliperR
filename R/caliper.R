@@ -128,6 +128,7 @@ RunMacro <- function(macro_name,...) {
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name, dk_ui), gisdk_args)
   result <- do.call(dk$RunUIMacro, args)
+  result <- process_gisdk_result(result)
   return(result)
 }
 
@@ -156,6 +157,7 @@ RunFunction <- function(macro_name,...) {
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name), gisdk_args)
   result <- do.call(dk$RunMacro, args)
+  result <- process_gisdk_result(result)
   return(result)
 }
 
@@ -282,9 +284,7 @@ convert_nulls_and_slashes <- function(arg) {
 
 process_gisdk_result <- function(result) {
   if (class(result) != "COMIDispatch") return(result)
-  try({
-    result <- run_macro("V2A", result)
-    return(result)
-  }, silent = TRUE)
-
+  type <- RunMacro("get_object_type", result)
+  if (type == "vector") result <- RunFunction("V2A", result)
+  return(result)
 }
