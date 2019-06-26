@@ -90,24 +90,27 @@ connect <- function(software = NULL, silent = FALSE){
 #' @export
 
 disconnect <- function() {
+  if (is_connected()) {
+    RunFunction("Exit")
+    remove("CALIPER_DK", envir = caliper_env)
+    remove("CALIPER_SOFTWARE", envir = caliper_env)
+    remove("CALIPER_UI", envir = caliper_env)
+  }
+}
 
+#' Checks if R is connected to Caliper software
+#'
+#' @export
+
+is_connected <- function() {
   try(
-    software <- get("CALIPER_SOFTWARE", envir = caliper_env),
+    dk <- get("CALIPER_DK", envir = caliper_env),
     silent = TRUE
   )
-  if (exists("software", inherits = FALSE)) {
-    process_names <- list(
-      "TransCAD" = "tcw.exe",
-      "TransModeler" = "tsm.exe",
-      "Maptitude" = "mapt.exe"
-    )
-    process <- process_names[[software]]
-    system(
-      paste0("taskkill /IM ", process),
-      ignore.stdout = TRUE,
-      ignore.stderr = TRUE
-    )
-  }
+  if (exists("dk"))
+    return(TRUE)
+  else
+    return(FALSE)
 }
 
 #' Runs a GISDK macro

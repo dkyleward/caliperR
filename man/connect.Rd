@@ -4,12 +4,14 @@
 \alias{connect}
 \title{Create a connection to a Caliper software product}
 \usage{
-connect(software = NULL)
+connect(software = NULL, silent = FALSE)
 }
 \arguments{
 \item{software}{One of either "TransCAD", "TransModeler", or "Maptitude". If
 left \code{NULL}, the function will search (in that order) and create the first
 connection it can.}
+
+\item{silent}{\code{boolean} Whether to display a connected message.}
 }
 \value{
 Nothing. Sets the COM object to a global environment variable
