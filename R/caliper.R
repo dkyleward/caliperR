@@ -97,12 +97,16 @@ disconnect <- function() {
   )
   if (exists("software", inherits = FALSE)) {
     process_names <- list(
-      "TransCAD" = "tcw",
-      "TransModeler" = "tsm",
-      "Maptitude" = "mapt"
+      "TransCAD" = "tcw.exe",
+      "TransModeler" = "tsm.exe",
+      "Maptitude" = "mapt.exe"
     )
     process <- process_names[[software]]
-    system(paste0("tskill ", process))
+    system(
+      paste0("taskkill /IM ", process),
+      ignore.stdout = TRUE,
+      ignore.stderr = TRUE
+    )
   }
 }
 
