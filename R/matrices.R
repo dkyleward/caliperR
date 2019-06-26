@@ -4,10 +4,6 @@
 # matrix <- create_matrix(file)
 # x <- matrix$currencies$`In-Vehicle Time`
 
-print <- function (x, ...) {
-  UseMethod("print", x)
-}
-
 print.matrix_handle <- function(x, ...) {
 
 }
