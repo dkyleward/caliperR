@@ -39,6 +39,14 @@ connect <- function(software = NULL, silent = FALSE){
     stop("caliper::connect: 'silent' must be logical (true/false)")
   }
 
+  # To prevent orphan processes, disconnect previous connections if the user
+  # connects to a different software. e.g. was connected to TransCAD and now
+  # wants to connect to Maptitude.
+  if (is_connected() && !is.null(software)) {
+    current_software <- get("CALIPER_SOFTWARE", envir = caliper_env)
+    if (software != current_software) disconnect()
+  }
+
   # Try to connect if the user provided a value for `software`
   if (!is.null(software)) {
     tryCatch(
