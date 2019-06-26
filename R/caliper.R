@@ -221,6 +221,7 @@ process_gisdk_args <- function(arg_list) {
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
     if (class(arg) == "COMIDispatch") next
+    if (class(arg) == "externalptr") next
     if (!is.null(names(arg))) {
       arg <- convert_to_named_array(arg)
       } else arg <- convert_nulls_and_slashes(arg)
