@@ -36,7 +36,7 @@ connect <- function(software = NULL, silent = FALSE){
     }
   }
   if (!is.logical(silent)) {
-    stop("caliper::connect: 'silent' must be logical (true/false)")
+    stop("(caliper::connect) 'silent' must be logical (true/false)")
   }
 
   # To prevent orphan processes, disconnect previous connections if the user
@@ -185,7 +185,7 @@ SetAlternateInterface <- function(ui_file = NULL) {
   } else {
     ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)
     if (!file.exists(ui_file)){
-      stop("caliper::SetAlternateInterface: 'ui_file' not found")
+      stop("(caliper::SetAlternateInterface) 'ui_file' not found")
     }
   }
   assign("CALIPER_UI", ui_file, envir = caliper_env)
@@ -241,7 +241,7 @@ convert_to_named_array <- function(named_list) {
 
   # Argument checking
   if (is.null(names(named_list))) stop(
-    "caliper::create_opts_array: 'named_list' is not a named list"
+    "(caliper::create_opts_array) 'named_list' is not a named list"
   )
 
   df <- data.frame(
