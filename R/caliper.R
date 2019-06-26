@@ -15,12 +15,13 @@ NULL
 #' @param software One of either "TransCAD", "TransModeler", or "Maptitude". If
 #'  left \code{NULL}, the function will search (in that order) and create the first
 #'  connection it can.
+#' @param silent \code{boolean} Whether to display a connected message.
 #' @import RDCOMClient
 #' @return Nothing. Sets the COM object to a global environment variable
 #'   (\code{CALIPER_DK})
 #' @export
 
-connect <- function(software = NULL){
+connect <- function(software = NULL, silent = FALSE){
 
   # Argument checking
   valid_software_values <- c("TransCAD", "TransModeler", "Maptitude")
@@ -33,6 +34,9 @@ connect <- function(software = NULL){
         )
       )
     }
+  }
+  if (!is.logical(silent)) {
+    stop("caliper::connect: 'silent' must be logical (true/false)")
   }
 
   # Try to connect if the user provided a value for `software`
@@ -74,6 +78,10 @@ connect <- function(software = NULL){
 
   assign("CALIPER_DK", dk, envir = caliper_env)
   assign("CALIPER_UI", "gis_ui", envir = caliper_env)
+
+  if (!silent) {
+    message("Connected to ", software)
+  }
 }
 
 #' Close the COM connection to Caliper software and kills the process
