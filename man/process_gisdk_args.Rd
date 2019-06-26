@@ -10,7 +10,7 @@ process_gisdk_args(arg_list)
 \item{arg_list}{\code{list} of args that are converted.}
 }
 \description{
-It calls \code{\link{create_named_array}} and
+It calls \code{\link{convert_to_named_array}} and
 \code{\link{convert_nulls_and_slashes}} as appropriate on each argument passed.
 }
 \keyword{internal}

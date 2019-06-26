@@ -227,7 +227,7 @@ GetInterface <- function() {
 
 #' Convert R arguments into GISDK flavors
 #'
-#' It calls \code{\link{create_named_array}} and
+#' It calls \code{\link{convert_to_named_array}} and
 #' \code{\link{convert_nulls_and_slashes}} as appropriate on each argument passed.
 #'
 #' @param arg_list \code{list} of args that are converted.
@@ -240,7 +240,7 @@ process_gisdk_args <- function(arg_list) {
     arg <- arg_list[[i]]
     if (class(arg) == "COMIDispatch") next
     if (!is.null(names(arg))) {
-      arg <- create_named_array(arg)
+      arg <- convert_to_named_array(arg)
       } else arg <- convert_nulls_and_slashes(arg)
     arg_list[[i]] <- arg
   }
@@ -255,7 +255,7 @@ process_gisdk_args <- function(arg_list) {
 #' @return a pointer object that GISDK will interpret as a named array
 #' @keywords internal
 
-create_named_array <- function(named_list) {
+convert_to_named_array <- function(named_list) {
 
   # Argument checking
   if (is.null(names(named_list))) stop(
@@ -269,6 +269,23 @@ create_named_array <- function(named_list) {
   df <- df[!is.null(df$values) & !is.na(df$values), ]
 
   return(RDCOMClient::asCOMArray(as.matrix(df)))
+}
+
+#' Used internally to convert GISDK named arrays to R's named lists.
+#'
+#' When a GISDK named array comes across COM, it has a specific format that
+#' isn't easy to use. This converts it into an R named list.
+#'
+#' @param nested_list The list object that results whenever GISDKs named arrays
+#'   are passed through COM.
+#' @return A named list
+#' @keywords internal
+
+convert_to_named_list <- function(nested_list) {
+  names <- unlist(lapply(nested_list, "[", 1))
+  values <- unlist(lapply(nested_list, "[", 2))
+  names(values) <- names
+  return(values)
 }
 
 #' Converts R's \code{NA}, \code{NULL}, and \code{/} formats GISDK can use
@@ -311,3 +328,4 @@ process_gisdk_result <- function(result) {
   if (type == "vector") result <- RunFunction("V2A", result)
   return(result)
 }
+
