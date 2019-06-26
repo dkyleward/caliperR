@@ -47,46 +47,28 @@ connect <- function(software = NULL, silent = FALSE){
     if (software != current_software) disconnect()
   }
 
-  # Try to connect if the user provided a value for `software`
-  if (!is.null(software)) {
-    tryCatch(
-      {
-        dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
-        assign("CALIPER_SOFTWARE", software, envir = caliper_env)
-      },
-      error = function(c) {
-        c$message <- paste0(
-          "Could not create a connection to ", software, ". ",
-          "Check that ", software, " is installed."
-        )
-        stop(c)
-      }
-    )
-  # If the user didn't provide a value for `software`
-  } else {
-    for (software in valid_software_values){
-      suppressWarnings(
-        try(
-          {
-            dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
-            assign("CALIPER_SOFTWARE", software, envir = caliper_env)
-          },
-          silent = TRUE
-        )
+  if (is.null(software))
+    software_to_try <- valid_software_values
+  else
+    software_to_try <- software
+  for (software in software_to_try) {
+    suppressWarnings(
+      try(
+        {
+          dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
+          assign("CALIPER_DK", dk, envir = caliper_env)
+          assign("CALIPER_SOFTWARE", software, envir = caliper_env)
+          assign("CALIPER_UI", "gis_ui", envir = caliper_env)
+        },
+        silent = TRUE
       )
-      if (exists("dk")) break
-    }
+    )
+    if (exists("dk")) break
   }
 
-  if (!exists("dk")) stop(paste0(
-    "Could not connect to any Caliper software. ",
-    "Check that one of the following is installed: ",
-    paste(valid_software_values, collapse = ", ")
-  ))
-
-  assign("CALIPER_DK", dk, envir = caliper_env)
-  assign("CALIPER_UI", "gis_ui", envir = caliper_env)
-
+  if (!exists("dk")) stop(
+    "Could not connect to Caliper software. Check that it is installed."
+  )
   if (!silent) {
     message("Connected to ", software)
   }
