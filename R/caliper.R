@@ -354,10 +354,10 @@ set_package_variable <- function(package_variable, value) {
   assign(package_variable, value, envir = caliper_env)
 }
 
-#' Gets the value of a package-wide variable
+#' Gets the value of a \code{caliper} package-wide variable
 #'
 #' @inheritParams set_package_variable
-#' @keywords internal
+#' @export
 
 get_package_variable <- function(package_variable) {
   return(get(package_variable, envir = caliper_env))
