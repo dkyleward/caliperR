@@ -42,8 +42,8 @@ connect <- function(software = NULL, silent = FALSE){
   # To prevent orphan processes, disconnect previous connections if the user
   # connects to a different software. e.g. was connected to TransCAD and now
   # wants to connect to Maptitude.
-  if (is_connected() && !is.null(software)) {
-    current_software <- get("CALIPER_SOFTWARE", envir = caliper_env)
+  if (connected() && !is.null(software)) {
+    current_software <- get_package_variable("CALIPER_SOFTWARE")
     if (software != current_software) disconnect()
   }
 
@@ -56,9 +56,9 @@ connect <- function(software = NULL, silent = FALSE){
       try(
         {
           dk <-  RDCOMClient::COMCreate(paste0(software, ".AutomationServer"))
-          assign("CALIPER_DK", dk, envir = caliper_env)
-          assign("CALIPER_SOFTWARE", software, envir = caliper_env)
-          assign("CALIPER_UI", "gis_ui", envir = caliper_env)
+          set_package_variable("CALIPER_DK", dk)
+          set_package_variable("CALIPER_SOFTWARE", software)
+          set_package_variable("CALIPER_UI", "gis_ui")
         },
         silent = TRUE
       )
@@ -80,7 +80,7 @@ connect <- function(software = NULL, silent = FALSE){
 #' @export
 
 disconnect <- function() {
-  if (is_connected()) {
+  if (connected()) {
     RunFunction("Exit")
     remove("CALIPER_DK", envir = caliper_env)
     remove("CALIPER_SOFTWARE", envir = caliper_env)
@@ -92,9 +92,9 @@ disconnect <- function() {
 #'
 #' @export
 
-is_connected <- function() {
+connected <- function() {
   try(
-    dk <- get("CALIPER_DK", envir = caliper_env),
+    dk <- get_package_variable("CALIPER_DK"),
     silent = TRUE
   )
   if (exists("dk"))
@@ -124,9 +124,9 @@ is_connected <- function() {
 #' #> "The first option name is one. The first option value is 1."
 #' }
 
-RunMacro <- function(macro_name,...) {
-  dk <- get("CALIPER_DK", envir = caliper_env)
-  dk_ui <- get("CALIPER_UI", envir = caliper_env)
+RunMacro <- function(macro_name, ...) {
+  dk <- get_package_variable("CALIPER_DK")
+  dk_ui <- get_package_variable("CALIPER_UI")
   if (is.null(dk_ui)) {
     dk_ui = "gis_ui"
   }
@@ -158,7 +158,7 @@ RunMacro <- function(macro_name,...) {
 #' }
 
 RunFunction <- function(macro_name,...) {
-  dk <- get("CALIPER_DK", envir = caliper_env)
+  dk <- get_package_variable("CALIPER_DK")
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name), gisdk_args)
   result <- do.call(dk$RunMacro, args)
@@ -188,7 +188,7 @@ SetAlternateInterface <- function(ui_file = NULL) {
       stop("(caliper::SetAlternateInterface) 'ui_file' not found")
     }
   }
-  assign("CALIPER_UI", ui_file, envir = caliper_env)
+  set_package_variable("CALIPER_UI", ui_file)
 }
 
 #' Retrieves the current GISDK interface
@@ -198,7 +198,7 @@ SetAlternateInterface <- function(ui_file = NULL) {
 #' @export
 
 GetInterface <- function() {
-  ui_file <- get("CALIPER_UI", envir = caliper_env)
+  ui_file <- get_package_variable("CALIPER_UI")
   if (ui_file == "gis_ui") {
     return("default")
   } else {
@@ -310,5 +310,56 @@ process_gisdk_result <- function(result) {
   type <- RunMacro("get_object_type", result)
   if (type == "vector") result <- RunFunction("V2A", result)
   return(result)
+}
+
+
+#' Sets the value of a package-wide variable
+#'
+#' \code{caliper} uses several package-wide variables to enable communication
+#' between functions and simplify function arguments.
+#'
+#' @param package_variable The package variable to set
+#' @param value the value to set with
+#' @keywords internal
+
+set_package_variable <- function(package_variable, value) {
+
+  package_variables <- c("CALIPER_DK", "CALIPER_SOFTWARE", "CALIPER_UI")
+  if (!(package_variable %in% package_variables)) {
+    stop(paste(
+      "'package_variable' must be one of",
+      paste(package_variables, collapse = ", ")
+    ))
+  }
+
+  if (package_variable == "CALIPER_DK" & class(value) != "COMIDispatch") {
+    stop("CALIPER_DK must be class COMIDispatch")
+  }
+
+  software_options <- c("TransCAD", "TransModeler", "Maptitude")
+  if (package_variable == "CALIPER_SOFTWARE" && !(value %in% software_options)) {
+    stop(paste(
+      "CALIPER_SOFTWARE must be one of",
+      paste(software_options, collapse = ", ")
+    ))
+  }
+
+  if (package_variable == "CALIPER_UI") {
+    if (typeof(value) != "character") stop("'value' must be a file path")
+    if (!file.exists(value) & value != "gis_ui") {
+      stop("CALIPER_UI file does not exist")
+    }
+  }
+
+  assign(package_variable, value, envir = caliper_env)
+}
+
+#' Gets the value of a package-wide variable
+#'
+#' @inheritParams set_package_variable
+#' @keywords internal
+
+get_package_variable <- function(package_variable) {
+  return(get(package_variable, envir = caliper_env))
 }
 

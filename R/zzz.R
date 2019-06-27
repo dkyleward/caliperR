@@ -5,9 +5,9 @@ caliper_env <- new.env(parent = emptyenv())
   try(disconnect(), silent = TRUE)
   try({
     connect(silent = TRUE)
-    software <- get("CALIPER_SOFTWARE", envir = caliper_env)
+    software <- get_package_variable("CALIPER_SOFTWARE")
   })
-  if (exists("CALIPER_SOFTWARE", envir = caliper_env)) {
+  if (exists("software")) {
     packageStartupMessage("Connected to ", software)
   }
 }
