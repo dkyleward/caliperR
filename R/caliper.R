@@ -125,11 +125,9 @@ connected <- function() {
 #' }
 
 RunMacro <- function(macro_name, ...) {
+  stopifnot(connected())
   dk <- get_package_variable("CALIPER_DK")
   dk_ui <- get_package_variable("CALIPER_UI")
-  if (is.null(dk_ui)) {
-    dk_ui = "gis_ui"
-  }
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name, dk_ui), gisdk_args)
   result <- do.call(dk$RunUIMacro, args)
@@ -158,6 +156,7 @@ RunMacro <- function(macro_name, ...) {
 #' }
 
 RunFunction <- function(macro_name,...) {
+  stopifnot(connected())
   dk <- get_package_variable("CALIPER_DK")
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name), gisdk_args)
@@ -362,4 +361,3 @@ set_package_variable <- function(package_variable, value) {
 get_package_variable <- function(package_variable) {
   return(get(package_variable, envir = caliper_env))
 }
-
