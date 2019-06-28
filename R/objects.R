@@ -1,5 +1,7 @@
 #' R class representing GISDK objects
 #'
+#' This class simplifies working with GISDK objects over COM from R.
+#'
 #' @import R6
 #' @export
 #' @examples
@@ -8,7 +10,7 @@
 #' obj <- GisdkObject$new("NLM.Model")
 #'
 #' # get info about the GISDK object
-#' obj$GetClassInfo()
+#' obj$g_info
 #'
 #' # run one of the object's methods
 #' obj$Clear()
@@ -21,8 +23,9 @@
 
 GisdkObject <- R6::R6Class("GisdkObject",
   public = list(
+    g_class_name = NULL,
     ref = NULL,
-    info = NULL,
+    g_info = NULL,
     initialize = function(class_name, ...) {
       if (!connected()) stop("Not connected to Caliper software.")
       if (!is.character(class_name)) stop("'class_name' must be a string")
@@ -33,17 +36,15 @@ GisdkObject <- R6::R6Class("GisdkObject",
           stop(e)
         }
       )
-      flat_list <- self$GetClassInfo()
+      self$g_class_name <- class_name
+      flat_info_list <- RunMacro("get_class_info", self$ref)
       names <- c("ClassName", "FieldNames", "MethodNames")
-      positions <- which(flat_list %in% names)
-      pattern <- rep(names, times = diff(c(positions, length(flat_list) + 1)))
-      result <- split(flat_list, pattern)
-      self$info <- lapply(result, function(x) x[2:length(x)])
+      pos <- which(flat_info_list %in% names)
+      pattern <- rep(names, times = diff(c(pos, length(flat_info_list) + 1)))
+      result <- split(flat_info_list, pattern)
+      self$g_info <- lapply(result, function(x) x[2:length(x)])
     },
-    GetClassInfo = function() {
-      RunMacro("get_class_info", self$ref)
-    },
-    apply_method = function(method, ...) {
+    g_apply_method = function(method, ...) {
       stopifnot(is.character(method))
       args <- list("apply_method", self$ref, method, ...)
       tryCatch(
@@ -54,39 +55,39 @@ GisdkObject <- R6::R6Class("GisdkObject",
         }
       )
       invisible(self)
-    }#,
-    # get_attribute = function(attribute) {
-    #   stopifnot(is.character(attribute))
-    #   args <- list("get_attribute", self$ref, attribute)
-    #   tryCatch(
-    #     value <- do.call(RunMacro, args),
-    #     error = function(e) {
-    #       e$message <- paste0("Setting ", attribute, " failed.")
-    #       stop(e)
-    #     }
-    #   )
-    #   process_gisdk_result(value)
-    # },
-    # set_attribute = function(attribute, ...) {
-    #   stopifnot(is.character(attribute))
-    #   input_args <- process_gisdk_args(...)
-    #   args <- list("set_attribute", self$ref, attribute, input_args)
-    #   tryCatch(
-    #     do.call(RunMacro, args),
-    #     error = function(e) {
-    #       e$message <- paste0("Setting ", attribute, " failed.")
-    #       stop(e)
-    #     }
-    #   )
-    #   invisible(self)
-    # }
+    },
+    g_get_attribute = function(attribute) {
+      stopifnot(is.character(attribute))
+      args <- list("get_attribute", self$ref, attribute)
+      tryCatch(
+        value <- do.call(RunMacro, args),
+        error = function(e) {
+          e$message <- paste0("Setting ", attribute, " failed.")
+          stop(e)
+        }
+      )
+      caliper:::process_gisdk_result(value)
+    },
+    g_set_attribute = function(attribute, value) {
+      stopifnot(is.character(attribute))
+      value <- caliper:::process_gisdk_args(value)
+      args <- list("set_attribute", self$ref, attribute, value)
+      tryCatch(
+        do.call(RunMacro, args),
+        error = function(e) {
+          e$message <- paste0("Setting ", attribute, " failed.")
+          stop(e)
+        }
+      )
+      invisible(self)
+    }
   )
 )
 
-#' S3 generic for calling GISDK object methods
+#' S3 generic for calling GisdkObject methods
 #'
-#' This function allows you to use \code{obj$method_name(...)} to dispatch
-#' arbitrary method names on GISDK objects. See \code{\link{GisdkObject}}.
+#' Makes GisdkObjects smarter about whether you are calling a method from the R
+#' object or the underlying GISDK object over COM.
 #'
 #' @param x A \code{GisdkObject}
 #' @param name the method to dispatch
@@ -95,24 +96,52 @@ GisdkObject <- R6::R6Class("GisdkObject",
 `$.GisdkObject` <- function(x, name) {
   if (exists(name, envir = x)) {
     .subset2(x, name)
-  } else {
+  } else if (name %in% x$g_info$MethodNames) {
     function(...) {
-      .subset2(x, "apply_method")(name, ...)
+      .subset2(x, "g_apply_method")(name, ...)
+    }
+  } else if (name %in% x$g_info$FieldNames) {
+    function(name) {
+      .subset2(x, "g_get_attribute")(name)
     }
   }
 }
 
-# `$<-.GisdkObject` <- function(x, name) {
+`$<-.GisdkObject` <- function(x, name, value) {
+  if (exists(name, envir = x)) {
+    assign(name, value, envir = x)
+  } else if (name %in% x$g_info$FieldNames) {
+    .subset2(x, "g_set_attribute")(name, value)
+  } else {
+    stop(paste0("'", name, "' not found in R or GISDK objects"))
+  }
+  invisible(x)
+}
+
+#' S3 generic for assigning GisdkObject attributes
+#'
+#' Makes GisdkObjects smarter about whether you are assigning a value to the R
+#' object or the underlying GISDK object over COM.
+#'
+#' @param x A \code{GisdkObject}
+#' @param name the attribute to assign
+#' @param value the value to be assigned
+#' @export
+
+# `[<-.GisdkObject` <- function(x, name, value) {
 #   if (exists(name, envir = x)) {
-#     .subset2(x, name)
-#   } else {
-#     function(...) {
-#       .subset2(x, "apply_method")(name, ...)
-#     }
+#     x$name <- value
+#   } else if (name %in% x$g_info$FieldNames) {
+#     .subset2(x, "g_set_attribute")(name, value)
 #   }
 # }
 
-# obj <- GisdkObject$new("G30 Progress Bar")
+obj <- GisdkObject$new("G30 Progress Bar")
+# obj$g_get_attribute("CurrentStep") # works
+# obj$g_set_attribute("CurrentStep", 1) # works
+# obj["CurrentStep"] <- 1 # works
+obj$CurrentStep <- 2 # works
+obj$CurrentStep
 # obj$SetMessage("test")
-# obj$Step()
-# obj$Step
+# obj$Message
+
