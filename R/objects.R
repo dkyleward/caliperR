@@ -1,8 +1,8 @@
 #' Creates an R object that reprents a GISDK object
 #'
 #' A simple function that merely abstracts Rs creation language for R6 objects
-#' to make it look more like GISDK. See \code{\link{GisdkObject}} for details
-#' on the object created and how to work with it.
+#' to make it look more like GISDK. See \code{\link{Caliper}} for details
+#' on the class and how to work with objects.
 #'
 #' @export
 #' @param class_name The class name of the GISDK object to create.
@@ -13,7 +13,7 @@
 #' }
 
 CreateObject <- function(class_name, ...) {
-  GisdkObject$new(class_name, ...)
+  Caliper$new(class_name, ...)
 }
 
 #' R class representing GISDK objects
@@ -28,8 +28,11 @@ CreateObject <- function(class_name, ...) {
 #' this class to make code easier to write.
 #'
 #' @section Object fields
-#' A GisdkObject has the following fields/attributes of interest:
+#' A \code{Caliper} class object has the following fields/attributes of interest:
 #' \describe{
+#'   \item{g_class_name}{
+#'     The class name of the underlying GISDK object (e.g. "NLM.Model").
+#'   }
 #'   \item{ref}{
 #'     This is a COM pointer and represents the object created in a Caliper
 #'     program.
@@ -41,14 +44,14 @@ CreateObject <- function(class_name, ...) {
 #' }
 #'
 #' @section Object methods
-#' A GisdkObject has several methods.
+#' A \code{Caliper} class object has several methods.
 #'
 #' @import R6
 #' @export
 #' @examples
 #' \dontrun{
 #' # object creation (easier to use caliper::CreateObject())
-#' obj <- GisdkObject$new("NLM.Model")
+#' obj <- Caliper$new("NLM.Model")
 #'
 #' # get info about the GISDK object fields and methods
 #' obj$g_info
@@ -65,7 +68,7 @@ CreateObject <- function(class_name, ...) {
 #'  Read()
 #' }
 
-GisdkObject <- R6::R6Class("GisdkObject",
+Caliper <- R6::R6Class("Caliper",
   public = list(
     g_class_name = NULL,
     ref = NULL,
@@ -128,16 +131,16 @@ GisdkObject <- R6::R6Class("GisdkObject",
   )
 )
 
-#' S3 generic for calling GisdkObject methods
+#' S3 generic for calling \code{Caliper} class object methods
 #'
-#' Makes GisdkObjects smarter about whether you are calling a method from the R
-#' object or the underlying GISDK object over COM.
+#' Makes \code{Caliper} objects smarter about whether you are calling a method from the
+#' R object or the underlying GISDK object over COM.
 #'
-#' @param x A \code{GisdkObject}
+#' @param x A \code{Caliper} class object
 #' @param name the method to dispatch
 #' @export
 
-`$.GisdkObject` <- function(x, name) {
+`$.Caliper` <- function(x, name) {
   g_info <- .subset2(x, "g_info")
   if (exists(name, envir = x)) {
     .subset2(x, name)
@@ -152,17 +155,17 @@ GisdkObject <- R6::R6Class("GisdkObject",
   }
 }
 
-#' S3 generic for assigning GisdkObject attributes
+#' S3 generic for assigning \code{Caliper} class object attributes
 #'
-#' Makes GisdkObjects smarter about whether you are assigning a value to the R
-#' object or the underlying GISDK object over COM.
+#' Makes \code{Caliper} class objects smarter about whether you are assigning a value
+#' to the R object or the underlying GISDK object over COM.
 #'
-#' @param x A \code{GisdkObject}
+#' @param x A \code{Caliper} class object
 #' @param name the attribute to assign
 #' @param value the value to be assigned
 #' @export
 
-`$<-.GisdkObject` <- function(x, name, value) {
+`$<-.Caliper` <- function(x, name, value) {
   if (exists(name, envir = x)) {
     assign(name, value, envir = x)
   } else if (name %in% x$g_info$FieldNames) {
