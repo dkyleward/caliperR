@@ -93,7 +93,9 @@ Caliper <- R6::R6Class("Caliper",
     },
     g_apply_method = function(method, ...) {
       stopifnot(is.character(method))
-      args <- list("apply_method", self$ref, method, ...)
+      args <- list(...)
+      args <- caliper:::process_gisdk_args(args)
+      args <- list("apply_method", self$ref, method, args)
       tryCatch(
         do.call(RunMacro, args),
         error = function(e) {
