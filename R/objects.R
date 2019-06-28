@@ -24,7 +24,7 @@ CreateObject <- function(class_name, ...) {
 #'
 #' @details
 #'
-#' @section Overview
+#' @section Overview:
 #'
 #' When created, an object of this class contains a COM pointer to a sister
 #' object in Caliper software. In addition to this reference, contained in the
@@ -32,7 +32,7 @@ CreateObject <- function(class_name, ...) {
 #' object manipulation. Finally, the \code{$} operator has been overloaded for
 #' this class to make code easier to write.
 #'
-#' @section Object fields
+#' @section Object fields:
 #'
 #' A \code{CaliperClass} object has the following fields/attributes of interest:
 #' \describe{
@@ -49,7 +49,7 @@ CreateObject <- function(class_name, ...) {
 #'   }
 #' }
 #'
-#' @section Object methods
+#' @section Object methods:
 #'
 #' A \code{CaliperClass} object has several methods. While they are listed
 #' below for completeness, you likely won't need to use the methods directly
@@ -60,10 +60,10 @@ CreateObject <- function(class_name, ...) {
 #'     Dispatches one of the GISDK object's methods
 #'   }
 #'   \item{g_get_attribute(attribute)}{
-#'     Gets the named attribute from the GISDK object
+#'     Gets the value of a named attribute of the GISDK object
 #'   }
 #'   \item{g_set_attribute(attribute)}{
-#'     Sets the named attribute of the GISDK object
+#'     Sets the value of a named attribute of the GISDK object
 #'   }
 #' }
 #'
@@ -158,8 +158,14 @@ CaliperClass <- R6::R6Class("CaliperClass",
 
 #' S3 generic for calling \code{CaliperClass} object methods
 #'
-#' Makes \code{CaliperClass} objects smarter about whether you are calling a method from the
-#' R object or the underlying GISDK object over COM.
+#' Makes \code{CaliperClass} objects smarter about whether you are calling a
+#' method from the R object or the underlying GISDK object over COM.
+#'
+#' @details
+#'
+#' If \code{name} is an attribute of the R object (like \code{$g_info}), then
+#' the value of that attribute is returned. Otherwise, it looks into the fields
+#' and methods of the underlying GISDK object to determine what to do.
 #'
 #' @param x A \code{CaliperClass} object
 #' @param name the method to dispatch
@@ -182,8 +188,12 @@ CaliperClass <- R6::R6Class("CaliperClass",
 
 #' S3 generic for assigning \code{CaliperClass} object attributes
 #'
-#' Makes \code{CaliperClass} objects smarter about whether you are assigning a value
-#' to the R object or the underlying GISDK object over COM.
+#' Makes \code{CaliperClass} objects smarter about whether you are assigning a
+#' value to the R object or the underlying GISDK object over COM.
+#'
+#' If \code{name} is an attribute of the R object (like \code{$g_info}), then
+#' the value is assigned to that attribute. Otherwise, it looks into the GISDK
+#' object attributes and will set that value.
 #'
 #' @param x A \code{CaliperClass} object
 #' @param name the attribute to assign
