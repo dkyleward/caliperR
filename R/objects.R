@@ -1,18 +1,62 @@
+#' Creates an R object that reprents a GISDK object
+#'
+#' A simple function that merely abstracts Rs creation language for R6 objects
+#' to make it look more like GISDK. See \code{\link{GisdkObject}} for details
+#' on the object created and how to work with it.
+#'
+#' @export
+#' @param class_name The class name of the GISDK object to create.
+#' @param ... Any additional arguments to use during GISDK object creation.
+#' @examples
+#' \dontrun{
+#' obj <- CreateObject("NLM.Model")
+#' }
+
+CreateObject <- function(class_name, ...) {
+  GisdkObject$new(class_name, ...)
+}
+
 #' R class representing GISDK objects
 #'
 #' This class simplifies working with GISDK objects over COM from R.
+#'
+#' @section Overview
+#' When created, an object of this class contains a COM pointer to a sister
+#' object in Caliper software. In addition to this reference, contained in the
+#' \code{ref} field, there are several other fields and methods to facilitate
+#' object manipulation. Finally, the \code{$} operator has been overloaded for
+#' this class to make code easier to write.
+#'
+#' @section Object fields
+#' A GisdkObject has the following fields/attributes of interest:
+#' \describe{
+#'   \item{ref}{
+#'     This is a COM pointer and represents the object created in a Caliper
+#'     program.
+#'   }
+#'   \item{g_info}{
+#'     This is a simple R list that can be used to see the fields and methods
+#'     of the underlying GISDK object.
+#'   }
+#' }
+#'
+#' @section Object methods
+#' A GisdkObject has several methods.
 #'
 #' @import R6
 #' @export
 #' @examples
 #' \dontrun{
-#' # object creation
+#' # object creation (easier to use caliper::CreateObject())
 #' obj <- GisdkObject$new("NLM.Model")
 #'
-#' # get info about the GISDK object
+#' # get info about the GISDK object fields and methods
 #' obj$g_info
 #'
-#' # run one of the object's methods
+#' # Set an attribute/field label of the GISDK object
+#' obj$Label <- "a logit model"
+#'
+#' # run one of the object's methods: Clear()
 #' obj$Clear()
 #'
 #' # object methods can be chained
