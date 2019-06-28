@@ -1,7 +1,7 @@
 #' Creates an R object that reprents a GISDK object
 #'
 #' A simple function that merely abstracts Rs creation language for R6 objects
-#' to make it look more like GISDK. See \code{\link{Caliper}} for details
+#' to make it look more like GISDK. See \code{\link{CaliperClass}} for details
 #' on the class and how to work with objects.
 #'
 #' @export
@@ -13,14 +13,19 @@
 #' }
 
 CreateObject <- function(class_name, ...) {
-  Caliper$new(class_name, ...)
+  CaliperClass$new(class_name, ...)
 }
 
 #' R class representing GISDK objects
 #'
 #' This class simplifies working with GISDK objects over COM from R.
 #'
+#' @inheritParams CreateObject
+#'
+#' @details
+#'
 #' @section Overview
+#'
 #' When created, an object of this class contains a COM pointer to a sister
 #' object in Caliper software. In addition to this reference, contained in the
 #' \code{ref} field, there are several other fields and methods to facilitate
@@ -28,7 +33,8 @@ CreateObject <- function(class_name, ...) {
 #' this class to make code easier to write.
 #'
 #' @section Object fields
-#' A \code{Caliper} class object has the following fields/attributes of interest:
+#'
+#' A \code{CaliperClass} object has the following fields/attributes of interest:
 #' \describe{
 #'   \item{g_class_name}{
 #'     The class name of the underlying GISDK object (e.g. "NLM.Model").
@@ -44,22 +50,39 @@ CreateObject <- function(class_name, ...) {
 #' }
 #'
 #' @section Object methods
-#' A \code{Caliper} class object has several methods.
+#'
+#' A \code{CaliperClass} object has several methods. While they are listed
+#' below for completeness, you likely won't need to use the methods directly
+#' (see examples).
+#'
+#' \describe{
+#'   \item{g_apply_method}{
+#'     Dispatches one of the GISDK object's methods
+#'   }
+#'   \item{g_get_attribute(attribute)}{
+#'     Gets the named attribute from the GISDK object
+#'   }
+#'   \item{g_set_attribute(attribute)}{
+#'     Sets the named attribute of the GISDK object
+#'   }
+#' }
 #'
 #' @import R6
 #' @export
 #' @examples
 #' \dontrun{
 #' # object creation (easier to use caliper::CreateObject())
-#' obj <- Caliper$new("NLM.Model")
+#' obj <- CaliperClass$new("NLM.Model")
 #'
 #' # get info about the GISDK object fields and methods
 #' obj$g_info
 #'
-#' # Set an attribute/field label of the GISDK object
+#' # set an attribute/field label of the GISDK object
+#' # (Does not modify the R object in any way)
 #' obj$Label <- "a logit model"
 #'
-#' # run one of the object's methods: Clear()
+#' # run one of the GISDK object's methods: Clear()
+#' # (Does not modify the R object in any way)
 #' obj$Clear()
 #'
 #' # object methods can be chained
@@ -68,7 +91,7 @@ CreateObject <- function(class_name, ...) {
 #'  Read()
 #' }
 
-Caliper <- R6::R6Class("Caliper",
+CaliperClass <- R6::R6Class("CaliperClass",
   public = list(
     g_class_name = NULL,
     ref = NULL,
@@ -133,16 +156,16 @@ Caliper <- R6::R6Class("Caliper",
   )
 )
 
-#' S3 generic for calling \code{Caliper} class object methods
+#' S3 generic for calling \code{CaliperClass} object methods
 #'
-#' Makes \code{Caliper} objects smarter about whether you are calling a method from the
+#' Makes \code{CaliperClass} objects smarter about whether you are calling a method from the
 #' R object or the underlying GISDK object over COM.
 #'
-#' @param x A \code{Caliper} class object
+#' @param x A \code{CaliperClass} object
 #' @param name the method to dispatch
 #' @export
 
-`$.Caliper` <- function(x, name) {
+`$.CaliperClass` <- function(x, name) {
   g_info <- .subset2(x, "g_info")
   if (exists(name, envir = x)) {
     .subset2(x, name)
@@ -157,17 +180,17 @@ Caliper <- R6::R6Class("Caliper",
   }
 }
 
-#' S3 generic for assigning \code{Caliper} class object attributes
+#' S3 generic for assigning \code{CaliperClass} object attributes
 #'
-#' Makes \code{Caliper} class objects smarter about whether you are assigning a value
+#' Makes \code{CaliperClass} objects smarter about whether you are assigning a value
 #' to the R object or the underlying GISDK object over COM.
 #'
-#' @param x A \code{Caliper} class object
+#' @param x A \code{CaliperClass} object
 #' @param name the attribute to assign
 #' @param value the value to be assigned
 #' @export
 
-`$<-.Caliper` <- function(x, name, value) {
+`$<-.CaliperClass` <- function(x, name, value) {
   if (exists(name, envir = x)) {
     assign(name, value, envir = x)
   } else if (name %in% x$g_info$FieldNames) {
