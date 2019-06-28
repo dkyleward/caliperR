@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{$.GisdkObject}
 \alias{$.GisdkObject}
-\title{S3 generic for calling GISDK object methods}
+\title{S3 generic for calling GisdkObject methods}
 \usage{
 \method{$}{GisdkObject}(x, name)
 }
@@ -12,6 +12,6 @@
 \item{name}{the method to dispatch}
 }
 \description{
-This function allows you to use \code{obj$method_name(...)} to dispatch
-arbitrary method names on GISDK objects. See \code{\link{GisdkObject}}.
+Makes GisdkObjects smarter about whether you are calling a method from the R
+object or the underlying GISDK object over COM.
 }

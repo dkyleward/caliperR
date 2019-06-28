@@ -94,28 +94,18 @@ GisdkObject <- R6::R6Class("GisdkObject",
 #' @export
 
 `$.GisdkObject` <- function(x, name) {
+  g_info <- .subset2(x, "g_info")
   if (exists(name, envir = x)) {
     .subset2(x, name)
-  } else if (name %in% x$g_info$MethodNames) {
+  } else if (name %in% g_info$MethodNames) {
     function(...) {
       .subset2(x, "g_apply_method")(name, ...)
     }
-  } else if (name %in% x$g_info$FieldNames) {
-    function(name) {
+  } else if (name %in% g_info$FieldNames) {
       .subset2(x, "g_get_attribute")(name)
-    }
-  }
-}
-
-`$<-.GisdkObject` <- function(x, name, value) {
-  if (exists(name, envir = x)) {
-    assign(name, value, envir = x)
-  } else if (name %in% x$g_info$FieldNames) {
-    .subset2(x, "g_set_attribute")(name, value)
   } else {
-    stop(paste0("'", name, "' not found in R or GISDK objects"))
+    stop(paste0(name, " not found in R or GISDK objects"))
   }
-  invisible(x)
 }
 
 #' S3 generic for assigning GisdkObject attributes
@@ -128,20 +118,13 @@ GisdkObject <- R6::R6Class("GisdkObject",
 #' @param value the value to be assigned
 #' @export
 
-# `[<-.GisdkObject` <- function(x, name, value) {
-#   if (exists(name, envir = x)) {
-#     x$name <- value
-#   } else if (name %in% x$g_info$FieldNames) {
-#     .subset2(x, "g_set_attribute")(name, value)
-#   }
-# }
-
-obj <- GisdkObject$new("G30 Progress Bar")
-# obj$g_get_attribute("CurrentStep") # works
-# obj$g_set_attribute("CurrentStep", 1) # works
-# obj["CurrentStep"] <- 1 # works
-obj$CurrentStep <- 2 # works
-obj$CurrentStep
-# obj$SetMessage("test")
-# obj$Message
-
+`$<-.GisdkObject` <- function(x, name, value) {
+  if (exists(name, envir = x)) {
+    assign(name, value, envir = x)
+  } else if (name %in% x$g_info$FieldNames) {
+    .subset2(x, "g_set_attribute")(name, value)
+  } else {
+    stop(paste0("'", name, "' not found in R or GISDK objects"))
+  }
+  invisible(x)
+}

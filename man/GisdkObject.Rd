@@ -9,7 +9,7 @@
 GisdkObject
 }
 \description{
-R class representing GISDK objects
+This class simplifies working with GISDK objects over COM from R.
 }
 \examples{
 \dontrun{
@@ -17,7 +17,7 @@ R class representing GISDK objects
 obj <- GisdkObject$new("NLM.Model")
 
 # get info about the GISDK object
-obj$GetClassInfo()
+obj$g_info
 
 # run one of the object's methods
 obj$Clear()
