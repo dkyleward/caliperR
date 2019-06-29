@@ -59,10 +59,10 @@ CreateObject <- function(class_name, ...) {
 #'   \item{g_apply_method}{
 #'     Dispatches one of the GISDK object's methods
 #'   }
-#'   \item{g_get_attribute(attribute)}{
+#'   \item{get_gisdk_attribute(attribute)}{
 #'     Gets the value of a named attribute of the GISDK object
 #'   }
-#'   \item{g_set_attribute(attribute)}{
+#'   \item{set_gisdk_attribute(attribute)}{
 #'     Sets the value of a named attribute of the GISDK object
 #'   }
 #' }
@@ -128,7 +128,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       )
       invisible(self)
     },
-    g_get_attribute = function(attribute) {
+    get_gisdk_attribute = function(attribute) {
       stopifnot(is.character(attribute))
       args <- list("get_attribute", self$ref, attribute)
       tryCatch(
@@ -140,7 +140,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       )
       caliper:::process_gisdk_result(value)
     },
-    g_set_attribute = function(attribute, value) {
+    set_gisdk_attribute = function(attribute, value) {
       stopifnot(is.character(attribute))
       value <- caliper:::process_gisdk_args(value)
       args <- list("set_attribute", self$ref, attribute, value)
@@ -180,7 +180,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       .subset2(x, "g_apply_method")(name, ...)
     }
   } else if (name %in% info$FieldNames) {
-      .subset2(x, "g_get_attribute")(name)
+      .subset2(x, "get_gisdk_attribute")(name)
   } else {
     stop(paste0(name, " not found in R or GISDK objects"))
   }
@@ -204,7 +204,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
   if (exists(name, envir = x)) {
     assign(name, value, envir = x)
   } else if (name %in% x$info$FieldNames) {
-    .subset2(x, "g_set_attribute")(name, value)
+    .subset2(x, "set_gisdk_attribute")(name, value)
   } else {
     stop(paste0("'", name, "' not found in R or GISDK objects"))
   }

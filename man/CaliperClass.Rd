@@ -54,10 +54,10 @@ below for completeness, you likely won't need to use the methods directly
   \item{g_apply_method}{
     Dispatches one of the GISDK object's methods
   }
-  \item{g_get_attribute(attribute)}{
+  \item{get_gisdk_attribute(attribute)}{
     Gets the value of a named attribute of the GISDK object
   }
-  \item{g_set_attribute(attribute)}{
+  \item{set_gisdk_attribute(attribute)}{
     Sets the value of a named attribute of the GISDK object
   }
 }
