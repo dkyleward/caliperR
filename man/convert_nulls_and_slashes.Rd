@@ -2,7 +2,7 @@
 % Please edit documentation in R/caliper.R
 \name{convert_nulls_and_slashes}
 \alias{convert_nulls_and_slashes}
-\title{Converts R's \code{NA}, \code{NULL}, and \code{/} formats GISDK can use}
+\title{Converts R's \code{NA}, \code{NULL}, and \code{/} to formats GISDK can use}
 \usage{
 convert_nulls_and_slashes(arg)
 }
@@ -11,6 +11,6 @@ Returns the argument passed in with any \code{NA/NULL} converted.
 }
 \description{
 \code{NA} and \code{NULL} are converted to \code{NA_complex_} and is
-understood by GISDK/C++ as null. \code{/} is converted to \code{\\}.
+understood by GISDK/C++ as \code{null}. \code{/} is converted to \code{\\}.
 }
 \keyword{internal}

@@ -94,6 +94,7 @@ directly in R and aren't called using `RunFunction()`:
   * `RunMacro()` ([example 1](#ex1))
   * `SetAlternateInterface()` ([example 3](#ex3))
   * `GetInterface()` ([example 3](#ex3))
+  * `CreateObject()` ([example 6](#ex6))
   
 ## Custom Macros
 
@@ -174,6 +175,44 @@ RunMacro(
 )
 ```
 
+## Advanced
+
+### Example 6: GISDK objects {#ex6}
+
+The `caliper` package provides a straightforward approach to managing GISDK
+objects over COM.
+
+```{r}
+object <- CreateObject("NLM.Model")
+```
+
+The only difference between R and GISDK is syntax: R uses `$` instead of `.` to
+access object fields (attributes) and methods. The code below sets the `Label`
+attribute of the `NLM.Model` GISDK object.
+
+```{r}
+object$Label <- "A logit model"
+object$Label
+```
+
+Next, the `Clear()` method of the `NLM.Model` object is called, which removes
+the value of all fields including `Label`.
+
+```{r}
+object$Clear() 
+object$Label
+```
+
+To see the complete list of available fields and methods for the GISDK object,
+simply use `object$info`.
+
+```{r}
+info <- object$info
+head(info$FieldNames)
+head(info$MethodNames)
+```
+
+
 ## Limitations
 
 ### Returned values
@@ -199,10 +238,3 @@ str(RunMacro("return nested array"))
 # GISDK: return({{"one", 1}, {"two", 2}})
 str(RunMacro("return named array"))
 ```
-
-### Error messages
-
-`caliper` uses [COM](https://en.wikipedia.org/wiki/Component_Object_Model) to
-communicate between R and Caliper software. In general, the error messages
-returned aren't helpful.
-

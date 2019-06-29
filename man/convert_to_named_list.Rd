@@ -2,7 +2,7 @@
 % Please edit documentation in R/caliper.R
 \name{convert_to_named_list}
 \alias{convert_to_named_list}
-\title{Used internally to convert GISDK named arrays to R's named lists.}
+\title{Used to convert GISDK named arrays to R's named lists.}
 \usage{
 convert_to_named_list(nested_list)
 }
