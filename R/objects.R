@@ -56,7 +56,7 @@ CreateObject <- function(class_name, ...) {
 #' (see examples).
 #'
 #' \describe{
-#'   \item{g_apply_method}{
+#'   \item{apply_gisdk_method}{
 #'     Dispatches one of the GISDK object's methods
 #'   }
 #'   \item{get_gisdk_attribute(attribute)}{
@@ -114,7 +114,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       result <- split(flat_info_list, pattern)
       self$info <- lapply(result, function(x) x[2:length(x)])
     },
-    g_apply_method = function(method, ...) {
+    apply_gisdk_method = function(method, ...) {
       stopifnot(is.character(method))
       args <- list(...)
       args <- caliper:::process_gisdk_args(args)
@@ -177,7 +177,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
     .subset2(x, name)
   } else if (name %in% info$MethodNames) {
     function(...) {
-      .subset2(x, "g_apply_method")(name, ...)
+      .subset2(x, "apply_gisdk_method")(name, ...)
     }
   } else if (name %in% info$FieldNames) {
       .subset2(x, "get_gisdk_attribute")(name)

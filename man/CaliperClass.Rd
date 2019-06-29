@@ -51,7 +51,7 @@ below for completeness, you likely won't need to use the methods directly
 (see examples).
 
 \describe{
-  \item{g_apply_method}{
+  \item{apply_gisdk_method}{
     Dispatches one of the GISDK object's methods
   }
   \item{get_gisdk_attribute(attribute)}{
