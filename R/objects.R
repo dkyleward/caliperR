@@ -43,7 +43,7 @@ CreateObject <- function(class_name, ...) {
 #'     This is a COM pointer and represents the object created in a Caliper
 #'     program.
 #'   }
-#'   \item{g_info}{
+#'   \item{info}{
 #'     This is a simple R list that can be used to see the fields and methods
 #'     of the underlying GISDK object.
 #'   }
@@ -75,7 +75,7 @@ CreateObject <- function(class_name, ...) {
 #' obj <- CaliperClass$new("NLM.Model")
 #'
 #' # get info about the GISDK object fields and methods
-#' obj$g_info
+#' obj$info
 #'
 #' # set an attribute/field label of the GISDK object
 #' # (Does not modify the R object in any way)
@@ -95,7 +95,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
   public = list(
     g_class_name = NULL,
     ref = NULL,
-    g_info = NULL,
+    info = NULL,
     initialize = function(class_name, ...) {
       if (!connected()) stop("Not connected to Caliper software.")
       if (!is.character(class_name)) stop("'class_name' must be a string")
@@ -112,7 +112,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       pos <- which(flat_info_list %in% names)
       pattern <- rep(names, times = diff(c(pos, length(flat_info_list) + 1)))
       result <- split(flat_info_list, pattern)
-      self$g_info <- lapply(result, function(x) x[2:length(x)])
+      self$info <- lapply(result, function(x) x[2:length(x)])
     },
     g_apply_method = function(method, ...) {
       stopifnot(is.character(method))
@@ -163,7 +163,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
 #'
 #' @details
 #'
-#' If \code{name} is an attribute of the R object (like \code{$g_info}), then
+#' If \code{name} is an attribute of the R object (like \code{$info}), then
 #' the value of that attribute is returned. Otherwise, it looks into the fields
 #' and methods of the underlying GISDK object to determine what to do.
 #'
@@ -172,14 +172,14 @@ CaliperClass <- R6::R6Class("CaliperClass",
 #' @export
 
 `$.CaliperClass` <- function(x, name) {
-  g_info <- .subset2(x, "g_info")
+  info <- .subset2(x, "info")
   if (exists(name, envir = x)) {
     .subset2(x, name)
-  } else if (name %in% g_info$MethodNames) {
+  } else if (name %in% info$MethodNames) {
     function(...) {
       .subset2(x, "g_apply_method")(name, ...)
     }
-  } else if (name %in% g_info$FieldNames) {
+  } else if (name %in% info$FieldNames) {
       .subset2(x, "g_get_attribute")(name)
   } else {
     stop(paste0(name, " not found in R or GISDK objects"))
@@ -191,7 +191,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
 #' Makes \code{CaliperClass} objects smarter about whether you are assigning a
 #' value to the R object or the underlying GISDK object over COM.
 #'
-#' If \code{name} is an attribute of the R object (like \code{$g_info}), then
+#' If \code{name} is an attribute of the R object (like \code{$info}), then
 #' the value is assigned to that attribute. Otherwise, it looks into the GISDK
 #' object attributes and will set that value.
 #'
@@ -203,7 +203,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
 `$<-.CaliperClass` <- function(x, name, value) {
   if (exists(name, envir = x)) {
     assign(name, value, envir = x)
-  } else if (name %in% x$g_info$FieldNames) {
+  } else if (name %in% x$info$FieldNames) {
     .subset2(x, "g_set_attribute")(name, value)
   } else {
     stop(paste0("'", name, "' not found in R or GISDK objects"))

@@ -16,7 +16,7 @@ Makes \code{CaliperClass} objects smarter about whether you are calling a
 method from the R object or the underlying GISDK object over COM.
 }
 \details{
-If \code{name} is an attribute of the R object (like \code{$g_info}), then
+If \code{name} is an attribute of the R object (like \code{$info}), then
 the value of that attribute is returned. Otherwise, it looks into the fields
 and methods of the underlying GISDK object to determine what to do.
 }

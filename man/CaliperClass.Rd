@@ -36,7 +36,7 @@ A \code{CaliperClass} object has the following fields/attributes of interest:
     This is a COM pointer and represents the object created in a Caliper
     program.
   }
-  \item{g_info}{
+  \item{info}{
     This is a simple R list that can be used to see the fields and methods
     of the underlying GISDK object.
   }
@@ -69,7 +69,7 @@ below for completeness, you likely won't need to use the methods directly
 obj <- CaliperClass$new("NLM.Model")
 
 # get info about the GISDK object fields and methods
-obj$g_info
+obj$info
 
 # set an attribute/field label of the GISDK object
 # (Does not modify the R object in any way)
