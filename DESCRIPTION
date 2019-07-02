@@ -10,7 +10,7 @@ Maintainer: Kyle Ward <kyle@caliper.com>
 Description: Provides access to the Caliper API. Use this to run GISDK
     functions including core functions like \code{OpenTable()} or
     custom functions compiled to a user interface (\code{.dbd}).
-License: Apache 2.0 + file LICENSE
+License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
 Depends:
