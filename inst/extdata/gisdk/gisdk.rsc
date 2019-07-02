@@ -43,7 +43,8 @@ Macro "return named array"
     return({{"one", 1}, {"two", 2}})
 endmacro
 
-// R does not understand a returned vector
+// R does not understand a returned vector, but the caliper package
+// does the conversion.
 Macro "return vector"
     return(A2V({1, 2}))
 endmacro
