@@ -22,8 +22,6 @@ CreateObject <- function(class_name, ...) {
 #'
 #' @inheritParams CreateObject
 #'
-#' @details
-#'
 #' @section Overview:
 #'
 #' When created, an object of this class contains a COM pointer to a sister

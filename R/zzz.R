@@ -1,8 +1,8 @@
 # Store package-wide variables here rather than the global environment
 caliper_env <- new.env(parent = emptyenv())
 
-.onLoad <- function(libname, pkgname) {
-  try(disconnect(), silent = TRUE)
+.onAttach <- function(libname, pkgname) {
+  disconnect()
   try({
     connect(silent = TRUE)
     software <- get_package_variable("CALIPER_SOFTWARE")
@@ -12,6 +12,6 @@ caliper_env <- new.env(parent = emptyenv())
   }
 }
 
-.onUnload <- function(libname, pkgname) {
-  try(disconnect(), silent = TRUE)
+.onDetach <- function(libpath) {
+  disconnect()
 }

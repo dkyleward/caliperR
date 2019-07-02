@@ -11,9 +11,6 @@ CaliperClass
 \description{
 This class simplifies working with GISDK objects over COM from R.
 }
-\details{
-
-}
 \section{Overview}{
 
 

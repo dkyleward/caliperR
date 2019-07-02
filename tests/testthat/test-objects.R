@@ -1,9 +1,3 @@
-check_connected <- function() {
-  if (!connected()) {
-    skip("Not connected to Caliper software")
-  }
-}
-
 test_that("Objects work", {
   check_connected()
   expect_type(CreateObject("NLM.Model"), "environment")

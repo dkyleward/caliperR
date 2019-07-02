@@ -1,25 +1,3 @@
-check_connected <- function() {
-  if (!connected()) {
-    skip("Not connected to Caliper software")
-  }
-}
-
-# unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "my_ui.zip", package = "caliper")
-tempdir <- tempdir()
-unzip(zip_file, exdir = tempdir, setTimes = TRUE)
-ui_path <- file.path(tempdir, "my_ui.dbd")
-
-test_that("connect and disconnect work", {
-  check_connected()
-  disconnect()
-  expect_null(caliper:::caliper_env$CALIPER_SOFTWARE)
-  connect()
-  expect_type(caliper:::caliper_env$CALIPER_SOFTWARE, "character")
-  expect_type(GetInterface(), "character")
-  expect_s4_class(caliper:::caliper_env$CALIPER_DK, "COMIDispatch")
-})
-
 test_that("RunMacro works", {
   check_connected()
   SetAlternateInterface(ui_path)
