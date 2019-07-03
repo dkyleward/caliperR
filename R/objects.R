@@ -115,7 +115,6 @@ CaliperClass <- R6::R6Class("CaliperClass",
     apply_gisdk_method = function(method, ...) {
       stopifnot(is.character(method))
       args <- list(...)
-      args <- caliper:::process_gisdk_args(args)
       args <- list("apply_method", self$ref, method, args)
       tryCatch(
         do.call(RunMacro, args),
