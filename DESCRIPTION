@@ -16,7 +16,8 @@ LazyData: true
 Depends:
   RDCOMClient
 Imports:
-  R6
+  R6,
+  data.table
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,

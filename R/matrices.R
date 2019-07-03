@@ -1,29 +1,91 @@
-#' S3 generic for printing a \code{matrix_handle}
+#' S3 generic for converting a \code{matrix_handle} into a \code{data.frame}
 #'
-#' @param x A \code{matrix_handle} object
-#' @param ... Additional options
+#' @param x \code{matrix_handle}
 #' @export
 
-print.matrix_handle_temp <- function(x, ...) {
-  # place holder. Change to print.matrix_handle and define behavior.
+as.data.frame.matrix_handle <- function(x) {
+
+  # Argument checking
+  stopifnot(class(x) == "matrix_handle")
+
+  temp_file <- tempfile(fileext = ".csv")
+  core_names <- names(x$cores)
+  RunFunction(
+    "CreateTableFromMatrix", x$ref, temp_file, "CSV",
+    list(Complete = TRUE)
+  )
+  if (require(data.table)) {
+    tbl <- data.table::fread(temp_file, header = FALSE)
+  } else {
+    tbl <- read.csv(temp_file, header = FALSE)
+  }
+  colnames(tbl) <- c("from", "to", core_names)
+  return(tbl)
 }
 
-#' S3 generic for printing a matrix currency
+#' S3 generic for bringing caliper matrices into R matrix format
 #'
 #' @param x A \code{matrix_currency} object
-#' @param ... Additional options
+#' @param core \code{string} Name of core to convert. If not provided, the first
+#'   core will be used.
+#' @importFrom data.table fread
 #' @export
 
-print.matrix_currency_temp <- function(x, ...) {
-  temp_file <- tempfile(fileext = ".omx")
-  com_obj <- RunFunction(
-    "CopyMatrix", x[[1]],
-    list(
-      "File Name" = temp_file,
-      "Label" = "test",
-      "OMX" = "true"
-    )
+as.matrix.matrix_handle <- function(x, core = NULL) {
+
+  # Argument checking
+  stopifnot(class(x) == "matrix_handle")
+  if (!is.null(core)) {
+    stopifnot(core %in% names(x$cores))
+  } else {
+    core <- names(x$cores)[1]
+  }
+
+  tbl <- as.data.frame.matrix_handle(x)
+
+  tbl$from <- factor(x = tbl$from, levels = unique(tbl$from))
+  tbl$to <- factor(x = tbl$to, levels = unique(tbl$to))
+
+  result <- matrix(
+    nrow = nlevels(tbl$from),
+    ncol = nlevels(tbl$to),
+    dimnames = list(levels(tbl$from), levels(tbl$to))
   )
+  result[cbind(tbl$from, tbl$to)] <- tbl$`In-Vehicle Time`
+
+  return(result)
+}
+
+#' S3 generic for summarizing a \code{matrix_handle}
+#'
+#' @param x \code{matrix_handle}
+#' @import data.table
+
+summary.matrix_handle <- function(x) {
+
+  # Argument checking
+  stopifnot(class(x) == "matrix_handle")
+
+  stats <- RunFunction("MatrixStatistics", x$ref, NA)
+
+  list_of_rows <- lapply(stats, function(x) {
+    core_name <- x[[1]]
+    stat_names <- unlist(lapply(x[[2]], function(x) {
+      stat_name <- x[[1]]
+    }))
+    stat_values <- unlist(lapply(x[[2]], function(x) {
+      stat_value <- x[[2]]
+    }))
+    df <- as.data.frame(stat_values)
+    df <- data.table::transpose(df)
+    colnames(df) <- stat_names
+    df$Core <- core_name
+    return(df)
+  })
+
+  df <- data.table::rbindlist(list_of_rows)
+  setcolorder(df, "Core")
+  return(df)
 }
 
 #' Creates an S3 object of class \code{matrix_handle}
@@ -39,9 +101,9 @@ create_matrix <- function(file) {
     stop("(caliper::create_matrix_currency) 'file' not found")
   mh <- RunFunction("OpenMatrix", file, NA)
   core_names <- RunFunction("GetMatrixCoreNames", mh)
-  currencies <- create_matrix_currencies(mh)
+  cores <- create_matrix_cores(mh)
   result <- structure(
-    list(ref = mh, currencies = currencies),
+    list(ref = mh, cores = cores),
     class = "matrix_handle"
   )
 }
@@ -55,24 +117,24 @@ create_matrix <- function(file) {
 #' @param ci \code{string} Name of the column index. (NULL for base index)
 #' @keywords internal
 
-create_matrix_currencies <- function(mh, ri = NULL, ci = NULL) {
+create_matrix_cores <- function(mh, ri = NULL, ci = NULL) {
   if (class(mh) != "COMIDispatch")
-    stop("(caliper::create_matrix_currencies) 'mh' isn't the right class")
+    stop("(caliper::create_matrix_cores) 'mh' isn't the right class")
   if (is.null(ri)) ri <- NA
   if (is.null(ci)) ci <- NA
 
   currencies <- RunFunction("CreateMatrixCurrencies", mh, ri, ci, NA)
-  result <- list()
+  cores <- list()
   for (i in 1:length(currencies)) {
     name <- currencies[[i]][[1]]
     pointer <- currencies[[i]][[2]]
 
-    cur <- structure(
-      list(pointer),
-      class = "matrix_currency"
-    )
+    # cur <- structure(
+    #   list(pointer),
+    #   class = "matrix_currency"
+    # )
 
-    result[[name]] <- cur
+    cores[[name]] <- pointer
   }
-  return(result)
+  return(cores)
 }

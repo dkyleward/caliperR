@@ -5,8 +5,8 @@ test_that("matrix objects are created", {
   matrix <- create_matrix(file)
   expect_type(matrix, "list")
   expect_s4_class(matrix$ref, "COMIDispatch")
-  expect_type(matrix$currencies, "list")
-  # expect_s4_class(matrix$currencies[[1]], "COMIDispatch")
+  expect_type(matrix$cores, "list")
+  expect_s4_class(matrix$cores[[1]], "COMIDispatch")
 })
 
 # test_that("matrices work", {
