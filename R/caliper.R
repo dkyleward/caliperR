@@ -223,7 +223,8 @@ process_gisdk_args <- function(arg_list) {
     if (class(arg) == "externalptr") next
     if (!is.null(names(arg))) {
       arg <- convert_to_named_array(arg)
-      } else arg <- convert_nulls_and_slashes(arg)
+    } else arg <- convert_nulls_and_slashes(arg)
+    if (length(arg) == 0) arg <- NULL
     arg_list[[i]] <- arg
   }
   return(arg_list)
