@@ -1,12 +1,14 @@
-#' S3 generic for converting a \code{matrix_handle} into a \code{data.frame}
+#' S3 method for converting a \code{matrix_handle} into a \code{data.frame}
 #'
 #' @param x \code{matrix_handle}
+#' @param row.names See \code{as.data.frame}
+#' @param optional See \code{as.data.frame}
+#' @param ... additional arguments passed to \code{as.data.frame}
+#' @import data.table
 #' @export
 
-as.data.frame.matrix_handle <- function(x) {
-
-  # Argument checking
-  stopifnot(class(x) == "matrix_handle")
+as.data.frame.matrix_handle <- function(x, row.names = NULL,
+                                        optional = FALSE, ...) {
 
   temp_file <- tempfile(fileext = ".csv")
   core_names <- names(x$cores)
@@ -14,28 +16,31 @@ as.data.frame.matrix_handle <- function(x) {
     "CreateTableFromMatrix", x$ref, temp_file, "CSV",
     list(Complete = TRUE)
   )
-  if (require(data.table)) {
-    tbl <- data.table::fread(temp_file, header = FALSE)
-  } else {
-    tbl <- read.csv(temp_file, header = FALSE)
-  }
-  colnames(tbl) <- c("from", "to", core_names)
-  return(tbl)
+  df <- data.table::fread(temp_file, header = FALSE)
+  colnames(df) <- c("from", "to", core_names)
+  setDF(df, rownames = row.names)
+  return(df)
 }
 
-#' S3 generic for bringing caliper matrices into R matrix format
+#' S3 method for bringing caliper matrices into R matrix format
+#'
+#' Converts a Caliper matrix into R format allowing it to be worked on in the R
+#' environment.
+#'
+#' By default, the first core of the Caliper matrix is converted into an R matrix.
+#' To select a different one, use the \code{core} argument like so:
+#' \code{as.matrix(x, core = "second core")}.
 #'
 #' @param x A \code{matrix_currency} object
-#' @param core \code{string} Name of core to convert. If not provided, the first
-#'   core will be used.
-#' @importFrom data.table fread
+#' @param ... Additional arguments passed to \code{as.matrix}. An extra argument
+#'   \code{core} can be used to specify which core to convert. See details
 #' @export
 
-as.matrix.matrix_handle <- function(x, core = NULL) {
+as.matrix.matrix_handle <- function(x, ...) {
 
   # Argument checking
-  stopifnot(class(x) == "matrix_handle")
-  if (!is.null(core)) {
+  args <- list(...)
+  if (!is.null(args$core)) {
     stopifnot(core %in% names(x$cores))
   } else {
     core <- names(x$cores)[1]
@@ -51,12 +56,12 @@ as.matrix.matrix_handle <- function(x, core = NULL) {
     ncol = nlevels(tbl$to),
     dimnames = list(levels(tbl$from), levels(tbl$to))
   )
-  result[cbind(tbl$from, tbl$to)] <- tbl$`In-Vehicle Time`
+  result[cbind(tbl$from, tbl$to)] <- tbl[, core]
 
   return(result)
 }
 
-#' S3 generic for summarizing a \code{matrix_handle}
+#' S3 method for summarizing a \code{matrix_handle}
 #'
 #' @param x \code{matrix_handle}
 #' @import data.table

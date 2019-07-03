@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{$.CaliperClass}
 \alias{$.CaliperClass}
-\title{S3 generic for calling \code{CaliperClass} object methods}
+\title{S3 method for calling \code{CaliperClass} object methods}
 \usage{
 \method{$}{CaliperClass}(x, name)
 }

@@ -2,16 +2,22 @@
 % Please edit documentation in R/matrices.R
 \name{as.matrix.matrix_handle}
 \alias{as.matrix.matrix_handle}
-\title{S3 generic for bringing caliper matrices into R matrix format}
+\title{S3 method for bringing caliper matrices into R matrix format}
 \usage{
-\method{as.matrix}{matrix_handle}(x, core = NULL)
+\method{as.matrix}{matrix_handle}(x, ...)
 }
 \arguments{
 \item{x}{A \code{matrix_currency} object}
 
-\item{core}{\code{string} Name of core to convert. If not provided, the first
-core will be used.}
+\item{...}{Additional arguments passed to \code{as.matrix}. An extra argument
+\code{core} can be used to specify which core to convert. See details}
 }
 \description{
-S3 generic for bringing caliper matrices into R matrix format
+Converts a Caliper matrix into R format allowing it to be worked on in the R
+environment.
+}
+\details{
+By default, the first core of the Caliper matrix is converted into an R matrix.
+To select a different one, use the \code{core} argument like so:
+\code{as.matrix(x, core = "second core")}.
 }

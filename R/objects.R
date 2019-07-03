@@ -153,7 +153,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
   )
 )
 
-#' S3 generic for calling \code{CaliperClass} object methods
+#' S3 method for calling \code{CaliperClass} object methods
 #'
 #' Makes \code{CaliperClass} objects smarter about whether you are calling a
 #' method from the R object or the underlying GISDK object over COM.
@@ -183,7 +183,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
   }
 }
 
-#' S3 generic for assigning \code{CaliperClass} object attributes
+#' S3 method for assigning \code{CaliperClass} object attributes
 #'
 #' Makes \code{CaliperClass} objects smarter about whether you are assigning a
 #' value to the R object or the underlying GISDK object over COM.

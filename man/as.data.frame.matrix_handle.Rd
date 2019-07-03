@@ -2,13 +2,20 @@
 % Please edit documentation in R/matrices.R
 \name{as.data.frame.matrix_handle}
 \alias{as.data.frame.matrix_handle}
-\title{S3 generic for converting a \code{matrix_handle} into a \code{data.frame}}
+\title{S3 method for converting a \code{matrix_handle} into a \code{data.frame}}
 \usage{
-\method{as.data.frame}{matrix_handle}(x)
+\method{as.data.frame}{matrix_handle}(x, row.names = NULL,
+  optional = FALSE, ...)
 }
 \arguments{
 \item{x}{\code{matrix_handle}}
+
+\item{row.names}{See \code{as.data.frame}}
+
+\item{optional}{See \code{as.data.frame}}
+
+\item{...}{additional arguments passed to \code{as.data.frame}}
 }
 \description{
-S3 generic for converting a \code{matrix_handle} into a \code{data.frame}
+S3 method for converting a \code{matrix_handle} into a \code{data.frame}
 }

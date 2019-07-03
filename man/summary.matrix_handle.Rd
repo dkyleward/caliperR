@@ -2,7 +2,7 @@
 % Please edit documentation in R/matrices.R
 \name{summary.matrix_handle}
 \alias{summary.matrix_handle}
-\title{S3 generic for summarizing a \code{matrix_handle}}
+\title{S3 method for summarizing a \code{matrix_handle}}
 \usage{
 \method{summary}{matrix_handle}(x)
 }
@@ -10,5 +10,5 @@
 \item{x}{\code{matrix_handle}}
 }
 \description{
-S3 generic for summarizing a \code{matrix_handle}
+S3 method for summarizing a \code{matrix_handle}
 }

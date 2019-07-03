@@ -2,7 +2,7 @@
 % Please edit documentation in R/objects.R
 \name{$<-.CaliperClass}
 \alias{$<-.CaliperClass}
-\title{S3 generic for assigning \code{CaliperClass} object attributes}
+\title{S3 method for assigning \code{CaliperClass} object attributes}
 \usage{
 \method{$}{CaliperClass}(x, name) <- value
 }
