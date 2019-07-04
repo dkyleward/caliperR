@@ -94,7 +94,7 @@ directly in R and aren't called using `RunFunction()`:
   * `RunMacro()` ([example 1](#ex1))
   * `SetAlternateInterface()` ([example 3](#ex3))
   * `GetInterface()` ([example 3](#ex3))
-  * `CreateObject()` ([example 6](#ex6))
+  * `CreateObject()` ([example 7](#ex7))
   
 ## Custom Macros
 
@@ -177,7 +177,53 @@ RunMacro(
 
 ## Advanced
 
-### Example 6: GISDK objects {#ex6}
+### Example 6: Matrices
+
+Working with matrices in R has been streamlined. Opening a matrix, for example,
+returns an object with several useful attributes and features.
+
+```{r}
+file <- paste0(folder, "Accessibility Skim BusWlk.mtx")
+matrix <- RunFunction("OpenMatrix", file, NA)
+```
+
+Several generic functions can be used on `matrix`.
+
+```{r}
+summary(matrix)
+```
+
+```{r}
+tbl <- as.data.frame(matrix)
+head(tbl)
+```
+
+```{r}
+mtx <- as.matrix(matrix, core = "Travel Time")
+mtx[1:5, 1:5]
+```
+
+For more advanced use, COM pointers to the matrix handle and each currency
+is are also made available. These can be passed into `RunFunction()` and
+`RunMacro()` to do further work in Caliper software.
+
+```{r}
+# Points to the Caliper matrix handle
+matrix$ref
+
+# Points to a matrix currency
+matrix$cores$`In-Vehicle Time`
+```
+
+Some examples:
+
+```{r}
+RunFunction("GetMatrixBaseIndex", matrix$ref)
+RunFunction("GetMatrixColumnLabels", matrix$cores$`In-Vehicle Time`)
+```
+
+
+### Example 7: GISDK objects {#ex7}
 
 The `caliper` package provides a straightforward approach to managing GISDK
 objects over COM.

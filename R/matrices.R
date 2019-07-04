@@ -41,6 +41,7 @@ as.matrix.matrix_handle <- function(x, ...) {
   # Argument checking
   args <- list(...)
   if (!is.null(args$core)) {
+    core <- args$core
     stopifnot(core %in% names(x$cores))
   } else {
     core <- names(x$cores)[1]
