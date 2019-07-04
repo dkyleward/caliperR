@@ -99,19 +99,35 @@ summary.matrix_handle <- function(x, ...) {
 #' A \code{matrix_handle} is different from an R matrix. This object represents
 #' all the cores of a Caliper matrix.
 #'
-#' @param file File name to read (.mtx)
+#' @param m Either a file name to read (.mtx) or a COM pointer to an open matrix
+#'   in Caliper software.
 #' @export
 
-create_matrix <- function(file) {
-  if (!file.exists(file))
-    stop("(caliper::create_matrix_currency) 'file' not found")
-  mh <- RunFunction("OpenMatrix", file, NA)
-  core_names <- RunFunction("GetMatrixCoreNames", mh)
-  cores <- create_matrix_cores(mh)
-  result <- structure(
-    list(ref = mh, cores = cores),
-    class = "matrix_handle"
-  )
+create_matrix <- function(m) {
+  if(inherits(m, "matrix_handle")) return(m)
+  if (!(class(m) %in% c("character", "COMIDispatch")))
+    stop("(caliper::create_matrix) 'm' must be either a character or COM pointer")
+  if (typeof(m) == "character"){
+    if (!file.exists(m))
+      stop("(caliper::create_matrix) file 'm' not found")
+    mh <- RunFunction("OpenMatrix", m, NA)
+  } else {
+    mh <- m
+  }
+
+  # Calling RunFunction() above will call process_gisdk_results(), which can
+  # call create_matrix() again. The if statement determines if it's the first
+  # or second call.
+  if (class(mh) == "COMIDispatch") {
+    core_names <- RunFunction("GetMatrixCoreNames", mh)
+    cores <- create_matrix_cores(mh)
+    obj <- structure(
+      list(ref = mh, cores = cores),
+      class = "matrix_handle"
+    )
+    return(obj)
+  }
+  if(inherits(mh, "matrix_handle")) return(mh)
 }
 
 #' Internal function used to create currency pointers for all cores in a matrix

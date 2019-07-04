@@ -4,10 +4,11 @@
 \alias{create_matrix}
 \title{Creates an S3 object of class \code{matrix_handle}}
 \usage{
-create_matrix(file)
+create_matrix(m)
 }
 \arguments{
-\item{file}{File name to read (.mtx)}
+\item{m}{Either a file name to read (.mtx) or a COM pointer to an open matrix
+in Caliper software.}
 }
 \description{
 A \code{matrix_handle} is different from an R matrix. This object represents
