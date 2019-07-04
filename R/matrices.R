@@ -1,19 +1,19 @@
-#' S3 method for converting a \code{matrix_handle} into a \code{data.frame}
+#' S3 method for converting a \code{CaliperMatrix} into a \code{data.frame}
 #'
-#' @param x \code{matrix_handle}
+#' @param x \code{CaliperMatrix}
 #' @param row.names See \code{as.data.frame}
 #' @param optional See \code{as.data.frame}
 #' @param ... additional arguments passed to \code{as.data.frame}
 #' @import data.table
 #' @export
 
-as.data.frame.matrix_handle <- function(x, row.names = NULL,
+as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
                                         optional = FALSE, ...) {
 
   temp_file <- tempfile(fileext = ".csv")
   core_names <- names(x$cores)
   RunFunction(
-    "CreateTableFromMatrix", x$ref, temp_file, "CSV",
+    "CreateTableFromMatrix", x$handle, temp_file, "CSV",
     list(Complete = TRUE)
   )
   df <- data.table::fread(temp_file, header = FALSE)
@@ -31,12 +31,12 @@ as.data.frame.matrix_handle <- function(x, row.names = NULL,
 #' To select a different one, use the \code{core} argument like so:
 #' \code{as.matrix(x, core = "second core")}.
 #'
-#' @param x A \code{matrix_currency} object
+#' @param x A \code{CaliperMatrix} object
 #' @param ... Additional arguments passed to \code{as.matrix}. An extra argument
 #'   \code{core} can be used to specify which core to convert. See details
 #' @export
 
-as.matrix.matrix_handle <- function(x, ...) {
+as.matrix.CaliperMatrix <- function(x, ...) {
 
   # Argument checking
   args <- list(...)
@@ -47,7 +47,7 @@ as.matrix.matrix_handle <- function(x, ...) {
     core <- names(x$cores)[1]
   }
 
-  tbl <- as.data.frame.matrix_handle(x)
+  tbl <- as.data.frame.CaliperMatrix(x)
 
   tbl$from <- factor(x = tbl$from, levels = unique(tbl$from))
   tbl$to <- factor(x = tbl$to, levels = unique(tbl$to))
@@ -62,19 +62,19 @@ as.matrix.matrix_handle <- function(x, ...) {
   return(result)
 }
 
-#' S3 method for summarizing a \code{matrix_handle}
+#' S3 method for summarizing a \code{CaliperMatrix}
 #'
-#' @param x \code{matrix_handle}
+#' @param x \code{CaliperMatrix}
 #' @param ... Additional arguments (not used)
 #' @import data.table
 #' @export
 
-summary.matrix_handle <- function(x, ...) {
+summary.CaliperMatrix <- function(x, ...) {
 
   # Argument checking
-  stopifnot(class(x) == "matrix_handle")
+  stopifnot(class(x) == "CaliperMatrix")
 
-  stats <- RunFunction("MatrixStatistics", x$ref, NA)
+  stats <- RunFunction("MatrixStatistics", x$handle, NA)
   list_of_rows <- lapply(stats, function(x) {
     core_name <- x[[1]]
     stat_names <- unlist(lapply(x[[2]], function(x) {
@@ -95,9 +95,9 @@ summary.matrix_handle <- function(x, ...) {
   return(df)
 }
 
-#' Creates an S3 object of class \code{matrix_handle}
+#' Creates an S3 object of class \code{CaliperMatrix}
 #'
-#' A \code{matrix_handle} is different from an R matrix. This object represents
+#' A \code{CaliperMatrix} is different from an R matrix. This object represents
 #' all the cores of a Caliper matrix.
 #'
 #' @param m Either a file name to read (.mtx) or a COM pointer to an open matrix
@@ -105,7 +105,7 @@ summary.matrix_handle <- function(x, ...) {
 #' @export
 
 create_matrix <- function(m) {
-  if(inherits(m, "matrix_handle")) return(m)
+  if(inherits(m, "CaliperMatrix")) return(m)
   if (!(class(m) %in% c("character", "COMIDispatch")))
     stop("(caliper::create_matrix) 'm' must be either a character or COM pointer")
   if (typeof(m) == "character"){
@@ -123,18 +123,19 @@ create_matrix <- function(m) {
     core_names <- RunFunction("GetMatrixCoreNames", mh)
     cores <- create_matrix_cores(mh)
     obj <- structure(
-      list(ref = mh, cores = cores),
-      class = "matrix_handle"
+      list(handle = mh, cores = cores),
+      class = "CaliperMatrix"
     )
     return(obj)
   }
-  if(inherits(mh, "matrix_handle")) return(mh)
+  if(inherits(mh, "CaliperMatrix")) return(mh)
 }
 
 #' Internal function used to create currency pointers for all cores in a matrix
 #'
 #' This is the function that creates the list of COM pointers (one for each core)
-#' that is stored in a \code{matrix_handle} object.
+#' that is stored in a \code{CaliperMatrix} object.
+#'
 #' @param mh \code{COMIDispatch} A pointer to the GISDK matrix handle
 #' @param ri \code{string} Name of the row index. (NULL for base index)
 #' @param ci \code{string} Name of the column index. (NULL for base index)

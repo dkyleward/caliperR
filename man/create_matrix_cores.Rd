@@ -15,6 +15,6 @@ create_matrix_cores(mh, ri = NULL, ci = NULL)
 }
 \description{
 This is the function that creates the list of COM pointers (one for each core)
-that is stored in a \code{matrix_handle} object.
+that is stored in a \code{CaliperMatrix} object.
 }
 \keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/matrices.R
 \name{create_matrix}
 \alias{create_matrix}
-\title{Creates an S3 object of class \code{matrix_handle}}
+\title{Creates an S3 object of class \code{CaliperMatrix}}
 \usage{
 create_matrix(m)
 }
@@ -11,6 +11,6 @@ create_matrix(m)
 in Caliper software.}
 }
 \description{
-A \code{matrix_handle} is different from an R matrix. This object represents
+A \code{CaliperMatrix} is different from an R matrix. This object represents
 all the cores of a Caliper matrix.
 }

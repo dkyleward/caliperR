@@ -2,9 +2,9 @@
 
 S3method("$",CaliperClass)
 S3method("$<-",CaliperClass)
-S3method(as.data.frame,matrix_handle)
-S3method(as.matrix,matrix_handle)
-S3method(summary,matrix_handle)
+S3method(as.data.frame,CaliperMatrix)
+S3method(as.matrix,CaliperMatrix)
+S3method(summary,CaliperMatrix)
 export(CaliperClass)
 export(CreateObject)
 export(GetInterface)

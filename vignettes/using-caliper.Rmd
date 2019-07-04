@@ -209,7 +209,7 @@ is are also made available. These can be passed into `RunFunction()` and
 
 ```{r}
 # Points to the Caliper matrix handle
-matrix$ref
+matrix$handle
 
 # Points to a matrix currency
 matrix$cores$`In-Vehicle Time`
@@ -218,7 +218,7 @@ matrix$cores$`In-Vehicle Time`
 Some examples:
 
 ```{r}
-RunFunction("GetMatrixBaseIndex", matrix$ref)
+RunFunction("GetMatrixBaseIndex", matrix$handle)
 RunFunction("GetMatrixColumnLabels", matrix$cores$`In-Vehicle Time`)
 ```
 
