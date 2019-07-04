@@ -64,15 +64,16 @@ as.matrix.matrix_handle <- function(x, ...) {
 #' S3 method for summarizing a \code{matrix_handle}
 #'
 #' @param x \code{matrix_handle}
+#' @param ... Additional arguments (not used)
 #' @import data.table
+#' @export
 
-summary.matrix_handle <- function(x) {
+summary.matrix_handle <- function(x, ...) {
 
   # Argument checking
   stopifnot(class(x) == "matrix_handle")
 
   stats <- RunFunction("MatrixStatistics", x$ref, NA)
-
   list_of_rows <- lapply(stats, function(x) {
     core_name <- x[[1]]
     stat_names <- unlist(lapply(x[[2]], function(x) {

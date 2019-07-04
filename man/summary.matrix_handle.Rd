@@ -4,10 +4,12 @@
 \alias{summary.matrix_handle}
 \title{S3 method for summarizing a \code{matrix_handle}}
 \usage{
-\method{summary}{matrix_handle}(x)
+\method{summary}{matrix_handle}(x, ...)
 }
 \arguments{
 \item{x}{\code{matrix_handle}}
+
+\item{...}{Additional arguments (not used)}
 }
 \description{
 S3 method for summarizing a \code{matrix_handle}
