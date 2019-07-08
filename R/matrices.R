@@ -69,7 +69,7 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 #' @import data.table
 #' @export
 
-summary.CaliperMatrix <- function(x, ...) {
+summary.CaliperMatrix <- function(object, ...) {
 
   # Argument checking
   stopifnot(class(x) == "CaliperMatrix")

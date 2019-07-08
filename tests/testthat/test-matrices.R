@@ -9,7 +9,7 @@ test_that("matrix objects are created", {
   check_connected()
   matrix <- open_matrix()
   expect_type(matrix, "list")
-  expect_s4_class(matrix$ref, "COMIDispatch")
+  expect_s4_class(matrix$handle, "COMIDispatch")
   expect_type(matrix$cores, "list")
   expect_s4_class(matrix$cores[[1]], "COMIDispatch")
 })
