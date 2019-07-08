@@ -33,8 +33,8 @@ The sections below show how to work with the package.
 
 ## Connecting
 
-When you load the library, it will automatically find and connect to installed
-Caliper software.
+When you load the library, `caliper` will automatically find and connect to
+installed Caliper software.
 
 ```{r}
 library(caliper)
@@ -88,14 +88,22 @@ The code above shows introduces two other important ideas:
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
 
-For convenience, there are three GISDK functions which have been implemented
-directly in R and aren't called using `RunFunction()`:
+To improve integration with R, some GISDK functions have been implemented
+directly in the `caliper` package:
 
   * `RunMacro()` ([example 1](#ex1))
   * `SetAlternateInterface()` ([example 3](#ex3))
   * `GetInterface()` ([example 3](#ex3))
   * `CreateObject()` ([example 7](#ex7))
-  
+
+Trying to call these functions using `RunFunction()` will display a helpful
+error message:
+
+```{r, error=TRUE}
+RunFunction("RunMacro")
+```
+
+
 ## Custom Macros
 
 In order to call one of your own GISDK functions from R, it must be compiled
@@ -204,7 +212,7 @@ mtx[1:5, 1:5]
 ```
 
 For more advanced use, COM pointers to the matrix handle and each currency
-is are also made available. These can be passed into `RunFunction()` and
+are also made available. These can be passed into `RunFunction()` and
 `RunMacro()` to do further work in Caliper software.
 
 ```{r}

@@ -157,6 +157,17 @@ RunMacro <- function(macro_name, ...) {
 
 RunFunction <- function(macro_name,...) {
   stopifnot(connected())
+  invalid_macro_names <- c(
+    "RunMacro",
+    "CreateObject",
+    "SetAlternateInterface",
+    "GetInterface"
+  )
+  if (macro_name %in% invalid_macro_names) {
+    stop(paste0(
+      "Use caliper::", macro_name, "()"
+    ))
+  }
   dk <- get_package_variable("CALIPER_DK")
   gisdk_args <- process_gisdk_args(list(...))
   args <- c(list(macro_name), gisdk_args)

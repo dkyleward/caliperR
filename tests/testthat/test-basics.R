@@ -34,4 +34,9 @@ test_that("RunFunction works", {
     ),
     "airports"
   )
+  expect_error(
+    RunFunction("CreateObject"),
+    "Use caliper::CreateObject()",
+    fixed = TRUE
+  )
 })
