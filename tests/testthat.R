@@ -2,7 +2,6 @@ library(testthat)
 library(caliper)
 
 check_connected <- function() {
-  skip_on_cran()
   if (!connected()) {
     skip("Not connected to Caliper software")
   }

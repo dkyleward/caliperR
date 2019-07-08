@@ -267,28 +267,41 @@ head(info$MethodNames)
 ```
 
 
-## Limitations
+## Flattened Arrays
 
-### Returned values
-
-Sending data from R -> GISDK works well; however, data from GISDK -> R currently
-has some limitations. The code block below gives a snippet of what the GISDK is
-returning, and shows what it looks like in R.
+The code block below gives a snippet of several data structures returned by
+GISDK and what they look like in R. Most results make sense.
 
   * Arrays and vectors are returned as vectors
-  * Nested arrays are returned as flattened vectors
-  * Named/Options arrays are returned as nested lists
-
+  * Named/Options arrays are returned as named lists
+  
 ```{r}
 # GISDK: return({1, 2})
-str(RunMacro("return array"))
+RunMacro("return array")
 
 # GISDK: return(A2V({1, 2}))
-str(RunMacro("return vector"))
-
-# GISDK: return({{1, 2}, {3, 4}})
-str(RunMacro("return nested array"))
+RunMacro("return vector")
 
 # GISDK: return({{"one", 1}, {"two", 2}})
-str(RunMacro("return named array"))
+RunMacro("return named array")
+
+
+
 ```
+
+However, if all elements of a nested GISDK array are the same type (e.g.
+numeric), the array is flattened.
+
+```{r}
+# GISDK: return({{1, 2}, {3, 4}})
+RunMacro("return nested array")
+```
+
+This is a rare case and can be dealt with in your R code. For example, if you
+know what the structure should be (as in our example), you can use `relist()`.
+
+```{r}
+x <- RunMacro("return nested array")
+relist(x, list(1:2, 1:2))
+```
+

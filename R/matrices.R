@@ -72,23 +72,18 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 summary.CaliperMatrix <- function(object, ...) {
 
   # Argument checking
-  stopifnot(class(x) == "CaliperMatrix")
+  stopifnot(class(object) == "CaliperMatrix")
 
-  stats <- RunFunction("MatrixStatistics", x$handle, NA)
-  list_of_rows <- lapply(stats, function(x) {
-    core_name <- x[[1]]
-    stat_names <- unlist(lapply(x[[2]], function(x) {
-      stat_name <- x[[1]]
-    }))
-    stat_values <- unlist(lapply(x[[2]], function(x) {
-      stat_value <- x[[2]]
-    }))
+  stats <- RunFunction("MatrixStatistics", object$handle, NA)
+  list_of_rows <- Map(function(x, name) {
+    stat_names <- unlist(lapply(x, "[[", 1))
+    stat_values <- unlist(lapply(x, "[[", 2))
     df <- as.data.frame(stat_values)
     df <- data.table::transpose(df)
     colnames(df) <- stat_names
-    df$Core <- core_name
+    df$Core <- name
     return(df)
-  })
+  }, stats, names(stats))
 
   df <- data.table::rbindlist(list_of_rows)
   setcolorder(df, "Core")
@@ -102,7 +97,7 @@ summary.CaliperMatrix <- function(object, ...) {
 #'
 #' @param m Either a file name to read (.mtx) or a COM pointer to an open matrix
 #'   in Caliper software.
-#' @export
+#' @keywords internal
 
 create_matrix <- function(m) {
   if(inherits(m, "CaliperMatrix")) return(m)
@@ -148,17 +143,5 @@ create_matrix_cores <- function(mh, ri = NULL, ci = NULL) {
   if (is.null(ci)) ci <- NA
 
   currencies <- RunFunction("CreateMatrixCurrencies", mh, ri, ci, NA)
-  cores <- list()
-  for (i in 1:length(currencies)) {
-    name <- currencies[[i]][[1]]
-    pointer <- currencies[[i]][[2]]
-
-    # cur <- structure(
-    #   list(pointer),
-    #   class = "matrix_currency"
-    # )
-
-    cores[[name]] <- pointer
-  }
-  return(cores)
+  return(currencies)
 }

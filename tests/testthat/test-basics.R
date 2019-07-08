@@ -16,9 +16,8 @@ test_that("Type conversion works", {
   )
   expect_equal(caliper:::process_gisdk_args(1), 1)
   SetAlternateInterface(ui_path)
-  result <- RunMacro("return named array")
   expect_mapequal(
-    caliper:::convert_to_named_list(result), c("one" = 1, "two" = 2)
+    RunMacro("return named array"), list("one" = 1, "two" = 2)
   )
   SetAlternateInterface()
   expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")

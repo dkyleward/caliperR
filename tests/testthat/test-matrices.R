@@ -1,7 +1,7 @@
 open_matrix <- function() {
   folder <- RunMacro("G30 Tutorial Folder")
   file <- paste0(folder, "Accessibility Skim BusWlk.mtx")
-  matrix <- create_matrix(file)
+  matrix <- caliper:::create_matrix(file)
   return(matrix)
 }
 

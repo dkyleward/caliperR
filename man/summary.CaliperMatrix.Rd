@@ -4,12 +4,12 @@
 \alias{summary.CaliperMatrix}
 \title{S3 method for summarizing a \code{CaliperMatrix}}
 \usage{
-\method{summary}{CaliperMatrix}(x, ...)
+\method{summary}{CaliperMatrix}(object, ...)
 }
 \arguments{
-\item{x}{\code{CaliperMatrix}}
-
 \item{...}{Additional arguments (not used)}
+
+\item{x}{\code{CaliperMatrix}}
 }
 \description{
 S3 method for summarizing a \code{CaliperMatrix}

@@ -14,3 +14,4 @@ in Caliper software.}
 A \code{CaliperMatrix} is different from an R matrix. This object represents
 all the cores of a Caliper matrix.
 }
+\keyword{internal}

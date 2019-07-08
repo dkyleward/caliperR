@@ -276,9 +276,28 @@ convert_to_named_array <- function(named_list) {
 
 convert_to_named_list <- function(nested_list) {
   names <- unlist(lapply(nested_list, "[", 1))
-  values <- unlist(lapply(nested_list, "[", 2))
+  values <- unlist(lapply(nested_list, "[", 2), recursive = FALSE)
   names(values) <- names
   return(values)
+}
+
+#' Checks if an object is a GISDK named array
+#'
+#' When returned over COM, these arrays have a very specific format. This
+#' function is used in conjunction with \code{\link{convert_to_named_list}} in
+#' \code{\link{process_gisdk_result}} to identify and convert GISDK named arrays
+#' into R's named lists.
+#'
+#' @param object The object to be tested
+#' @return \code{boolean} TRUE/FALSE
+#' @keywords internal
+
+is_gisdk_named_array <- function(object) {
+  if (typeof(object) != "list") return(FALSE)
+  v1 <- lapply(object, typeof) == "list"
+  v2 <- lapply(object, length) == 2
+  v3 <- lapply(object, function(x) typeof(x[[1]])) == "character"
+  if (all(c(v1, v2, v3))) return(TRUE) else return(FALSE)
 }
 
 #' Converts R's \code{NA}, \code{NULL}, and \code{/} to formats GISDK can use
@@ -316,10 +335,14 @@ convert_nulls_and_slashes <- function(arg) {
 #' @keywords internal
 
 process_gisdk_result <- function(result) {
+  if (caliper:::is_gisdk_named_array(result)) {
+    return(caliper:::convert_to_named_list(result))
+  }
   if (class(result) != "COMIDispatch") return(result)
   type <- RunMacro("get_object_type", result)
   if (type == "vector") result <- RunFunction("V2A", result)
-  if (type == "matrix") result <- create_matrix(result)
+  if (type == "matrix") result <- caliper:::create_matrix(result)
+
   return(result)
 }
 
