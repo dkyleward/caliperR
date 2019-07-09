@@ -72,7 +72,7 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 summary.CaliperMatrix <- function(object, ...) {
 
   # Argument checking
-  stopifnot(class(object) == "CaliperMatrix")
+  stopifnot("CaliperMatrix" %in% class(object))
 
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
   list_of_rows <- Map(function(x, name) {
@@ -90,58 +90,91 @@ summary.CaliperMatrix <- function(object, ...) {
   return(df)
 }
 
-#' Creates an S3 object of class \code{CaliperMatrix}
+#' CaliperMatrix class
 #'
-#' A \code{CaliperMatrix} is different from an R matrix. This object represents
-#' all the cores of a Caliper matrix.
+#' This class makes it easier to interact with Caliper matrices in R.
 #'
-#' @param m Either a file name to read (.mtx) or a COM pointer to an open matrix
-#'   in Caliper software.
-#' @keywords internal
-
-create_matrix <- function(m) {
-  if(inherits(m, "CaliperMatrix")) return(m)
-  if (!(class(m) %in% c("character", "COMIDispatch")))
-    stop("(caliper::create_matrix) 'm' must be either a character or COM pointer")
-  if (typeof(m) == "character"){
-    if (!file.exists(m))
-      stop("(caliper::create_matrix) file 'm' not found")
-    mh <- RunFunction("OpenMatrix", m, NA)
-  } else {
-    mh <- m
-  }
-
-  # Calling RunFunction() above will call process_gisdk_results(), which can
-  # call create_matrix() again. The if statement determines if it's the first
-  # or second call.
-  if (class(mh) == "COMIDispatch") {
-    core_names <- RunFunction("GetMatrixCoreNames", mh)
-    cores <- create_matrix_cores(mh)
-    obj <- structure(
-      list(handle = mh, cores = cores),
-      class = "CaliperMatrix"
-    )
-    return(obj)
-  }
-  if(inherits(mh, "CaliperMatrix")) return(mh)
-}
-
-#' Internal function used to create currency pointers for all cores in a matrix
+#' @section Object fields:
 #'
-#' This is the function that creates the list of COM pointers (one for each core)
-#' that is stored in a \code{CaliperMatrix} object.
+#' A \code{CaliperMatrix} object has the following fields/attributes of interest:
+#' \describe{
+#'   \item{handle}{
+#'     This is a COM pointer and represents the object in Caliper Software.
+#'   }
+#'   \item{cores}{
+#'     This is a named list of cores. Each element contains a COM pointer to
+#'     a matrix currency in Caliper software.
+#'   }
+#'   \item{indices}{
+#'     This lists the row and column indices available for the matrix.
+#'   }
+#'   \item{row_index}{
+#'     This can be used to retrieve or set the current row index.
+#'   }
+#'   \item{column_index}{
+#'     This can be used to retrieve or set the current column index.
+#'   }
+#' }
 #'
-#' @param mh \code{COMIDispatch} A pointer to the GISDK matrix handle
-#' @param ri \code{string} Name of the row index. (NULL for base index)
-#' @param ci \code{string} Name of the column index. (NULL for base index)
-#' @keywords internal
+#' See the vignette "Using caliper" for more details on interacting with
+#' matrices. This includes info on S3 methods for bringing them into R formats
+#' like \code{data.frames} and \code{matrices}.
+#'
+#' @import R6
+#' @export
 
-create_matrix_cores <- function(mh, ri = NULL, ci = NULL) {
-  if (class(mh) != "COMIDispatch")
-    stop("(caliper::create_matrix_cores) 'mh' isn't the right class")
-  if (is.null(ri)) ri <- NA
-  if (is.null(ci)) ci <- NA
-
-  currencies <- RunFunction("CreateMatrixCurrencies", mh, ri, ci, NA)
-  return(currencies)
-}
+CaliperMatrix <- R6::R6Class(
+  "CaliperMatrix",
+  public = list(
+    handle = NULL,
+    cores = NULL,
+    indices = NULL,
+    initialize = function (matrix) {
+      if (typeof(matrix) == "character") {
+        stopifnot(file.exists(matrix))
+        self$handle <- RunFunction("OpenMatrix", matrix, NA)
+      }
+      if (class(matrix) == "COMIDispatch") {
+        self$handle <- matrix
+      }
+      base_indices <- RunFunction("GetMatrixBaseIndex", self$handle)
+      private$current_row_index <- base_indices[[1]]
+      private$current_column_index <- base_indices[[2]]
+      self$create_matrix_cores()
+      self$indices <- RunFunction("GetMatrixIndexNames", self$handle)
+    },
+    create_matrix_cores = function () {
+      result <- RunFunction(
+        "CreateMatrixCurrencies", self$handle, private$current_row_index,
+        private$current_column_index, NA
+      )
+      self$cores <- result
+    }
+  ),
+  active = list(
+    row_index = function (name) {
+      if (missing(name)) return(private$current_row_index)
+      if (!(name %in% self$indices)) {
+        stop(
+          paste0("Name must be one of ", paste(self$indices, collapse = ", "))
+        )
+      }
+      private$current_row_index <- name
+      self$create_matrix_cores()
+    },
+    column_index = function (name) {
+      if (missing(name)) return(private$current_column_index)
+      if (!(name %in% self$indices)) {
+        stop(
+          paste0("Name must be one of ", paste(self$indices, collapse = ", "))
+        )
+      }
+      private$current_column_index <- name
+      self$create_matrix_cores()
+    }
+  ),
+  private = list(
+    current_row_index = NULL,
+    current_column_index = NULL
+  )
+)
