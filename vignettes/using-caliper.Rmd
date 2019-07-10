@@ -123,7 +123,7 @@ ui_path <- file.path(tempdir, "my_ui.dbd")
 The toy functions are simple, but illustrate some important points in the
 examples below.
 
-### Example 3: first macro {#ex3}
+### Example 3: First macro {#ex3}
 
 To reference a custom function that you have written and compiled, first use 
 `SetAlternateInterface()` to point to your compiled code.
@@ -148,7 +148,7 @@ GetInterface()
 
 ## Named Arrays
 
-### Example 4: parse opts array
+### Example 4: Parse opts array
 
 Many GISDK functions and macros take named arrays (aka options arrays) as input.
 `caliper` allows you to pass named lists/vectors as an equivalent.
@@ -167,7 +167,7 @@ RunMacro(
 
 ## Message Boxes
 
-### Example 5: show array
+### Example 5: Show array
 
 If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
 similar, R will wait until you have closed that pop up before continuing. You
@@ -191,11 +191,11 @@ Working with matrices in R has been streamlined. Opening a matrix, for example,
 returns an object with several useful attributes and features.
 
 ```{r}
-file <- paste0(folder, "Accessibility Skim BusWlk.mtx")
+file <- system.file("extdata", "gisdk", "toy matrix.mtx", package = "caliper")
 matrix <- RunFunction("OpenMatrix", file, NA)
 ```
 
-Several generic functions can be used on `matrix`.
+Several generic functions can be used on the resulting R6 object.
 
 ```{r}
 summary(matrix)
@@ -207,12 +207,30 @@ head(tbl)
 ```
 
 ```{r}
-mtx <- as.matrix(matrix, core = "Travel Time")
-mtx[1:5, 1:5]
+as.matrix(matrix, core = "core b")
 ```
 
-For more advanced use, COM pointers to the matrix handle and each currency
-are also made available. These can be passed into `RunFunction()` and
+You can see the various row and column indices defined in the matrix. Row and
+column indices are both listed, so there can be duplicates
+
+```{r}
+matrix$indices
+```
+
+The `row_index` and `column_index` active fields allow you to see which index
+is active or switch between available indices. The `subset` index only contains
+the first 3 rows and columns of the full matrix.
+
+```{r}
+matrix$row_index
+matrix$row_index <- "subset"
+matrix$row_index
+matrix$column_index <- "subset"
+as.matrix(matrix)
+```
+
+To support additional work over COM, pointers to the matrix handle and each
+currency are also made available. These can be passed into `RunFunction()` and
 `RunMacro()` to do further work in Caliper software.
 
 ```{r}
@@ -220,16 +238,18 @@ are also made available. These can be passed into `RunFunction()` and
 matrix$handle
 
 # Points to a matrix currency
-matrix$cores$`In-Vehicle Time`
+matrix$cores$`core a`
 ```
 
 Some examples:
 
 ```{r}
 RunFunction("GetMatrixBaseIndex", matrix$handle)
-RunFunction("GetMatrixColumnLabels", matrix$cores$`In-Vehicle Time`)
+RunFunction("GetMatrixColumnLabels", matrix$cores$`core a`)
 ```
 
+Note that the column labels are only 1-3 as opposed to 1-5. The matrix currency
+pointer is also using the `subset` index we set.
 
 ### Example 7: GISDK objects {#ex7}
 
@@ -241,7 +261,7 @@ object <- CreateObject("NLM.Model")
 ```
 
 The only difference between R and GISDK is syntax: R uses `$` instead of `.` to
-access object fields (attributes) and methods. The code below sets the `Label`
+access object attributes and methods. The code below sets the `Label`
 attribute of the `NLM.Model` GISDK object.
 
 ```{r}

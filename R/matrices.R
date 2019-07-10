@@ -19,6 +19,15 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
   df <- data.table::fread(temp_file, header = FALSE)
   colnames(df) <- c("from", "to", core_names)
   setDF(df, rownames = row.names)
+
+  # CreateTableFromMatrix exports all the data regardless of which index
+  # is active. Filter the from/to columns to match the active index.
+  c_labels <- RunFunction("GetMatrixColumnLabels", x$cores[[1]])
+  c_labels <- as.numeric(c_labels)
+  r_labels <- RunFunction("GetMatrixRowLabels", x$cores[[1]])
+  r_labels <- as.numeric(r_labels)
+  df <- df[df$from %in% r_labels & df$to %in% c_labels, ]
+
   return(df)
 }
 
@@ -149,6 +158,7 @@ CaliperMatrix <- R6::R6Class(
         private$current_column_index, NA
       )
       self$cores <- result
+      invisible(self)
     }
   ),
   active = list(
@@ -159,6 +169,7 @@ CaliperMatrix <- R6::R6Class(
           paste0("Name must be one of ", paste(self$indices, collapse = ", "))
         )
       }
+      self$cores <- NULL
       private$current_row_index <- name
       self$create_matrix_cores()
     },
@@ -169,6 +180,7 @@ CaliperMatrix <- R6::R6Class(
           paste0("Name must be one of ", paste(self$indices, collapse = ", "))
         )
       }
+      self$cores <- NULL
       private$current_column_index <- name
       self$create_matrix_cores()
     }

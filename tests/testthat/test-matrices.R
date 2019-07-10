@@ -1,6 +1,5 @@
 open_matrix <- function() {
-  folder <- RunMacro("G30 Tutorial Folder")
-  file <- paste0(folder, "Accessibility Skim BusWlk.mtx")
+  file <- system.file("extdata", "gisdk", "toy matrix.mtx", package = "caliper")
   matrix <- RunFunction("OpenMatrix", file, NA)
   return(matrix)
 }
@@ -20,4 +19,14 @@ test_that("matrix generics work", {
   expect_is(summary(matrix), "data.frame")
   expect_is(as.data.frame(matrix), "data.frame")
   expect_is(as.matrix(matrix), "matrix")
+})
+
+test_that("matrix indices work", {
+  check_connected()
+  matrix <- open_matrix()
+  matrix$column_index <- "subset"
+  c_labels <- RunFunction("GetMatrixColumnLabels", matrix$cores$`core a`)
+  expect_equal(c_labels, c("1", "2", "3"))
+  df <- as.data.frame(matrix)
+  expect_equal(nrow(df), 15)
 })
