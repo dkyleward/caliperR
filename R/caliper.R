@@ -261,7 +261,7 @@ convert_to_named_array <- function(named_list) {
   )
   df <- df[!is.null(df$values) & !is.na(df$values), ]
 
-  return(RDCOMClient::asCOMArray(as.matrix(df)))
+  return(RDCOMClient::asCOMArray(df))
 }
 
 #' Used to convert GISDK named arrays to R's named lists.
