@@ -335,8 +335,8 @@ convert_nulls_and_slashes <- function(arg) {
 #' @keywords internal
 
 process_gisdk_result <- function(result) {
-  if (caliper:::is_gisdk_named_array(result)) {
-    return(caliper:::convert_to_named_list(result))
+  if (is_gisdk_named_array(result)) {
+    return(convert_to_named_list(result))
   }
   if (class(result) != "COMIDispatch") return(result)
   type <- RunMacro("get_object_type", result)

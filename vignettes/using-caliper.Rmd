@@ -191,7 +191,7 @@ Working with matrices in R has been streamlined. Opening a matrix, for example,
 returns an object with several useful attributes and features.
 
 ```{r}
-file <- system.file("extdata", "gisdk", "toy matrix.mtx", package = "caliper")
+file <- system.file("extdata", "gisdk", "toy_matrix.mtx", package = "caliper")
 matrix <- RunFunction("OpenMatrix", file, NA)
 ```
 

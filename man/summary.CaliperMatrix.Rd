@@ -7,9 +7,10 @@
 \method{summary}{CaliperMatrix}(object, ...)
 }
 \arguments{
-\item{...}{Additional arguments (not used)}
+\item{object}{A \code{CaliperMatrix} object.}
 
-\item{x}{\code{CaliperMatrix}}
+\item{...}{Additional arguments passed to the \code{summary} generic
+function.}
 }
 \description{
 S3 method for summarizing a \code{CaliperMatrix}

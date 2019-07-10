@@ -73,8 +73,9 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 
 #' S3 method for summarizing a \code{CaliperMatrix}
 #'
-#' @param x \code{CaliperMatrix}
-#' @param ... Additional arguments (not used)
+#' @param object A \code{CaliperMatrix} object.
+#' @param ... Additional arguments passed to the \code{summary} generic
+#'   function.
 #' @import data.table
 #' @export
 

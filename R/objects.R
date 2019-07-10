@@ -135,11 +135,11 @@ CaliperClass <- R6::R6Class("CaliperClass",
           stop(e)
         }
       )
-      caliper:::process_gisdk_result(value)
+      process_gisdk_result(value)
     },
     set_gisdk_attribute = function(attribute, value) {
       stopifnot(is.character(attribute))
-      value <- caliper:::process_gisdk_args(value)
+      value <- process_gisdk_args(value)
       args <- list("set_attribute", self$ref, attribute, value)
       tryCatch(
         do.call(RunMacro, args),
