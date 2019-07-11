@@ -106,11 +106,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
       )
       self$g_class_name <- class_name
       flat_info_list <- RunMacro("get_class_info", self$ref)
-      names <- c("ClassName", "FieldNames", "MethodNames")
-      pos <- which(flat_info_list %in% names)
-      pattern <- rep(names, times = diff(c(pos, length(flat_info_list) + 1)))
-      result <- split(flat_info_list, pattern)
-      self$info <- lapply(result, function(x) x[2:length(x)])
+      self$info <- lapply(flat_info_list, unlist)
     },
     apply_gisdk_method = function(method, ...) {
       stopifnot(is.character(method))

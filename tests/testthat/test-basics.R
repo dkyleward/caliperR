@@ -8,7 +8,7 @@ test_that("RunMacro works", {
 test_that("Type conversion works", {
   check_connected()
   SetAlternateInterface(ui_path)
-  expect_equal(RunMacro("return array"), c(1, 2))
+  expect_equal(RunMacro("return array"), list(1, 2))
   expect_equal(RunMacro("return vector"), c(1, 2))
   expect_equal(
     RunMacro("parse opts array", list("one" = 1)),

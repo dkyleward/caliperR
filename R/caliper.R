@@ -336,12 +336,17 @@ convert_nulls_and_slashes <- function(arg) {
 
 process_gisdk_result <- function(result) {
   if (is_gisdk_named_array(result)) {
-    return(convert_to_named_list(result))
+    result <- convert_to_named_list(result)
   }
-  if (class(result) != "COMIDispatch") return(result)
-  type <- RunMacro("get_object_type", result)
-  if (type == "vector") result <- unlist(RunFunction("V2A", result))
-  if (type == "matrix") result <- CaliperMatrix$new(result)
+
+  if (typeof(result) == "list") {
+    result <- lapply(result, process_gisdk_result)
+  } else {
+    if (class(result) != "COMIDispatch") return(result)
+    type <- RunMacro("get_object_type", result)
+    if (type == "vector") result <- unlist(RunFunction("V2A", result))
+    if (type == "matrix") result <- CaliperMatrix$new(result)
+  }
 
   return(result)
 }

@@ -85,12 +85,9 @@ summary.CaliperMatrix <- function(object, ...) {
   stopifnot("CaliperMatrix" %in% class(object))
 
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
+
   list_of_rows <- Map(function(x, name) {
-    stat_names <- unlist(lapply(x, "[[", 1))
-    stat_values <- unlist(lapply(x, "[[", 2))
-    df <- as.data.frame(stat_values)
-    df <- data.table::transpose(df)
-    colnames(df) <- stat_names
+    df <- as.data.frame(x)
     df$Core <- name
     return(df)
   }, stats, names(stats))

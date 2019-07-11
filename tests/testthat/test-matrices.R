@@ -26,7 +26,7 @@ test_that("matrix indices work", {
   matrix <- open_matrix()
   matrix$column_index <- "subset"
   c_labels <- RunFunction("GetMatrixColumnLabels", matrix$cores$`core a`)
-  expect_equal(c_labels, c("1", "2", "3"))
+  expect_equal(c_labels, list("1", "2", "3"))
   df <- as.data.frame(matrix)
   expect_equal(nrow(df), 15)
 })

@@ -2,7 +2,6 @@ test_that("Objects work", {
   check_connected()
   expect_type(CreateObject("NLM.Model"), "environment")
   obj <- CreateObject("NLM.Model")
-  obj$info
   expect_type(obj$info, "list")
   expect_type(obj$info$MethodNames[1], "character")
   expect_error(obj$Labelz, "Labelz not found in R or GISDK objects")
