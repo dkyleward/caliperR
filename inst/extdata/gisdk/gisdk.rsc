@@ -48,3 +48,8 @@ endmacro
 Macro "return vector"
     return(A2V({1, 2}))
 endmacro
+
+// Used for a unit test
+Macro "test nested vector"
+    return({test: A2V({1, 2, 3})})
+endmacro

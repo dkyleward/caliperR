@@ -14,6 +14,7 @@ test_that("Type conversion works", {
     RunMacro("parse opts array", list("one" = 1)),
     "The first option name is one. The first option value is 1."
   )
+  expect_equal(RunMacro("test nested vector")$test, c(1, 2, 3))
   expect_equal(caliper:::process_gisdk_args(1), 1)
   SetAlternateInterface(ui_path)
   expect_mapequal(
