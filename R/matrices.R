@@ -4,6 +4,9 @@
 #' @param row.names See \code{as.data.frame}
 #' @param optional See \code{as.data.frame}
 #' @param ... additional arguments passed to \code{as.data.frame}
+#' @return Returns a \code{data.frame} with \code{from} and \code{to} columns
+#'   along with a column for each core of the matrix. The \code{data.frame}
+#'   respects the current row and column indices.
 #' @import data.table
 #' @export
 
@@ -36,13 +39,14 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' Converts a Caliper matrix into R format allowing it to be worked on in the R
 #' environment.
 #'
-#' By default, the first core of the Caliper matrix is converted into an R matrix.
-#' To select a different one, use the \code{core} argument like so:
+#' By default, the first core of the Caliper matrix is converted into an R
+#' matrix. To select a different one, use the \code{core} argument like so:
 #' \code{as.matrix(x, core = "second core")}.
 #'
 #' @param x A \code{CaliperMatrix} object
 #' @param ... Additional arguments passed to \code{as.matrix}. An extra argument
-#'   \code{core} can be used to specify which core to convert. See details
+#'   \code{core} can be used to specify which core to convert. See details.
+#' @return an R matrix
 #' @export
 
 as.matrix.CaliperMatrix <- function(x, ...) {
@@ -73,9 +77,14 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 
 #' S3 method for summarizing a \code{CaliperMatrix}
 #'
+#' Statistics return include things like sum, mean, min, etc.
+#'
 #' @param object A \code{CaliperMatrix} object.
 #' @param ... Additional arguments passed to the \code{summary} generic
 #'   function.
+#' @return A \code{data.frame} of summary statistics. These summary statistics
+#'   are always for the full Caliper matrix and do not respect the current
+#'   index.
 #' @import data.table
 #' @export
 
@@ -148,7 +157,13 @@ CaliperMatrix <- R6::R6Class(
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
       self$create_matrix_cores()
-      self$indices <- RunFunction("GetMatrixIndexNames", self$handle)
+      indices <- RunFunction("GetMatrixIndexNames", self$handle)
+      indices <- Map(function(x, name) {
+        x <- c(name, unlist(x))
+        return(x)
+      }, indices, names(indices))
+      indices <- setNames(indices, c("row", "column"))
+      self$indices <- indices
     },
     create_matrix_cores = function () {
       result <- RunFunction(
@@ -162,10 +177,10 @@ CaliperMatrix <- R6::R6Class(
   active = list(
     row_index = function (name) {
       if (missing(name)) return(private$current_row_index)
-      if (!(name %in% self$indices)) {
-        stop(
-          paste0("Name must be one of ", paste(self$indices, collapse = ", "))
-        )
+      if (!(name %in% self$indices$row)) {
+        stop(paste0(
+          "Name must be one of ", paste(self$indices$row, collapse = ", ")
+        ))
       }
       self$cores <- NULL
       private$current_row_index <- name
@@ -173,10 +188,10 @@ CaliperMatrix <- R6::R6Class(
     },
     column_index = function (name) {
       if (missing(name)) return(private$current_column_index)
-      if (!(name %in% self$indices)) {
-        stop(
-          paste0("Name must be one of ", paste(self$indices, collapse = ", "))
-        )
+      if (!(name %in% self$indices$column)) {
+        stop(paste0(
+          "Name must be one of ", paste(self$indices$column, collapse = ", ")
+        ))
       }
       self$cores <- NULL
       private$current_column_index <- name

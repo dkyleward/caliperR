@@ -210,8 +210,7 @@ head(tbl)
 as.matrix(matrix, core = "core b")
 ```
 
-You can see the various row and column indices defined in the matrix. Row and
-column indices are both listed, so there can be duplicates
+You can see the various row and column indices defined in the matrix.
 
 ```{r}
 matrix$indices
@@ -224,9 +223,9 @@ the first 3 rows and columns of the full matrix.
 ```{r}
 matrix$row_index
 matrix$row_index <- "subset"
-matrix$row_index
+as.matrix(matrix, core = "core b")
 matrix$column_index <- "subset"
-as.matrix(matrix)
+as.matrix(matrix, core = "core b")
 ```
 
 To support additional work over COM, pointers to the matrix handle and each

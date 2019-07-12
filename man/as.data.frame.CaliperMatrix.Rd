@@ -16,6 +16,11 @@
 
 \item{...}{additional arguments passed to \code{as.data.frame}}
 }
+\value{
+Returns a \code{data.frame} with \code{from} and \code{to} columns
+  along with a column for each core of the matrix. The \code{data.frame}
+  respects the current row and column indices.
+}
 \description{
 S3 method for converting a \code{CaliperMatrix} into a \code{data.frame}
 }

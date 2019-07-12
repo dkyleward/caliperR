@@ -10,14 +10,17 @@
 \item{x}{A \code{CaliperMatrix} object}
 
 \item{...}{Additional arguments passed to \code{as.matrix}. An extra argument
-\code{core} can be used to specify which core to convert. See details}
+\code{core} can be used to specify which core to convert. See details.}
+}
+\value{
+an R matrix
 }
 \description{
 Converts a Caliper matrix into R format allowing it to be worked on in the R
 environment.
 }
 \details{
-By default, the first core of the Caliper matrix is converted into an R matrix.
-To select a different one, use the \code{core} argument like so:
+By default, the first core of the Caliper matrix is converted into an R
+matrix. To select a different one, use the \code{core} argument like so:
 \code{as.matrix(x, core = "second core")}.
 }

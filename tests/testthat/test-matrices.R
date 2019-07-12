@@ -11,6 +11,8 @@ test_that("matrix objects are created", {
   expect_s4_class(matrix$handle, "COMIDispatch")
   expect_type(matrix$cores, "list")
   expect_s4_class(matrix$cores[[1]], "COMIDispatch")
+  expect_equal(names(matrix$indices), c("row", "column"))
+  expect_type(matrix$indices$row, "character")
 })
 
 test_that("matrix generics work", {
