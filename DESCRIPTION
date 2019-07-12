@@ -18,6 +18,8 @@ Depends:
 Imports:
   R6,
   data.table
+Remotes:
+  dkyleward/RDCOMClient
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,
