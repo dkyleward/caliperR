@@ -54,9 +54,9 @@ use `disconnect()`.
 ## Basic Macros/Functions
 
 Caliper software comes with a scripting language called GISDK. In this language,
-there is a differentiation between 'functions' and 'macros'. Functions are
-written in C++ and are called directly in GISDK (e.g. `OpenTable()'). Macros are
-written in GISDK, and are called using `RunMacro("macro name")'.
+there is a difference between 'functions' and 'macros'. Functions are written in
+C++ and are called directly in GISDK (e.g. `OpenTable()`). Macros are written in
+GISDK, and are called using `RunMacro("macro name")`.
 
 ### Example 1: Running a macro {#ex1}
 
@@ -83,7 +83,7 @@ paste0("The table '", table_name, "' has ", num_rows, " rows.")
 # ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
 ```
 
-The code above introduces two other important ideas:
+The code above introduces two other important differences:
 
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
