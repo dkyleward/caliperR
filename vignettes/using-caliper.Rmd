@@ -83,7 +83,7 @@ paste0("The table '", table_name, "' has ", num_rows, " rows.")
 # ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
 ```
 
-The code above shows introduces two other important ideas:
+The code above introduces two other important ideas:
 
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
@@ -151,18 +151,15 @@ GetInterface()
 ### Example 4: Parse opts array
 
 Many GISDK functions and macros take named arrays (aka options arrays) as input.
-`caliper` allows you to pass named lists/vectors as an equivalent.
+`caliper` allows you to pass named lists as an equivalent.
 
 ```{r}
 SetAlternateInterface(ui_path)
 
-RunMacro(
-  "parse opts array",
-  list(
-    one = 1,
-    two = 2
-  )
-)
+opts <- list()
+opts$one <- 1
+opts$two <- 2
+RunMacro("parse opts array", opts)
 ```
 
 ## Message Boxes
@@ -171,16 +168,11 @@ RunMacro(
 
 If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
 similar, R will wait until you have closed that pop up before continuing. You
-can test the behavior by running the code below.
+can test the behavior by running the code below. You may have to alt-tab to find
+the pop up window.
 
 ```{r, eval=FALSE}
-RunMacro(
-  "show array",
-  list(
-    one = 1,
-    two = 2
-  )
-)
+RunMacro("show array", opts)
 ```
 
 ## Advanced
@@ -210,15 +202,15 @@ head(tbl)
 as.matrix(matrix, core = "core b")
 ```
 
-You can see the various row and column indices defined in the matrix.
+You can also see the various row and column indices defined in the matrix.
 
 ```{r}
 matrix$indices
 ```
 
-The `row_index` and `column_index` active fields allow you to see which index
-is active or switch between available indices. The `subset` index only contains
-the first 3 rows and columns of the full matrix.
+The `row_index` and `column_index` active fields allow you to see which index is
+active or switch between available indices. In our example matrix, the `subset`
+index only contains the first 3 rows and columns of the full matrix.
 
 ```{r}
 matrix$row_index
@@ -232,23 +224,18 @@ To support additional work over COM, pointers to the matrix handle and each
 currency are also made available. These can be passed into `RunFunction()` and
 `RunMacro()` to do further work in Caliper software.
 
-```{r}
-# Points to the Caliper matrix handle
-matrix$handle
-
-# Points to a matrix currency
-matrix$cores$`core a`
-```
-
 Some examples:
 
 ```{r}
+# A GISDK function requiring a matrix handle
 RunFunction("GetMatrixBaseIndex", matrix$handle)
+
+# A GISDK function requiring a matrix currency
 RunFunction("GetMatrixColumnLabels", matrix$cores$`core a`)
 ```
 
 Note that the column labels are only 1-3 as opposed to 1-5. The matrix currency
-pointer is also using the `subset` index we set.
+pointer respects the `subset` column index we set.
 
 ### Example 7: GISDK objects {#ex7}
 
