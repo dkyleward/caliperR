@@ -255,13 +255,12 @@ convert_to_named_array <- function(named_list) {
     "(caliper::create_opts_array) 'named_list' is not a named list"
   )
 
-  df <- data.frame(
-    names = names(named_list),
-    values = unlist(unname(named_list))
-  )
-  df <- df[!is.null(df$values) & !is.na(df$values), ]
-
-  return(RDCOMClient::asCOMArray(df))
+  n <- names(named_list)
+  l <- unname(named_list)
+  nest <- function(n, l) {
+    list(n, list(process_gisdk_args(l)))
+  }
+  unname(mapply(nest, n, l, SIMPLIFY = FALSE))
 }
 
 #' Used to convert GISDK named arrays to R's named lists.
