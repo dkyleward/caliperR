@@ -33,12 +33,12 @@ Macro "return array"
     return({1, 2})
 endmacro
 
-// R flattens a nested array into a single vector
+// R returns a list of lists
 Macro "return nested array"
     return({{1, 2}, {3, 4}})
 endmacro
 
-// R returns a list of lists
+// R returns a named list
 Macro "return named array"
     return({{"one", 1}, {"two", 2}})
 endmacro
@@ -46,10 +46,11 @@ endmacro
 // R does not understand a returned vector, but the caliper package
 // does the conversion.
 Macro "return vector"
-    return(A2V({1, 2}))
+    v = A2V({1, 2})
+    return(v)
 endmacro
 
 // Used for a unit test
 Macro "test nested vector"
-    return({test: A2V({1, 2, 3})})
+    return({test: A2V({1, 2, null})})
 endmacro
