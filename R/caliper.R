@@ -347,7 +347,11 @@ process_gisdk_result <- function(result) {
   } else {
     if (class(result) != "COMIDispatch") return(result)
     type <- RunMacro("get_object_type", result)
-    if (type == "vector") result <- unlist(RunFunction("V2A", result))
+    if (type == "vector") {
+      result <- RunFunction("V2A", result)
+      result[sapply(result, is.null)] <- NA
+      result <- unlist(result)
+    }
     if (type == "matrix") result <- CaliperMatrix$new(result)
   }
 
