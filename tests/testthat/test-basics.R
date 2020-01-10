@@ -14,11 +14,16 @@ test_that("Type conversion works", {
     RunMacro("parse opts array", list("one" = 1)),
     "The first option name is one. The first option value is 1."
   )
-  expect_equal(RunMacro("test nested vector")$test, c(1, 2, 3))
+  expect_equal(RunMacro("test nested vector")$test, c(1, 2, NA))
   expect_equal(caliper:::process_gisdk_args(1), 1)
   SetAlternateInterface(ui_path)
   expect_mapequal(
-    RunMacro("return named array"), list("one" = 1, "two" = 2)
+    RunMacro("return named array"),
+    list("one" = 1, "two" = 2)
+  )
+  expect_setequal(
+    RunMacro("return nested array"),
+    list(list(1, 2), list(3, 4))
   )
   SetAlternateInterface()
   expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")
