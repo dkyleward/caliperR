@@ -295,9 +295,12 @@ convert_to_named_list <- function(nested_list) {
 is_gisdk_named_array <- function(object) {
   if (typeof(object) != "list") return(FALSE)
   v1 <- lapply(object, typeof) == "list"
+  if (!all(v1)) return(FALSE)
   v2 <- lapply(object, length) == 2
+  if (!all(v2)) return(FALSE)
   v3 <- lapply(object, function(x) typeof(x[[1]])) == "character"
-  if (all(c(v1, v2, v3))) return(TRUE) else return(FALSE)
+  if (!all(v3)) return(FALSE)
+  return(TRUE)
 }
 
 #' Converts R's \code{NA}, \code{NULL}, and \code{/} to formats GISDK can use
