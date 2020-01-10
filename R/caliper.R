@@ -233,8 +233,9 @@ process_gisdk_args <- function(arg_list) {
     if (is.object(arg)) next
     if (!is.null(names(arg))) {
       arg <- convert_to_named_array(arg)
-    } else arg <- convert_nulls_and_slashes(arg)
-    if (length(arg) == 0) arg <- NULL
+    }
+    arg <- convert_nulls_and_slashes(arg)
+    if (length(arg) == 0) arg <- NA_complex_
     arg_list[[i]] <- arg
   }
   return(arg_list)
@@ -310,17 +311,19 @@ is_gisdk_named_array <- function(object) {
 #' @keywords internal
 
 convert_nulls_and_slashes <- function(arg) {
-  if (length(arg) == 1){
+  if (typeof(arg) == "list"){
+    for (i in 1:length(arg)) {
+      arg[[i]] <- convert_nulls_and_slashes(arg[[i]])
+    }
+  } else {
     if (is.null(arg) | is.na(arg)) {
       arg <- NA_complex_
+      return(arg)
     }
-    if (is.character(arg)) arg <- gsub("/", "\\", arg, fixed = TRUE)
-  }
-  if (length(arg[is.na(arg) | is.null(arg)]) > 0){
-    arg[is.na(arg) | is.null(arg)] <- NA_complex_
-  }
-  if (length(arg[unlist(lapply(arg, is.character))]) > 0){
-    arg[grep("/", unlist(arg))] <- gsub("/", "\\", arg[grep("/", unlist(arg))], fixed = TRUE)
+    if (is.character(arg)) {
+      arg <- gsub("/", "\\", arg, fixed = TRUE)
+      return(arg)
+    }
   }
   return(arg)
 }
