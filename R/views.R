@@ -3,7 +3,7 @@
 #' @param view_name The name of the view open in Caliper software.
 #' @param set_name An optional set name can be provided to only return
 #'   records in a selection set from the view.
-#' @export
+#' @keywords internal
 
 view_to_df <- function(view_name, set_name = NULL) {
   # Make sure view_name is an open view
@@ -28,7 +28,7 @@ view_to_df <- function(view_name, set_name = NULL) {
 }
 
 #' Updates an existing Caliper view with data from a data.frame
-#' @export
+#' @keywords internal
 
 update_view <- function(df, view_name, set_name = NULL) {
   software <- get_package_variable("CALIPER_SOFTWARE")

@@ -15,3 +15,4 @@ records in a selection set from the view.}
 \description{
 Converts a Caliper view into an R data.frame
 }
+\keyword{internal}

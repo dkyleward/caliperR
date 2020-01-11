@@ -9,3 +9,4 @@ update_view(df, view_name, set_name = NULL)
 \description{
 Updates an existing Caliper view with data from a data.frame
 }
+\keyword{internal}
