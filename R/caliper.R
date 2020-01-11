@@ -226,14 +226,13 @@ GetInterface <- function() {
 #' @keywords internal
 
 process_gisdk_args <- function(arg_list) {
-
   if (length(arg_list) == 0) return(NULL)
+  if (is.object(arg_list)) return(arg_list)
+  if (!is.null(names(arg_list))) {
+    arg_list <- convert_to_named_array(arg_list)
+  }
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
-    if (is.object(arg)) next
-    if (!is.null(names(arg))) {
-      arg <- convert_to_named_array(arg)
-    }
     arg <- convert_nulls_and_slashes(arg)
     if (length(arg) == 0) arg <- NA_complex_
     arg_list[[i]] <- arg
@@ -250,7 +249,6 @@ process_gisdk_args <- function(arg_list) {
 #' @keywords internal
 
 convert_to_named_array <- function(named_list) {
-
   # Argument checking
   if (is.null(names(named_list))) stop(
     "(caliper::create_opts_array) 'named_list' is not a named list"
@@ -259,9 +257,11 @@ convert_to_named_array <- function(named_list) {
   n <- names(named_list)
   l <- unname(named_list)
   nest <- function(n, l) {
-    list(n, list(process_gisdk_args(l)))
+    l <- process_gisdk_args(l)
+    list(n, list(l))
   }
-  unname(mapply(nest, n, l, SIMPLIFY = FALSE))
+  result <- unname(mapply(nest, n, l, SIMPLIFY = FALSE))
+  return(result)
 }
 
 #' Used to convert GISDK named arrays to R's named lists.

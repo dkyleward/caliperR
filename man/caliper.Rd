@@ -3,7 +3,6 @@
 \docType{package}
 \name{caliper}
 \alias{caliper}
-\alias{caliper-package}
 \title{caliper: Communicate with Caliper software from R}
 \description{
 The caliper package provides functions to make it easier to communicate

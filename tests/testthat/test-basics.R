@@ -25,6 +25,13 @@ test_that("Type conversion works", {
     RunMacro("return nested array"),
     list(list(1, 2), list(3, 4))
   )
+  test <- list(
+    "one" = list(NA)
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(test),
+    list(list("one", list(NA_complex_)))
+  )
   SetAlternateInterface()
   expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")
   expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a\\b")

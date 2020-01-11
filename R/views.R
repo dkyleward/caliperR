@@ -27,6 +27,22 @@ view_to_df <- function(view_name, set_name = NULL) {
   df <- as.data.frame(data)
 }
 
+#' Updates an existing Caliper view with data from a data.frame
+#' @export
+
+update_view <- function(df, view_name, set_name = NULL) {
+  software <- get_package_variable("CALIPER_SOFTWARE")
+  tryCatch(
+    {RunFunction("SetView", view_name)},
+    error = function(e) {
+      e$message <- paste0("View '", view_name, "' not open in ", software)
+      stop(e)
+    }
+  )
+
+  RunMacro("update view from r", view_name, set_name, as.list(df))
+}
+
 #' Creates a view name guaranteed to be unique in the current Caliper session
 #' @keywords internal
 

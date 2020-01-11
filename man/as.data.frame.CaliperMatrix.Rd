@@ -4,8 +4,7 @@
 \alias{as.data.frame.CaliperMatrix}
 \title{S3 method for converting a \code{CaliperMatrix} into a \code{data.frame}}
 \usage{
-\method{as.data.frame}{CaliperMatrix}(x, row.names = NULL,
-  optional = FALSE, ...)
+\method{as.data.frame}{CaliperMatrix}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
 \item{x}{\code{CaliperMatrix}}
