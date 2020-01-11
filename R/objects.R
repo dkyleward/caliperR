@@ -20,8 +20,6 @@ CreateObject <- function(class_name, ...) {
 #'
 #' This class simplifies working with GISDK objects over COM from R.
 #'
-#' @inheritParams CreateObject
-#'
 #' @section Overview:
 #'
 #' When created, an object of this class contains a COM pointer to a sister

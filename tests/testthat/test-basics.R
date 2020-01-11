@@ -30,6 +30,44 @@ test_that("Type conversion works", {
   expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a\\b")
 })
 
+test_that("A nested list without names converts correctly", {
+  check_connected()
+  test1 <- list(
+    NA,
+    "a/b",
+    list(
+      NA,
+      "c/d"
+    )
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test1)),
+    list(list(NA_complex_, "a\\b", list(NA_complex_, "c\\d")))
+  )
+})
+
+test_that("A nested list with names converts correctly", {
+  check_connected()
+  test1 <- list(
+    "one" = NA
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test1)),
+    list(list(list("one", NA_complex_)))
+  )
+
+  test2 <- list(
+    "one" = NA,
+    "two" = list(
+      "two_b" = "a/b"
+    )
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test2)),
+    list(list(list("one", NA_complex_), list("two", list("two_b", "a\\b"))))
+  )
+})
+
 test_that("RunFunction works", {
   check_connected()
   folder <- RunMacro("G30 Tutorial Folder")
