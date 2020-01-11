@@ -258,7 +258,7 @@ convert_to_named_array <- function(named_list) {
   l <- unname(named_list)
   nest <- function(n, l) {
     l <- process_gisdk_args(l)
-    list(n, list(l))
+    list(n, l)
   }
   result <- unname(mapply(nest, n, l, SIMPLIFY = FALSE))
   return(result)
