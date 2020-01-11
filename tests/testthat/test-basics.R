@@ -25,16 +25,45 @@ test_that("Type conversion works", {
     RunMacro("return nested array"),
     list(list(1, 2), list(3, 4))
   )
-  test <- list(
-    "one" = list(NA)
-  )
-  expect_setequal(
-    caliper:::process_gisdk_args(test),
-    list(list("one", list(NA_complex_)))
-  )
   SetAlternateInterface()
   expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")
   expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a\\b")
+})
+
+test_that("A nested list without names converts correctly", {
+  test1 <- list(
+    NA,
+    "a/b",
+    list(
+      NA,
+      "c/d"
+    )
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test1)),
+    list(list(NA_complex_, "a\\b", list(NA_complex_, "c\\d")))
+  )
+})
+
+test_that("A nested list with names converts correctly", {
+  test1 <- list(
+    "one" = NA
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test1)),
+    list(list(list("one", NA_complex_)))
+  )
+
+  test2 <- list(
+    "one" = NA,
+    "two" = list(
+      "two_b" = "a/b"
+    )
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(list(test2)),
+    list(list(list("one", NA_complex_), list("two", list("two_b", "a\\b"))))
+  )
 })
 
 test_that("RunFunction works", {
