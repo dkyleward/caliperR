@@ -31,6 +31,7 @@ test_that("Type conversion works", {
 })
 
 test_that("A nested list without names converts correctly", {
+  check_connected()
   test1 <- list(
     NA,
     "a/b",
@@ -46,6 +47,7 @@ test_that("A nested list without names converts correctly", {
 })
 
 test_that("A nested list with names converts correctly", {
+  check_connected()
   test1 <- list(
     "one" = NA
   )
