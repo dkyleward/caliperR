@@ -133,7 +133,7 @@ CaliperClass <- R6::R6Class("CaliperClass",
     },
     set_gisdk_attribute = function(attribute, value) {
       stopifnot(is.character(attribute))
-      value <- process_gisdk_args(value)
+      value <- process_gisdk_args(value)[[1]]
       args <- list("set_attribute", self$ref, attribute, value)
       tryCatch(
         do.call(RunMacro, args),
@@ -164,12 +164,15 @@ CaliperClass <- R6::R6Class("CaliperClass",
 
 `$.CaliperClass` <- function(x, name) {
   info <- .subset2(x, "info")
+  # If the name references an R method/attribute
   if (exists(name, envir = x)) {
     .subset2(x, name)
+  # If the name references a method of the GISDK object
   } else if (name %in% info$MethodNames) {
     function(...) {
       .subset2(x, "apply_gisdk_method")(name, ...)
     }
+  # If the name references a field of the GISDK object
   } else if (name %in% info$FieldNames) {
       .subset2(x, "get_gisdk_attribute")(name)
   } else {
@@ -192,8 +195,10 @@ CaliperClass <- R6::R6Class("CaliperClass",
 #' @export
 
 `$<-.CaliperClass` <- function(x, name, value) {
+  # If the name references an R attribute
   if (exists(name, envir = x)) {
     assign(name, value, envir = x)
+  # If the name references a GISDK field
   } else if (name %in% x$info$FieldNames) {
     .subset2(x, "set_gisdk_attribute")(name, value)
   } else {

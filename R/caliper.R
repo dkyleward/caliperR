@@ -128,7 +128,7 @@ RunMacro <- function(macro_name, ...) {
   stopifnot(connected())
   dk <- get_package_variable("CALIPER_DK")
   dk_ui <- get_package_variable("CALIPER_UI")
-  gisdk_args <- process_gisdk_args(list(...))
+  gisdk_args <- process_gisdk_args(...)
   args <- c(list(macro_name, dk_ui), gisdk_args)
   result <- do.call(dk$RunUIMacro, args)
   result <- process_gisdk_result(result)
@@ -169,7 +169,7 @@ RunFunction <- function(macro_name,...) {
     ))
   }
   dk <- get_package_variable("CALIPER_DK")
-  gisdk_args <- process_gisdk_args(list(...))
+  gisdk_args <- process_gisdk_args(...)
   args <- c(list(macro_name), gisdk_args)
   result <- do.call(dk$RunMacro, args)
   result <- process_gisdk_result(result)
@@ -225,15 +225,19 @@ GetInterface <- function() {
 #' @param arg_list \code{list} of args that are converted.
 #' @keywords internal
 
-process_gisdk_args <- function(arg_list) {
+process_gisdk_args <- function(...) {
+  arg_list <- list(...)
   if (length(arg_list) == 0) return(NA_complex_)
 
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
     if (is.object(arg)) next
-    arg <- convert_to_named_array(arg)
-    arg <- convert_nulls_and_slashes(arg)
-    if (length(arg) == 0) arg <- NA_complex_
+    if (length(arg) == 0) {
+      arg <- NA_complex_
+      } else {
+      arg <- convert_to_named_array(arg)
+      arg <- convert_nulls_and_slashes(arg)
+    }
     arg_list[[i]] <- arg
   }
   return(arg_list)
