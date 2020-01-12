@@ -15,7 +15,6 @@ test_that("Type conversion works", {
     "The first option name is one. The first option value is 1."
   )
   expect_equal(RunMacro("test nested vector")$test, c(1, 2, NA))
-  expect_equal(caliper:::process_gisdk_args(1), 1)
   SetAlternateInterface(ui_path)
   expect_mapequal(
     RunMacro("return named array"),
@@ -41,7 +40,7 @@ test_that("A nested list without names converts correctly", {
     )
   )
   expect_setequal(
-    caliper:::process_gisdk_args(list(test1)),
+    caliper:::process_gisdk_args(test1),
     list(list(NA_complex_, "a\\b", list(NA_complex_, "c\\d")))
   )
 })
@@ -52,7 +51,7 @@ test_that("A nested list with names converts correctly", {
     "one" = NA
   )
   expect_setequal(
-    caliper:::process_gisdk_args(list(test1)),
+    caliper:::process_gisdk_args(test1),
     list(list(list("one", NA_complex_)))
   )
 
@@ -63,7 +62,7 @@ test_that("A nested list with names converts correctly", {
     )
   )
   expect_setequal(
-    caliper:::process_gisdk_args(list(test2)),
+    caliper:::process_gisdk_args(test2),
     list(list(list("one", NA_complex_), list("two", list("two_b", "a\\b"))))
   )
 })
