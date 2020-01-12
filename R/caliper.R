@@ -231,9 +231,12 @@ process_gisdk_args <- function(arg_list) {
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
     if (is.object(arg)) next
-    arg <- convert_to_named_array(arg)
-    arg <- convert_nulls_and_slashes(arg)
-    if (length(arg) == 0) arg <- NA_complex_
+    if (length(arg) == 0) {
+      arg <- NA_complex_
+      } else {
+      arg <- convert_to_named_array(arg)
+      arg <- convert_nulls_and_slashes(arg)
+    }
     arg_list[[i]] <- arg
   }
   return(arg_list)

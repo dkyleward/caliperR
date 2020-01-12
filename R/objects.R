@@ -164,12 +164,15 @@ CaliperClass <- R6::R6Class("CaliperClass",
 
 `$.CaliperClass` <- function(x, name) {
   info <- .subset2(x, "info")
+  # If the name references an R method/attribute
   if (exists(name, envir = x)) {
     .subset2(x, name)
+  # If the name references a method of the GISDK object
   } else if (name %in% info$MethodNames) {
     function(...) {
       .subset2(x, "apply_gisdk_method")(name, ...)
     }
+  # If the name references a field of the GISDK object
   } else if (name %in% info$FieldNames) {
       .subset2(x, "get_gisdk_attribute")(name)
   } else {
