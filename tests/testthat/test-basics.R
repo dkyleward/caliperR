@@ -56,13 +56,21 @@ test_that("A nested list with names converts correctly", {
   )
 
   test2 <- list(
+    "one" = list(1, 2, 3)
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(test2),
+    list(list(list("one", list(1, 2, 3))))
+  )
+
+  test3 <- list(
     "one" = NA,
     "two" = list(
       "two_b" = "a/b"
     )
   )
   expect_setequal(
-    caliper:::process_gisdk_args(test2),
+    caliper:::process_gisdk_args(test3),
     list(list(list("one", NA_complex_), list("two", list("two_b", "a\\b"))))
   )
 })

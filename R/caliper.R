@@ -258,8 +258,13 @@ convert_to_named_array <- function(named_list) {
   n <- names(named_list)
   l <- unname(named_list)
   nest <- function(n, l) {
+    l_is_named <- !is.null(names(l))
     l <- convert_to_named_array(l)
-    as.list(c(n, l))
+    if (l_is_named) {
+      as.list(c(n, l))
+    } else {
+      as.list(c(n, list(l)))
+    }
   }
   result <- unname(mapply(nest, n, l, SIMPLIFY = FALSE))
   return(result)
