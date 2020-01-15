@@ -7,14 +7,11 @@
 
 view_to_df <- function(view_name, set_name = NULL) {
   # Make sure view_name is an open view
-  software <- get_package_variable("CALIPER_SOFTWARE")
-  tryCatch(
-    {RunFunction("SetView", view_name)},
-    error = function(e) {
-      e$message <- paste0("View '", view_name, "' not open in ", software)
-      stop(e)
-    }
-  )
+  current_views <- unlist(RunFunction("GetViews"))
+  if (!(view_name %in% current_views)){
+    software <- get_package_variable("CALIPER_SOFTWARE")
+    stop("View '", view_name, "' not open in ", software)
+  }
   column_data <- RunFunction("GetFields", view_name, "All")
   column_names <- column_data[[1]]
   column_names <- gsub("\\[", "", column_names)
@@ -24,7 +21,8 @@ view_to_df <- function(view_name, set_name = NULL) {
   data <- RunFunction(
     "GetDataVectors", viewset, column_names, list(OptArray = TRUE)
   )
-  df <- as.data.frame(data)
+  df <- as.data.frame(data, stringsAsFactors = FALSE)
+  return(df)
 }
 
 #' Updates an existing Caliper view with data from a data.frame
