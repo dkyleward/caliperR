@@ -45,6 +45,7 @@ df.view()
 Class "gplyr" (tbl, desc, groups)
 
   init do
+    self.check_software()
     if tbl <> null then do
       tbl_type = TypeOf(tbl)
       if tbl_type = "string" then do
@@ -92,6 +93,11 @@ Class "gplyr" (tbl, desc, groups)
   /*doc
   Gets the description of a single field.
 
+  Inputs
+    * `field`
+      * String
+      * Name of field to get description for
+
   Example:
   `df.get_desc("a")`
 
@@ -108,7 +114,7 @@ Class "gplyr" (tbl, desc, groups)
   behavior of `summarize()`.
 
   Inputs
-    * fields
+    * `fields`
       * Array of strings
       * Field names to add as grouping variables.
   */
@@ -130,8 +136,8 @@ Class "gplyr" (tbl, desc, groups)
     self.groups = null
   EndItem
 
-  /*
-  Tests to see if there is any data.  Usually called to stop other methods
+  /*dontdoc
+  Tests to see if the data frame is empty.  Usually called to stop other methods.
   */
 
   Macro "is_empty" do
@@ -173,15 +179,15 @@ Class "gplyr" (tbl, desc, groups)
   to change individual column names.
 
   Inputs (all in named array)
-      * new_names
+      * `new_names`
         * Optional array or vector of strings
         * If provided, the method will set the column names to new_names instead
           of retrieve them
-      * start
+      * `start`
         * Optional string
         * Name of first column you want returned
         * Defaults to first column
-      * stop
+      * `stop`
         * Optional string
         * Name of last column you want returned
         * Defaults to last column
@@ -242,12 +248,13 @@ Class "gplyr" (tbl, desc, groups)
     if new_names = null then return(a_colnames)
   EndItem
 
-  /*
-  Returns an array of column types. Possible types returned are
-  short
-  long
-  double
-  string
+  /*doc
+  Returns an array of column types. Possible types returned are:
+
+    * short
+    * long
+    * double
+    * string
   */
 
   Macro "coltypes" do
@@ -268,7 +275,7 @@ Class "gplyr" (tbl, desc, groups)
   EndItem
 
   /*
-  Returns a column of a data frame as a vector. Normally, something like this
+  Returns a column of the data frame as a vector. Normally, something like this
   can be used:
 
   df.tbl.colname
@@ -277,35 +284,35 @@ Class "gplyr" (tbl, desc, groups)
 
   df.tbl.length
 
-  get_vector() uses df.tbl.("length") to avoid this problem.
+  get_col() uses df.tbl.("length") to avoid this problem.
 
   Inputs
-    field_name
-      String or array/vector of strings
-      Field name(s) to get vector(s) for.
+    * `field_names`
+      * String or array/vector of strings
+      * Field name(s) to get vector(s) for.
 
   Returns
     a vector of table data given a field name. If given an array of
     field names, returns an array of vectors.
   */
 
-  Macro "get_col" (field_name) do
+  Macro "get_col" (field_names) do
 
     // Argument checking
     if self.is_empty() then return()
-    type = TypeOf(field_name)
-    if type = "null" then Throw("get_col: 'field_name' not provided")
+    type = TypeOf(field_names)
+    if type = "null" then Throw("get_col: 'field_names' not provided")
     if !self.in(type, {"string", "vector", "array"})
-      then Throw("get_col: 'field_name' must be string, array, or vector")
-    if type = "vector" then field_name = V2A(field_name)
+      then Throw("get_col: 'field_names' must be string, array, or vector")
+    if type = "vector" then field_names = V2A(field_names)
 
     if type = "string" then do
-      v = self.tbl.(field_name)
+      v = self.tbl.(field_names)
       return(v)
     end
 
     if type = "array" then do
-      for name in field_name do
+      for name in field_names do
         a = a + {self.tbl.(name)}
       end
       return(a)
@@ -400,7 +407,7 @@ Class "gplyr" (tbl, desc, groups)
     return(self.tbl.length)
   EndItem
 
-  /*
+  /*doc
   Returns number of rows or 0 if the table is empty
   */
 
@@ -409,8 +416,8 @@ Class "gplyr" (tbl, desc, groups)
     return(self.tbl[1][2].length)
   EndItem
 
-  /*
-  Checks that the data frame is valid
+  /*doc
+  Checks that the data frame is valid.
   */
   Macro "check" do
     if self.is_empty() then return()
@@ -448,6 +455,27 @@ Class "gplyr" (tbl, desc, groups)
         )
       end
     end
+  EndItem
+
+  /*doc
+  Checks that the Caliper software is recent enough to run gplyr functions.
+  */
+
+  Macro "check_software" do
+    program_info = GetProgram()
+    name = program_info[2]
+    build = program_info[4]
+    if name = "TransCAD" and build < 7 then Throw(
+      "This version of gplyr utilizes memory tables and other features " +
+      "only available in TransCAD 7 or later."
+    )
+    if name = "TransModeler" and build < 4 then Throw(
+      "This version of gplyr utilizes memory tables and other features " +
+      "only available in TransModeler 4 or later."
+    )
+    if name = "Maptitude" then Throw(
+      "gplyr is not compatible with Maptitude"
+    )
   EndItem
 
   /*doc
@@ -578,12 +606,13 @@ Class "gplyr" (tbl, desc, groups)
     CloseFile(file)
   EndItem
 
-  /*
-  Creates a bin file with table data.
+  /*doc
+  Writes the data frame to a bin file.
 
-  file
-    String
-    full path of bin file
+  Inputs
+    * file
+      * String
+      * Full path of bin file
   */
 
   Macro "write_bin" (file) do
@@ -593,37 +622,9 @@ Class "gplyr" (tbl, desc, groups)
     if Right(file, 3) <> "bin"
       then Throw("write_bin: file name must end with '.bin'")
 
-    // Create the field info array for CreateTable()
-    colnames = self.colnames()
-    coltypes = self.coltypes()
-    colwidths = self.colwidths()
-    for c = 1 to colnames.length do
-      colname = colnames[c]
-      coltype = coltypes[c]
-      width = max(colwidths[c], 10)
-
-      if coltype = "short" then coltype = "Integer"
-      else if coltype = "long" then coltype = "Integer"
-      else if coltype = "double" then coltype = "Real"
-      else if coltype = "string" then coltype = "String"
-
-      deci = if coltype = "Real" then 2 else 0
-      a_field_info = a_field_info + {{colname, coltype, width, deci, }}
-    end
-
-    // Create table
-    view_name = self.unique_view_name()
-    view_name = CreateTable(view_name, file, "FFB", a_field_info, )
-
-    // Add empty rows
-    opts = null
-    opts.[empty records] = self.nrow()
-    AddRecords(view_name, , , opts)
-
-    // Fill in data
-    self.update_view(view_name)
-
-    CloseView(view_name)
+    // Create a view and export to bin
+    vw = self.create_view()
+    ExportView(vw + "|", "FFB", file, , )
   EndItem
 
   /*
@@ -1006,27 +1007,49 @@ Class "gplyr" (tbl, desc, groups)
     DeleteFile(Substitute(file_name, ".bin", ".DCB", ))
   EndItem
 
-  /*
-  Creates a view based on a temporary binary file.  The primary purpose of
-  this macro is to make GISDK functions/operations available for a table object.
-  The view is often read back into a table object afterwards.
+  /*dontdoc
+  Creates a MEM table view of the data frame.  This is primarily a helper
+  function for other gplyr methods, and its purpose is to make GISDK
+  functions/operations available for a data frame. The view is usually read back
+  into a data frame after some work has been done on it.
 
   Returns:
   view_name:  Name of the view as opened in TrandCAD
-  file_name:  Name of the temporary bin file
   */
 
   Macro "create_view" do
 
-    // Convert the data frame object into a bin file
-    tempFile = GetTempFileName(".bin")
-    self.write_bin(tempFile)
+    // Create the field info array for CreateTable()
+    colnames = self.colnames()
+    coltypes = self.coltypes()
+    colwidths = self.colwidths()
+    for c = 1 to colnames.length do
+      colname = colnames[c]
+      coltype = coltypes[c]
+      width = max(colwidths[c], 10)
 
-    // Generate a unique view name and open table
+      if coltype = "short" then coltype = "Integer"
+      else if coltype = "long" then coltype = "Integer"
+      else if coltype = "double" then coltype = "Real"
+      else if coltype = "string" then coltype = "String"
+
+      deci = if coltype = "Real" then 2 else 0
+      a_field_info = a_field_info + {{colname, coltype, width, deci, }}
+    end
+
+    // Create table
     view_name = self.unique_view_name()
-    view_name = OpenTable(view_name, "FFB", {tempFile}, )
+    view_name = CreateTable(view_name, , "MEM", a_field_info, )
 
-    return({view_name, tempFile})
+    // Add empty rows
+    opts = null
+    opts.[empty records] = self.nrow()
+    AddRecords(view_name, , , opts)
+
+    // Fill in data
+    self.update_view(view_name)
+
+    return(view_name)
   EndItem
 
   /*
@@ -1084,7 +1107,7 @@ Class "gplyr" (tbl, desc, groups)
     end
 
     if label = null then label = "data frame"
-    {view_name, file_name} = self.create_view()
+    view_name = self.create_view()
     window = CreateEditor(
       label, view_name + "|", , {{"Position", pos_x, pos_y}}
     )
@@ -1236,7 +1259,7 @@ Class "gplyr" (tbl, desc, groups)
 
     // Convert the TABLE object into a view in order
     // to leverage GISDKs SelfAggregate() function
-    {view, file_name} = new_df.create_view()
+    view = new_df.create_view()
 
     // Create a field spec for SelfAggregate()
     agg_field_spec = view + "." + new_df.groups[1]
@@ -1317,8 +1340,6 @@ Class "gplyr" (tbl, desc, groups)
     // Clean up workspace
     CloseView(view)
     CloseView(agg_view)
-    DeleteFile(file_name)
-    DeleteFile(Substitute(file_name, ".bin", ".DCB", ))
 
     if in_place
       then do
@@ -1385,7 +1406,7 @@ Class "gplyr" (tbl, desc, groups)
 
     // Convert the TABLE object into a view in order
     // to leverage GISDKs SelfAggregate() function
-    {view, file_name} = new_df.create_view()
+    view = new_df.create_view()
 
     // Create a field spec for SelfAggregate()
     agg_field_spec = view + "." + new_df.groups[1]
@@ -1453,8 +1474,6 @@ Class "gplyr" (tbl, desc, groups)
     // Clean up workspace
     CloseView(view)
     CloseView(agg_view)
-    DeleteFile(file_name)
-    DeleteFile(Substitute(file_name, ".bin", ".DCB", ))
 
     if in_place
       then do
@@ -1480,7 +1499,7 @@ Class "gplyr" (tbl, desc, groups)
     if query = null then Throw("filter: query is missing")
     if TypeOf(query) <> "string" then Throw("filter: query must be a string")
 
-    {view, file} = self.create_view()
+    view = self.create_view()
     SetView(view)
     query = RunMacro("Normalize Query", query)
     nrow = SelectByQuery("set", "Several", query)
@@ -1488,7 +1507,6 @@ Class "gplyr" (tbl, desc, groups)
     self.tbl = null
     if nrow = 0 then do
       CloseView(view)
-      DeleteTableFiles("FFB", file, )
       return()
     end
     // Otherwise, read in the filtered view
@@ -1499,7 +1517,6 @@ Class "gplyr" (tbl, desc, groups)
 
     // Clean up workspace
     CloseView(view)
-    DeleteTableFiles("FFB", file, )
   EndItem
 
 
@@ -1562,8 +1579,8 @@ Class "gplyr" (tbl, desc, groups)
     s_id = V2A(A2V(s_id) + "_y")
 
     // Create views of both tables
-    {master_view, master_file} = self.create_view()
-    {slave_view, slave_file} = slave_copy.create_view()
+    master_view = self.create_view()
+    slave_view = slave_copy.create_view()
 
     // Create field specs for master and slave fields
     m_spec = V2A(master_view + "." + A2V(m_id))
@@ -1599,11 +1616,7 @@ Class "gplyr" (tbl, desc, groups)
     // Clean up the workspace
     CloseView(jv)
     CloseView(master_view)
-    DeleteFile(master_file)
-    DeleteFile(Substitute(master_file, ".bin", ".DCB", ))
     CloseView(slave_view)
-    DeleteFile(slave_file)
-    DeleteFile(Substitute(slave_file, ".bin", ".DCB", ))
   EndItem
 
   /*doc
@@ -2091,7 +2104,7 @@ Class "gplyr" (tbl, desc, groups)
     end
 
     // Create a set of all records to be sorted
-    {view, file} = self.create_view()
+    view = self.create_view()
     SetView(view)
     cols = self.colnames()
     first_col = cols[1]
@@ -2183,7 +2196,7 @@ alternative: change the dir variable, but do not commit the change.
 */
 Macro "test gplyr"
   static dir
-  //RunMacro("Close All")
+  RunMacro("Close All")
 
   // Have the user choose the unit test directory
   on escape do
@@ -2275,14 +2288,14 @@ Macro "test gplyr"
     if names[a] <> answer[a] then Throw("test: colnames failed")
   end
 
-  // test get_vector
+  // test get_col
   df = null
   df = CreateObject("df")
   df.read_csv(csv_file)
   v = df.get_col("length")
   answer = {1, 1, 1, 1, 1, 1}
   for a = 1 to answer.length do
-    if v[a] <> answer[a] then Throw("test: get_vector failed")
+    if v[a] <> answer[a] then Throw("test: get_col failed")
   end
 
   // test coltypes
@@ -2359,6 +2372,16 @@ Macro "test gplyr"
   df.read_csv(test_csv)
   DeleteFile(test_csv)
   if df.ncol() <> 4 then Throw("test: write_csv failed")
+
+  // test write_bin
+  df = CreateObject("df")
+  df.read_csv(csv_file)
+  test_bin = dir + "/write_bin output.bin"
+  df.write_bin(test_bin)
+  df = CreateObject("df")
+  df.read_bin(test_bin)
+  DeleteTableFiles("FFB", test_bin, )
+  if df.ncol() <> 4 then Throw("test: write_bin failed")
 
   // test read_mtx
   df = CreateObject("df")
