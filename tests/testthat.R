@@ -8,7 +8,7 @@ check_connected <- function() {
 }
 
 # unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "my_ui.zip", package = "caliper")
+zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
 tempdir <- tempdir()
 unzip(zip_file, exdir = tempdir, setTimes = TRUE)
 ui_path <- file.path(tempdir, "my_ui.dbd")

@@ -63,7 +63,17 @@ connect <- function(software = NULL, silent = FALSE){
         silent = TRUE
       )
     )
-    if (exists("dk")) break
+    if (exists("dk")) {
+      # Set a package variable that points to gisdk_utils, a gisdk UI with helper
+      # functions for this package
+      zip_file <- system.file("extdata", "gisdk", "gisdk_utils", "gisdk_utils.zip", package = "caliper")
+      tempdir <- tempdir()
+      unzip(zip_file, exdir = tempdir, setTimes = TRUE)
+      ui_path <- file.path(tempdir, "gisdk_utils.dbd")
+      set_package_variable("GISDK_UTILS_UI", ui_path)
+
+      break
+    }
   }
 
   if (!exists("dk")) stop(
@@ -81,10 +91,12 @@ connect <- function(software = NULL, silent = FALSE){
 
 disconnect <- function() {
   if (connected()) {
-    RunFunction("Exit")
+    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+    RunMacro("Exit")
     remove("CALIPER_DK", envir = caliper_env)
     remove("CALIPER_SOFTWARE", envir = caliper_env)
     remove("CALIPER_UI", envir = caliper_env)
+    remove("GISDK_UTILS_UI", envir = caliper_env)
   }
 }
 
@@ -317,20 +329,30 @@ is_gisdk_named_array <- function(object) {
 #' @keywords internal
 
 convert_nulls_and_slashes <- function(arg) {
-  if (typeof(arg) == "list"){
-    for (i in 1:length(arg)) {
-      arg[[i]] <- convert_nulls_and_slashes(arg[[i]])
+  if (length(arg) > 1) {
+    if (typeof(arg) == "list"){
+      for (i in 1:length(arg)) {
+        arg[[i]] <- convert_nulls_and_slashes(arg[[i]])
+      }
+    # If it is a vector
+    } else {
+      arg <- as.list(arg)
+      if (is.character(arg)) {
+        arg[is.na(arg)] <- ""
+        return(arg)
+      } else arg[is.na(arg)] <- NA_complex_
     }
   } else {
     if (is.null(arg) | is.na(arg)) {
       arg <- NA_complex_
       return(arg)
     }
-    if (is.character(arg)) {
+    if (is_file_path(arg)) {
       arg <- gsub("/", "\\", arg, fixed = TRUE)
       return(arg)
     }
   }
+
   return(arg)
 }
 
@@ -378,7 +400,7 @@ process_gisdk_result <- function(result) {
 
 set_package_variable <- function(package_variable, value) {
 
-  package_variables <- c("CALIPER_DK", "CALIPER_SOFTWARE", "CALIPER_UI")
+  package_variables <- c("CALIPER_DK", "CALIPER_SOFTWARE", "CALIPER_UI", "GISDK_UTILS_UI")
   if (!(package_variable %in% package_variables)) {
     stop(paste(
       "'package_variable' must be one of",
@@ -405,6 +427,13 @@ set_package_variable <- function(package_variable, value) {
     }
   }
 
+  if (package_variable == "GISDK_UTILS_UI") {
+    if (typeof(value) != "character") stop("'value' must be a file path")
+    if (!file.exists(value)) {
+      stop("GISDK_UTILS_UI file does not exist")
+    }
+  }
+
   assign(package_variable, value, envir = caliper_env)
 }
 
@@ -415,4 +444,11 @@ set_package_variable <- function(package_variable, value) {
 
 get_package_variable <- function(package_variable) {
   return(get(package_variable, envir = caliper_env))
+}
+
+is_file_path <- function(s) {
+  if (!is.character(s)) return(FALSE)
+  if (grepl(":\\\\", s)) return(TRUE)
+  if (grepl(":/", s)) return(TRUE)
+  return(FALSE)
 }

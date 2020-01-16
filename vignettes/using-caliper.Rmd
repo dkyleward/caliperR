@@ -111,10 +111,10 @@ into an interface/UI. The `caliper` package comes with a toy GISDK script and
 the compiled version of that script as an example.
 
 ```{r}
-rsc_file <- system.file("extdata", "gisdk", "gisdk.rsc", package = "caliper")
+rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
 
 # unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "my_ui.zip", package = "caliper")
+zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
 tempdir <- tempdir()
 unzip(zip_file, exdir = tempdir, setTimes = TRUE)
 ui_path <- file.path(tempdir, "my_ui.dbd")
@@ -183,7 +183,7 @@ Working with matrices in R has been streamlined. Opening a matrix, for example,
 returns an object with several useful attributes and features.
 
 ```{r}
-file <- system.file("extdata", "gisdk", "toy_matrix.mtx", package = "caliper")
+file <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
 matrix <- RunFunction("OpenMatrix", file, NA)
 ```
 

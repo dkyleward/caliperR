@@ -3,14 +3,20 @@
 #' @param view_name The name of the view open in Caliper software.
 #' @param set_name An optional set name can be provided to only return
 #'   records in a selection set from the view.
-#' @keywords internal
+#' @export
 
 view_to_df <- function(view_name, set_name = NULL) {
   # Make sure view_name is an open view
-  current_views <- unlist(RunFunction("GetViews"))
+  current_views <- RunFunction("GetViews")[[1]]
   if (!(view_name %in% current_views)){
     software <- get_package_variable("CALIPER_SOFTWARE")
     stop("View '", view_name, "' not open in ", software)
+  }
+  if (!is.null(set_name)) {
+    current_sets <- unlist(RunFunction("GetSets", view_name))
+    if (!(set_name %in% current_sets)){
+      stop("Set '", set_name, "' not in view '", view_name, "'")
+    }
   }
   column_data <- RunFunction("GetFields", view_name, "All")
   column_names <- column_data[[1]]
@@ -21,24 +27,32 @@ view_to_df <- function(view_name, set_name = NULL) {
   data <- RunFunction(
     "GetDataVectors", viewset, column_names, list(OptArray = TRUE)
   )
-  df <- as.data.frame(data, stringsAsFactors = FALSE)
+  df <- as.data.frame(data, stringsAsFactors = FALSE, check.names = FALSE)
   return(df)
 }
 
 #' Updates an existing Caliper view with data from a data.frame
 #' @keywords internal
 
-update_view <- function(df, view_name, set_name = NULL) {
-  software <- get_package_variable("CALIPER_SOFTWARE")
-  tryCatch(
-    {RunFunction("SetView", view_name)},
-    error = function(e) {
-      e$message <- paste0("View '", view_name, "' not open in ", software)
-      stop(e)
+update_view <- function(df, view_name, set_name = NA_complex_) {
+  # Make sure view_name and set_name exist
+  current_views <- unlist(RunFunction("GetViews"))
+  if (!(view_name %in% current_views)){
+    software <- get_package_variable("CALIPER_SOFTWARE")
+    stop("View '", view_name, "' not open in ", software)
+  }
+  if (!is.na(set_name)) {
+    current_sets <- unlist(RunFunction("GetSets", view_name))
+    if (!(set_name %in% current_sets)){
+      stop("Set '", set_name, "' not in view '", view_name, "'")
     }
-  )
+  }
 
-  RunMacro("update view from r", view_name, set_name, as.list(df))
+  SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+  gplyr <- CreateObject("gplyr", as.list(df))
+  gplyr$update_view(view_name, set_name)
+
+  # SetAlternateInterface()
 }
 
 #' Creates a view name guaranteed to be unique in the current Caliper session
