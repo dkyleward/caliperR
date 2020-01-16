@@ -184,7 +184,6 @@ Macro "Is View" (string)
 
   a_views = GetViewNames()
   if ArrayPosition(a_views, {string}, ) = 0 then return("false")
-  if ArrayPosition(a_views, {string}, ) = 0 then return("false")
   else return("true")
 EndMacro
 
