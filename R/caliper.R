@@ -243,7 +243,14 @@ process_gisdk_args <- function(...) {
 
   for (i in 1:length(arg_list)) {
     arg <- arg_list[[i]]
-    if (is.object(arg)) next
+    if (is.object(arg)) {
+      if (any(class(arg) == "CaliperClass")) {
+        arg_list[[i]] <- arg$ref
+        next
+      } else if (any(class(arg) == "data.frame")) {
+        arg <- as.list(arg)
+      } else next
+    }
     if (length(arg) == 0) {
       arg <- NA_complex_
       } else {

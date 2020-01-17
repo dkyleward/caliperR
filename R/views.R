@@ -62,7 +62,7 @@ update_view <- function(df, view_name, set_name = NA_complex_) {
   }
 
   SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-  gplyr <- CreateObject("gplyr", as.list(df))
+  gplyr <- CreateObject("gplyr", df)
   gplyr$update_view(view_name, set_name)
   SetAlternateInterface()
   return(view_name)
@@ -74,7 +74,7 @@ update_view <- function(df, view_name, set_name = NA_complex_) {
 create_view <- function(df) {
 
   SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-  gplyr <- CreateObject("gplyr", as.list(df))
+  gplyr <- CreateObject("gplyr", df)
   view_name <- create_unique_view_name()
   gplyr$create_view()
   SetAlternateInterface()
