@@ -4,7 +4,7 @@
 \alias{process_gisdk_args}
 \title{Convert R arguments into GISDK flavors}
 \usage{
-process_gisdk_args(arg_list)
+process_gisdk_args(...)
 }
 \arguments{
 \item{arg_list}{\code{list} of args that are converted.}

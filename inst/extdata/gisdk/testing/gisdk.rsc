@@ -24,7 +24,7 @@ Macro "parse opts array" (opts)
     first_value = opts.(first_name)
     return(
         "The first option name is " + first_name + ". " +
-        "The first option value is " + first_value + "."
+        "The first option value is " + String(first_value) + "."
     )
 endmacro
 

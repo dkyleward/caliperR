@@ -26,7 +26,9 @@ test_that("Type conversion works", {
   )
   SetAlternateInterface()
   expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")
-  expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a\\b")
+  # Identify and modify file path strings correctly
+  expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a/b")
+  expect_equal(caliper:::convert_nulls_and_slashes("C:/Users"), "C:\\Users")
 })
 
 test_that("A nested list without names converts correctly", {
@@ -36,12 +38,13 @@ test_that("A nested list without names converts correctly", {
     "a/b",
     list(
       NA,
-      "c/d"
+      "c/d",
+      "C:/Users"
     )
   )
   expect_setequal(
     caliper:::process_gisdk_args(test1),
-    list(list(NA_complex_, "a\\b", list(NA_complex_, "c\\d")))
+    list(list(NA_complex_, "a/b", list(NA_complex_, "c/d", "C:\\Users")))
   )
 })
 
@@ -56,14 +59,22 @@ test_that("A nested list with names converts correctly", {
   )
 
   test2 <- list(
-    "one" = NA,
-    "two" = list(
-      "two_b" = "a/b"
-    )
+    "one" = list(1, 2, 3)
   )
   expect_setequal(
     caliper:::process_gisdk_args(test2),
-    list(list(list("one", NA_complex_), list("two", list("two_b", "a\\b"))))
+    list(list(list("one", list(1, 2, 3))))
+  )
+
+  test3 <- list(
+    "one" = NA,
+    "two" = list(
+      "two_b" = "C:/Users"
+    )
+  )
+  expect_setequal(
+    caliper:::process_gisdk_args(test3),
+    list(list(list("one", NA_complex_), list("two", list("two_b", "C:\\Users"))))
   )
 })
 

@@ -111,10 +111,10 @@ into an interface/UI. The `caliper` package comes with a toy GISDK script and
 the compiled version of that script as an example.
 
 ```{r}
-rsc_file <- system.file("extdata", "gisdk", "gisdk.rsc", package = "caliper")
+rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
 
 # unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "my_ui.zip", package = "caliper")
+zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
 tempdir <- tempdir()
 unzip(zip_file, exdir = tempdir, setTimes = TRUE)
 ui_path <- file.path(tempdir, "my_ui.dbd")
@@ -183,7 +183,7 @@ Working with matrices in R has been streamlined. Opening a matrix, for example,
 returns an object with several useful attributes and features.
 
 ```{r}
-file <- system.file("extdata", "gisdk", "toy_matrix.mtx", package = "caliper")
+file <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
 matrix <- RunFunction("OpenMatrix", file, NA)
 ```
 
@@ -271,3 +271,45 @@ info <- object$info
 head(info$FieldNames)
 head(info$MethodNames)
 ```
+
+### Example 8: Views in R
+
+Caliper software represents tabular data in "views". Earlier examples showed
+how to use `RunFunction()` to open a view and get the number of rows using
+GISDK functions. It can also be helpful to bring that tabular data into R for
+additional processing. Two functions exist to help with this:
+
+  * `view_to_df()`: convert a Caliper view into an R data frame
+  * `df_to_view()`: convert a data frame into a Caliper view
+
+In the code below, a data.frame is sent to a view. A new view is created, and
+it's name is returned.
+  
+```{r}
+df <- data.frame("one" = c(1, 2), "two" = c(3, 4), "three" = c(5, 6))
+df
+view <- df_to_view(df)
+view
+```
+  
+GISDK functions will now operate on that view as seen in previous examples.
+
+```{r}
+RunFunction("GetRecordCount", view, NA)
+```
+
+The view can be brought back into a new data.frame.
+
+```{r}
+df2 <- view_to_df(view)
+df2
+```
+
+Finally, the view can be updated with new data. This time, we include the name
+of the view we want to update.
+
+```{r}
+df2$one <- 10
+view <- df_to_view(df, view)
+```
+
