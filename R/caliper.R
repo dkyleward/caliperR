@@ -79,6 +79,7 @@ connect <- function(software = NULL, silent = FALSE){
 
   # Initialize the client and clear the log/report files
   info <- RunMacro("init_client")
+  set_package_variable("CALIPER_INFO", info)
   close(file(info$LogFile, open="w"))
   repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
   close(file(repot_file, open="w"))
@@ -411,7 +412,10 @@ process_gisdk_result <- function(result) {
 
 set_package_variable <- function(package_variable, value) {
 
-  package_variables <- c("CALIPER_DK", "CALIPER_SOFTWARE", "CALIPER_UI", "GISDK_UTILS_UI")
+  package_variables <- c(
+    "CALIPER_DK", "CALIPER_SOFTWARE", "CALIPER_UI", "GISDK_UTILS_UI",
+    "CALIPER_INFO"
+  )
   if (!(package_variable %in% package_variables)) {
     stop(paste(
       "'package_variable' must be one of",
@@ -456,6 +460,9 @@ set_package_variable <- function(package_variable, value) {
 get_package_variable <- function(package_variable) {
   return(get(package_variable, envir = caliper_env))
 }
+
+#' Checks to see if a string looks like a file path
+#' @keywords internal
 
 is_file_path <- function(s) {
   if (!is.character(s)) return(FALSE)
