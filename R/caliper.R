@@ -63,24 +63,26 @@ connect <- function(software = NULL, silent = FALSE){
         silent = TRUE
       )
     )
-    if (exists("dk")) {
-      # Set a package variable that points to gisdk_utils, a gisdk UI with helper
-      # functions for this package
-      zip_file <- system.file("extdata", "gisdk", "gisdk_utils", "gisdk_utils.zip", package = "caliper")
-      tempdir <- tempdir()
-      unzip(zip_file, exdir = tempdir, setTimes = TRUE)
-      ui_path <- file.path(tempdir, "gisdk_utils.dbd")
-      set_package_variable("GISDK_UTILS_UI", ui_path)
-
-      info <- RunMacro("init_client")
-
-      break
-    }
+    if (exists("dk")) break
   }
-
   if (!exists("dk")) stop(
     "Could not connect to Caliper software. Check that it is installed."
   )
+
+  # Set a package variable that points to gisdk_utils, a gisdk UI with helper
+  # functions for this package
+  zip_file <- system.file("extdata", "gisdk", "gisdk_utils", "gisdk_utils.zip", package = "caliper")
+  tempdir <- tempdir()
+  unzip(zip_file, exdir = tempdir, setTimes = TRUE)
+  ui_path <- file.path(tempdir, "gisdk_utils.dbd")
+  set_package_variable("GISDK_UTILS_UI", ui_path)
+
+  # Initialize the client and clear the log/report files
+  info <- RunMacro("init_client")
+  close(file(info$LogFile, open="w"))
+  repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
+  close(file(repot_file, open="w"))
+
   if (!silent) {
     message("Connected to ", software)
   }
