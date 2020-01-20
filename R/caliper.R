@@ -72,6 +72,8 @@ connect <- function(software = NULL, silent = FALSE){
       ui_path <- file.path(tempdir, "gisdk_utils.dbd")
       set_package_variable("GISDK_UTILS_UI", ui_path)
 
+      info <- RunMacro("init_client")
+
       break
     }
   }
