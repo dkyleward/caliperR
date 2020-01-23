@@ -77,12 +77,15 @@ connect <- function(software = NULL, silent = FALSE){
   ui_path <- file.path(tempdir, "gisdk_utils.dbd")
   set_package_variable("GISDK_UTILS_UI", ui_path)
 
-  # Initialize the client and clear the log/report files
+  # Initialize the client and clear the log/report files. If the software is
+  # already open locally, it will connect to it and not produce a log file.
   info <- RunMacro("init_client")
   set_package_variable("CALIPER_INFO", info)
-  close(file(info$LogFile, open="w"))
-  repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
-  close(file(repot_file, open="w"))
+  try({
+    close(file(info$LogFile, open="w"))
+    repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
+    close(file(repot_file, open="w"))
+  }, silent = TRUE)
 
   if (!silent) {
     message("Connected to ", software)
