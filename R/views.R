@@ -3,6 +3,7 @@
 #' @param view_name The name of the view open in Caliper software.
 #' @param set_name An optional set name can be provided to only return
 #'   records in a selection set from the view.
+#' @import data.table
 #' @export
 
 view_to_df <- function(view_name, set_name = NULL) {
@@ -18,16 +19,10 @@ view_to_df <- function(view_name, set_name = NULL) {
       stop("Set '", set_name, "' not in view '", view_name, "'")
     }
   }
-  column_data <- RunFunction("GetFields", view_name, "All")
-  column_names <- column_data[[1]]
-  column_names <- gsub("\\[", "", column_names)
-  column_names <- gsub("\\]", "", column_names)
-  column_names <- as.list(column_names)
-  viewset <- paste(view_name, set_name, sep = "|")
-  data <- RunFunction(
-    "GetDataVectors", viewset, column_names, list(OptArray = TRUE)
-  )
-  df <- as.data.frame(data, stringsAsFactors = FALSE, check.names = FALSE)
+  viewset <- paste0(view_name, "|", set_name)
+  csv <- tempfile(fileext = ".csv")
+  RunFunction("ExportView", viewset, "CSV", csv, NA, list("CSV Header" = "true"))
+  df <- data.table::fread(csv)
   return(df)
 }
 
