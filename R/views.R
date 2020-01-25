@@ -24,6 +24,7 @@ view_to_df <- function(view_name, set_name = NULL) {
   csv <- tempfile(fileext = ".csv")
   RunFunction("ExportView", viewset, "CSV", csv, NA, list("CSV Header" = "true"))
   df <- data.table::fread(csv)
+  df <- as.data.frame(df)
   return(df)
 }
 
