@@ -4,12 +4,15 @@
 \alias{RunMacro}
 \title{Runs a GISDK macro}
 \usage{
-RunMacro(macro_name, ...)
+RunMacro(macro_name, ..., process_result = TRUE)
 }
 \arguments{
 \item{macro_name}{\code{string} Name of the GISDK macro to run}
 
 \item{...}{Used to pass arguments to the GISDK macro}
+
+\item{process_result}{\code{boolean} Whether to attempt to process the
+result into a native R format.}
 }
 \description{
 A GISDK macro is a function defined in a GISDK scrip (.rsc). When working in

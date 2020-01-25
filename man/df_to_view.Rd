@@ -5,7 +5,7 @@
 \title{Converts a data.frame into a view. Updates an existing view or creates
 a new one as needed.}
 \usage{
-df_to_view(df, view_name = NULL, set_name = NA_complex_)
+df_to_view(df, view_name = NULL, set_name = NULL)
 }
 \description{
 Converts a data.frame into a view. Updates an existing view or creates

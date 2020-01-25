@@ -4,7 +4,7 @@
 \alias{update_view}
 \title{Updates an existing Caliper view with data from a data.frame}
 \usage{
-update_view(df, view_name, set_name = NA_complex_)
+update_view(df, view_name, set_name = NULL)
 }
 \description{
 Updates an existing Caliper view with data from a data.frame
