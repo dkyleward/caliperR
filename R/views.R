@@ -100,7 +100,7 @@ create_view <- function(df) {
 create_unique_view_name <- function() {
   current_views <- RunFunction("GetViews")
   for (i in 1:100) {
-    view_name <- paste0("gplyr", i)
+    view_name <- paste0("r_view_", i)
     if (!(view_name %in% current_views)) return(view_name)
   }
 }
