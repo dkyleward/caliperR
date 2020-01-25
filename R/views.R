@@ -42,6 +42,10 @@ df_to_view <- function(df, view_name = NULL, set_name = NULL) {
 }
 
 #' Updates an existing Caliper view with data from a data.frame
+#' @param df \code{data.frame} The data to update the view with.
+#' @param view_name \code{string} The view to update.
+#' @param set_name \code{string} Optional selection set name. If provided,
+#'   only the rows within the selection set of \code{view_name} will be updated.
 #' @import data.table
 #' @keywords internal
 
@@ -72,16 +76,21 @@ update_view <- function(df, view_name, set_name = NULL) {
   return(view_name)
 }
 
-#' Creates a new Caliper view with data from a data.frame
+#' Creates a new Caliper view with data from a data.frame;
+#'
+#' The data view is a "MEM" (or memory table), and is not associated with
+#' a file.
+#'
+#' @param df \code{data.frame} The data to send to a new view
 #' @keywords internal
 
 create_view <- function(df) {
-
-  SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-  gplyr <- CreateObject("gplyr", df)
+  csv <- tempfile(fileext = ".csv")
+  data.table::fwrite(df, csv)
+  view <- RunFunction("OpenTable", "temp", "CSV", list(csv, NA))
+  viewset <- paste0(view, "|")
   view_name <- create_unique_view_name()
-  gplyr$create_view()
-  SetAlternateInterface()
+  RunFunction("ExportView", viewset, "MEM", view_name, NA, NA)
   return(view_name)
 }
 
