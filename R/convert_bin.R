@@ -355,6 +355,11 @@ write_bin <- function(
   binData, binFilename, description='', dnames = NA, n2i = TRUE) {
   checkIfValidBinFile(binFilename)
 
+  # If connected to Caliper software over COM, use it for faster file creation.
+  # This function will overwrite the Dcb file to respect the display names,
+  # descriptions, etc.
+  if (connected()) write_bin_using_com(binData, binFilename)
+
   # Remove the 'labelled' class from columns if it exists
   for (i in 1:length(binData)) {
     class(binData[[i]]) <- setdiff(class(binData[[i]]), 'labelled')
@@ -390,6 +395,10 @@ write_bin <- function(
   )
   writeDcbFile(dcbKey, dcbFilename, description, dnames)
 
+  # If connectd, the COM was used to create the bin file with data, and the
+  # rest of this function isn't needed.
+  if (connected()) return(NULL)
+
   # Open bin file
   binFile <- file(binFilename, "wb")
   on.exit(close(binFile))
@@ -410,3 +419,21 @@ write_bin <- function(
   }
 }
 
+#' Uses Caliper software over COM to write a bin file, which is much faster.
+#'
+#' @inheritParams write_bin
+#' @import data.table
+#' @keywords internal
+
+write_bin_using_com <- function(binData, binFilename) {
+
+  checkIfValidBinFile(binFilename)
+  if (!connected()) return()
+
+  csv <- tempfile(fileext = ".csv")
+  data.table::fwrite(binData, csv)
+  view <- RunFunction("OpenTable", "temp", "CSV", list(csv, NA))
+  viewset <- paste0(view, "|")
+  RunFunction("ExportView", viewset, "FFB", binFilename, NA, NA)
+  RunFunction("CloseView", view)
+}
