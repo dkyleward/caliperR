@@ -348,6 +348,7 @@ is_gisdk_named_array <- function(object) {
 #' @keywords internal
 
 convert_nulls_and_slashes <- function(arg) {
+  if (is.object(arg)) return(arg)
   if (length(arg) > 1) {
     if (typeof(arg) == "list"){
       for (i in 1:length(arg)) {
