@@ -19,6 +19,7 @@ view_to_df <- function(view_name, set_name = NULL) {
       stop("Set '", set_name, "' not in view '", view_name, "'")
     }
   }
+
   viewset <- paste0(view_name, "|", set_name)
   csv <- tempfile(fileext = ".csv")
   RunFunction("ExportView", viewset, "CSV", csv, NA, list("CSV Header" = "true"))
@@ -30,7 +31,7 @@ view_to_df <- function(view_name, set_name = NULL) {
 #' a new one as needed.
 #' @export
 
-df_to_view <- function(df, view_name = NULL, set_name = NA_complex_) {
+df_to_view <- function(df, view_name = NULL, set_name = NULL) {
 
   if (!is.null(view_name)) update_view(df, view_name, set_name)
   else {
@@ -40,26 +41,33 @@ df_to_view <- function(df, view_name = NULL, set_name = NA_complex_) {
 }
 
 #' Updates an existing Caliper view with data from a data.frame
+#' @import data.table
 #' @keywords internal
 
-update_view <- function(df, view_name, set_name = NA_complex_) {
+update_view <- function(df, view_name, set_name = NULL) {
   # Make sure view_name and set_name exist
   current_views <- unlist(RunFunction("GetViews"))
   if (!(view_name %in% current_views)) {
     software <- get_package_variable("CALIPER_SOFTWARE")
     stop("View '", view_name, "' not open in ", software)
   }
-  if (!is.na(set_name)) {
+  if (!is.null(set_name)) {
     current_sets <- unlist(RunFunction("GetSets", view_name))
     if (!(set_name %in% current_sets)){
       stop("Set '", set_name, "' not in view '", view_name, "'")
     }
   }
 
-  SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-  gplyr <- CreateObject("gplyr", df)
-  gplyr$update_view(view_name, set_name)
-  SetAlternateInterface()
+  csv <- tempfile(fileext = ".csv")
+  data.table::fwrite(df, csv)
+  view <- RunFunction("OpenTable", "temp", "CSV", list(csv, NA))
+  column_names <- as.list(colnames(df))
+  viewset <- paste0(view, "|")
+  data <- RunFunction("GetDataVectors", viewset, column_names, NA, process_result = FALSE)
+  names(data) <- column_names
+  viewset <- paste0(view_name, "|", set_name)
+  RunFunction("SetDataVectors", viewset, data, NA)
+
   return(view_name)
 }
 
