@@ -203,6 +203,9 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
             binData[,(i) := sapply(binData[[i]], TcMissToRNa, TcDataType[i])]
         } else {
             binData[,i] <- readChar(binMatrix[range,], rep(byteLength,nRows), useBytes=TRUE)
+            binData[,(i) := sapply(binData[[i]], trimws)]
+            binData[,(i) := ifelse(binData[[i]] == "", NA, binData[[i]])]
+            binData[,(i) := as.character(binData[[i]])]
         }
     }
     return(binData)
@@ -269,7 +272,8 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
     # If not connected to Caliper software over COM, read the bin file in line
     # by line.
     if (!connected()) {
-      # Open binFilename before using nRows - produces clearer error message if file doesn't exist
+      # Open binFilename before using nRows - produces clearer error message
+      # if file doesn't exist
       binFile <- file(binFilename, "rb")
       on.exit(close(binFile))
       rawBinData <- readBin(binFile, what="raw", n=binFileSize)
@@ -454,7 +458,9 @@ write_bin <- function(
   }
 }
 
-#' Uses Caliper software over COM to write a bin file, which is much faster.
+#' Uses Caliper software over COM to write a bin file.
+#'
+#' When available, this approach is faster than writing line by line from R.
 #'
 #' @inheritParams write_bin
 #' @import data.table
