@@ -1,3 +1,6 @@
+# Original code written by Hans Susilo.
+# Support for field descriptions, display names, etc. added by Kyle Ward.
+
 #' Configures the environment for TransCAD
 #'
 #' Sets the error to dump.frames to prevent execution halt
@@ -220,6 +223,13 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
 read_bin <- function(binFilename, returnDnames = FALSE) {
     checkIfValidBinFile(binFilename)
 
+    # If connected to Caliper software over COM, use it to read faster
+    if (connected()) {
+      view <- RunFunction("OpenTable", "temp", "FFB", list(binFilename, NA))
+      df <- view_to_df(view)
+      RunFunction("CloseView", view)
+    }
+
     # Find the corresponding .dcb file
     dcbFilename <- paste(substr(binFilename,1,nchar(binFilename)-3),"dcb", sep="")
 
@@ -256,20 +266,45 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
               )
     setkey(dcbKey, "startByte")
 
-    # Open binFilename before using nRows - produces clearer error message if file doesn't exist
-    binFile <- file(binFilename, "rb")
-    on.exit(close(binFile))
+    # If not connected to Caliper software over COM, read the bin file in line
+    # by line.
+    if (!connected()) {
+      # Open binFilename before using nRows - produces clearer error message if file doesn't exist
+      binFile <- file(binFilename, "rb")
+      on.exit(close(binFile))
+      rawBinData <- readBin(binFile, what="raw", n=binFileSize)
 
-    binData <- data.table(matrix(ncol=nCols, nrow=1))
-    colnames(binData) <- as.character(dcbNames)
-    convertColClasses(binData, t(dcbKey[,"dataType"]))
-    binData <- data.table(binData)[1:nRows]
+      # Remove any rows marked as deleted
+      del_pattern <- charToRaw('\x91\x8b\x4a\x5c\xbc\xdb\x4f\x14\x63\x23\x7f\x78\xa6\x95\x0d\x27')
+      p <- which(rawBinData %in% del_pattern)
+      p1 <- diff(p)
+      p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
+      p3 <- which(p2 == 15)
+      contains_deleted_records <- length(p3) > 0
+      deleted_rows <- 0
+      while (contains_deleted_records) {
+        start_pos <- p[p3[1]-15+1]
+        end_pos <- start_pos + nBytesPerRow - 1
+        rawBinData <- rawBinData[-c(start_pos:end_pos)]
+        deleted_rows <- deleted_rows + 1
+        p <- which(rawBinData %in% del_pattern)
+        p1 <- diff(p)
+        p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
+        p3 <- which(p2 == 15)
+        contains_deleted_records <- length(p3) > 0
+      }
 
-    rawBinData <- readBin(binFile, what="raw", n=binFileSize)
-    binMatrix <- matrix(rawBinData, nBytesPerRow, nRows)
+      # Create an empty data.table for the data
+      binData <- data.table(matrix(ncol=nCols, nrow=1))
+      colnames(binData) <- as.character(dcbNames)
+      convertColClasses(binData, t(dcbKey[,"dataType"]))
+      binData <- data.table(binData)[1:nRows - deleted_rows]
 
-    df <- readFfb(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
-    df <- as.data.frame(df)
+      binMatrix <- matrix(rawBinData, nBytesPerRow, nRows - deleted_rows)
+
+      df <- readFfb(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
+      df <- as.data.frame(df)
+    }
 
     # Create column labels from field descriptions
     descriptions <- setNames(fieldDescrs, dcbNames)
@@ -356,7 +391,7 @@ write_bin <- function(
   checkIfValidBinFile(binFilename)
 
   # If connected to Caliper software over COM, use it for faster file creation.
-  # This function will overwrite the Dcb file to respect the display names,
+  # The remaining code will overwrite the dcb file to respect the display names,
   # descriptions, etc.
   if (connected()) write_bin_using_com(binData, binFilename)
 
@@ -395,7 +430,7 @@ write_bin <- function(
   )
   writeDcbFile(dcbKey, dcbFilename, description, dnames)
 
-  # If connectd, the COM was used to create the bin file with data, and the
+  # If connected, COM was used to create the bin file with data, and the
   # rest of this function isn't needed.
   if (connected()) return(NULL)
 

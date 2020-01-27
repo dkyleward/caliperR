@@ -20,3 +20,13 @@ test_that("df_to_view works", {
   df2 <- view_to_df(view)
   expect_equal(df, df2)
 })
+
+test_that("reading a bin file works", {
+  disconnect()
+  bin_file <- system.file(
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+  )
+  df <- read_bin(bin_file)
+  # The bin file has a deleted record. Make sure it isn't read into R.
+  expect_equal(nrow(df), 6)
+})
