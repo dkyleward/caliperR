@@ -21,12 +21,27 @@ test_that("df_to_view works", {
   expect_equal(df, df2)
 })
 
-test_that("reading a bin file works", {
+test_that("reading/writing a bin file works", {
   disconnect()
   bin_file <- system.file(
     "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
   )
   df <- read_bin(bin_file)
-  # The bin file has a deleted record. Make sure it isn't read into R.
-  expect_equal(nrow(df), 6)
+  dnames <- read_bin(bin_file, returnDnames = TRUE)
+  expect_equal(df$second[[1]], "a") # white space removed
+  expect_true(is.na(df$second[[3]])) # convert null characters to NA
+  expect_equal(typeof(df[[3]]), 'character') # preserve type for null fields
+  expect_equal(nrow(df), 6) # make sure the deleted record isn't read in.
+  field_descriptions <- Hmisc::label(df) # check field descriptions
+  temp_bin <- tempfile(fileext = ".bin")
+  write_bin(df, temp_bin, dnames = dnames)
+  temp_dcb <- gsub(".bin", ".dcb", temp_bin)
+  con <- file(temp_dcb, method = "r")
+  on.exit(close(con))
+  expect_equal(
+    readLines(con)[3],
+    "\"first\",I,1,4,0,10,0,,\"\",\"first field\",,\"Copy\",\"field_a\""
+  )
+  df2 <- read_bin(temp_bin)
+  expect_equal(df, df2)
 })
