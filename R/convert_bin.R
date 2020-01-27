@@ -97,19 +97,19 @@ TcMissToRNa <- function(value, typeChar) {
     switch(as.character(typeChar),
     "I" = {
         if (value == -2147483647)
-            value <- NA
+            value <- NA_integer_
         value},
     "S" = {
         if (value == -32767)
-            value <- NA
+            value <- NA_character_
         value},
     "R" = {
         if (value == -1.7976931348623157e+308)
-            value <- NA
+            value <- NA_real_
         value},
     "F" = {
         if (value == -3.402823466e+38)
-            value <- NA
+            value <- NA_real_
         value},
     value)
 }
@@ -204,8 +204,7 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
         } else {
             binData[,i] <- readChar(binMatrix[range,], rep(byteLength,nRows), useBytes=TRUE)
             binData[,(i) := sapply(binData[[i]], trimws)]
-            binData[,(i) := ifelse(binData[[i]] == "", NA, binData[[i]])]
-            binData[,(i) := as.character(binData[[i]])]
+            binData[,(i) := ifelse(binData[[i]] == "", NA_character_, binData[[i]])]
         }
     }
     return(binData)
