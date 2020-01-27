@@ -1,5 +1,5 @@
 
 36
-"first",I,1,4,0,8,0,,"","",,"Sum",
-"second",C,5,16,0,16,0,,"","",,"Copy",
-"third",C,21,16,0,16,0,,"","",,"Copy",
+"first",I,1,4,0,8,0,,"","first field",,"Sum",
+"second",C,5,16,0,16,0,,"","second field",,"Copy",
+"third",C,21,16,0,16,0,,"","third field",,"Copy",
