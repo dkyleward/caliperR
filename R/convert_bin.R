@@ -210,6 +210,30 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
     return(binData)
 }
 
+#' Correct the type for empty columns
+#'
+#' Empty columns read in through various means end up with type = logical.
+#' This function uses the dcbKey to correct them.
+#'
+#' @inheritParams readFfb
+
+correct_empty_columns <- function(df, dcbKey) {
+  for (i in 1:ncol(df)) {
+    r_type <- dcbKey$dataType[[i]]
+    if (all(is.na(df[[i]]))) {
+      df[[i]] <- switch(
+        r_type,
+        "character" = as.character(df[[i]]),
+        "integer" = as.integer(df[[i]]),
+        "numeric" = as.numeric(df[[i]]),
+        "Date" = as.Date(df[[i]]),
+        "POSIXct" = as.POSIXct(df[[i]])
+      )
+    }
+  }
+  df
+}
+
 #' Read a bin file
 #'
 #' Read the data in binfilename and return a data table. Any field descriptions
@@ -308,6 +332,8 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
       df <- readFfb(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
       df <- as.data.frame(df)
     }
+
+    df <- correct_empty_columns(df, dcbKey)
 
     # Create column labels from field descriptions
     descriptions <- setNames(fieldDescrs, dcbNames)
