@@ -4,12 +4,15 @@
 \alias{RunFunction}
 \title{Runs a GISDK function}
 \usage{
-RunFunction(macro_name, ...)
+RunFunction(macro_name, ..., process_result = TRUE)
 }
 \arguments{
 \item{macro_name}{\code{string} Name of the GISDK function to run}
 
 \item{...}{Used to pass arguments to the GISDK function}
+
+\item{process_result}{\code{boolean} Whether to attempt to process the
+result into a native R format.}
 }
 \description{
 A GISDK function are core functions (like \code{OpenTable()}) that are called

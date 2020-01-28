@@ -310,6 +310,7 @@ of the view we want to update.
 
 ```{r}
 df2$one <- 10
-view <- df_to_view(df, view)
+view <- df_to_view(df2, view)
+view_to_df(view)
 ```
 

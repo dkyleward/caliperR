@@ -4,7 +4,18 @@
 \alias{update_view}
 \title{Updates an existing Caliper view with data from a data.frame}
 \usage{
-update_view(df, view_name, set_name = NA_complex_)
+update_view(df, view_name, set_name = NULL)
+}
+\arguments{
+\item{df}{\code{data.frame} The data to update the view with.}
+
+\item{view_name}{\code{string} The view to update.}
+
+\item{set_name}{\code{string} Optional selection set name. If provided,
+only the rows within the selection set of \code{view_name} will be updated.}
+}
+\value{
+\code{string} The view name.
 }
 \description{
 Updates an existing Caliper view with data from a data.frame

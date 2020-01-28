@@ -77,12 +77,15 @@ connect <- function(software = NULL, silent = FALSE){
   ui_path <- file.path(tempdir, "gisdk_utils.dbd")
   set_package_variable("GISDK_UTILS_UI", ui_path)
 
-  # Initialize the client and clear the log/report files
+  # Initialize the client and clear the log/report files. If the software is
+  # already open locally, it will connect to it and not produce a log file.
   info <- RunMacro("init_client")
   set_package_variable("CALIPER_INFO", info)
-  close(file(info$LogFile, open="w"))
-  repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
-  close(file(repot_file, open="w"))
+  try({
+    close(file(info$LogFile, open="w"))
+    repot_file <- gsub("Errors\\.log", "Report\\.xml", info$LogFile)
+    close(file(repot_file, open="w"))
+  }, silent = TRUE)
 
   if (!silent) {
     message("Connected to ", software)
@@ -129,6 +132,8 @@ connected <- function() {
 #' To run GISDK functions (like \code{OpenTable()}) see \code{\link{RunFunction}}.
 #'
 #' @param macro_name \code{string} Name of the GISDK macro to run
+#' @param process_result \code{boolean} Whether to attempt to process the
+#'   result into a native R format.
 #' @param ... Used to pass arguments to the GISDK macro
 #' @export
 #' @examples
@@ -141,14 +146,14 @@ connected <- function() {
 #' #> "The first option name is one. The first option value is 1."
 #' }
 
-RunMacro <- function(macro_name, ...) {
+RunMacro <- function(macro_name, ..., process_result = TRUE) {
   stopifnot(connected())
   dk <- get_package_variable("CALIPER_DK")
   dk_ui <- get_package_variable("CALIPER_UI")
   gisdk_args <- process_gisdk_args(...)
   args <- c(list(macro_name, dk_ui), gisdk_args)
   result <- do.call(dk$RunUIMacro, args)
-  result <- process_gisdk_result(result)
+  if (process_result) result <- process_gisdk_result(result)
   return(result)
 }
 
@@ -161,6 +166,8 @@ RunMacro <- function(macro_name, ...) {
 #' \code{\link{RunMacro}}.
 #'
 #' @param macro_name \code{string} Name of the GISDK function to run
+#' @param process_result \code{boolean} Whether to attempt to process the
+#'   result into a native R format.
 #' @param ... Used to pass arguments to the GISDK function
 #' @export
 #' @examples
@@ -172,7 +179,7 @@ RunMacro <- function(macro_name, ...) {
 #' #> 280
 #' }
 
-RunFunction <- function(macro_name,...) {
+RunFunction <- function(macro_name, ..., process_result = TRUE) {
   stopifnot(connected())
   invalid_macro_names <- c(
     "RunMacro",
@@ -189,7 +196,7 @@ RunFunction <- function(macro_name,...) {
   gisdk_args <- process_gisdk_args(...)
   args <- c(list(macro_name), gisdk_args)
   result <- do.call(dk$RunMacro, args)
-  result <- process_gisdk_result(result)
+  if (process_result) result <- process_gisdk_result(result)
   return(result)
 }
 
@@ -341,6 +348,7 @@ is_gisdk_named_array <- function(object) {
 #' @keywords internal
 
 convert_nulls_and_slashes <- function(arg) {
+  if (is.object(arg)) return(arg)
   if (length(arg) > 1) {
     if (typeof(arg) == "list"){
       for (i in 1:length(arg)) {
