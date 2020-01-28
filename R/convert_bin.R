@@ -329,14 +329,15 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
 
       # Remove any rows marked as deleted
       del_pattern <- charToRaw('\x91\x8b\x4a\x5c\xbc\xdb\x4f\x14\x63\x23\x7f\x78\xa6\x95\x0d\x27')
+      del_pattern <- del_pattern[1:min(nBytesPerRow, 16)]
       p <- which(rawBinData %in% del_pattern)
       p1 <- diff(p)
       p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
-      p3 <- which(p2 == 15)
+      p3 <- which(p2 == length(del_pattern) - 1)
       contains_deleted_records <- length(p3) > 0
       deleted_rows <- 0
       while (contains_deleted_records) {
-        start_pos <- p[p3[1]-15+1]
+        start_pos <- p[p3[1]-length(del_pattern) + 2]
         end_pos <- start_pos + nBytesPerRow - 1
         rawBinData <- rawBinData[-c(start_pos:end_pos)]
         deleted_rows <- deleted_rows + 1
