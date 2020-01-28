@@ -150,7 +150,10 @@ getByteLength <- function(binDataCol) {
     # If the data frame has column labels/descriptions, remove that class
     dataType <- dataType[dataType != "labelled"]
     switch(as.character(dataType),
-    "character" = max(sapply(binDataCol, nchar, type="bytes", keepNA = FALSE)),
+    "character" = max(
+      4,
+      max(sapply(binDataCol, nchar, type="bytes", keepNA = FALSE))
+    ),
     "integer" = 4,
     "numeric" = 8,
     "Date" = 4,
@@ -204,6 +207,7 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
             binData[,(i) := sapply(binData[[i]], TcMissToRNa, TcDataType[i])]
         } else {
             binData[,i] <- readChar(binMatrix[range,], rep(byteLength,nRows), useBytes=TRUE)
+            # binData[,i] <- readBin(binMatrix[range,], dataType, nRows, byteLength)
             binData[,(i) := sapply(binData[[i]], trimws)]
             binData[,(i) := ifelse(binData[[i]] == "", NA_character_, binData[[i]])]
         }
@@ -321,15 +325,15 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
         p3 <- which(p2 == 15)
         contains_deleted_records <- length(p3) > 0
       }
+      nRows <- nRows - deleted_rows
 
       # Create an empty data.table for the data
       binData <- data.table(matrix(ncol=nCols, nrow=1))
       colnames(binData) <- as.character(dcbNames)
       convertColClasses(binData, t(dcbKey[,"dataType"]))
-      binData <- data.table(binData)[1:nRows - deleted_rows]
+      binData <- data.table(binData)[1:nRows]
 
-      binMatrix <- matrix(rawBinData, nBytesPerRow, nRows - deleted_rows)
-
+      binMatrix <- matrix(rawBinData, nBytesPerRow, nRows)
       df <- readFfb(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
       df <- as.data.frame(df)
     }
@@ -414,7 +418,7 @@ writeDcbFile <- function(
 #'   are smaller and easier to read. Defaults to \code{TRUE}. Conversion
 #'   does not happen if the column contains decimal values.
 #' @export
-#' @import data.table
+#' @import data.table, stringr
 #' @import Hmisc
 write_bin <- function(
   binData, binFilename, description='', dnames = NA, n2i = TRUE) {
@@ -478,9 +482,10 @@ convert_logics <- binData
       if (dataType != "C" ) {
         writeBin(RNaToTcMiss(convert_logics[[i,j]], dataType), binFile, byteLength)
       } else {
-        # Use writeChar() because writeBin() doesn't read the correct number of
-        # bytes for characters
-        writeChar(RNaToTcMiss(convert_logics[[i,j]], dataType), binFile, byteLength, eos=NULL)
+        value <- RNaToTcMiss(convert_logics[[i,j]], dataType)
+        value <- stringr::str_pad(value, byteLength, side = "right")
+        value <- charToRaw(value)
+        writeBin(value, binFile, useBytes = TRUE)
       }
     }
   }

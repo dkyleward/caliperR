@@ -65,24 +65,24 @@ testh_that("reading with and without COM give same data", {
   try(connect(), silent = TRUE)
 })
 
-bin_file <- system.file(
-  "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
-)
-df <- read_bin(bin_file)
-
 test_that("writing a bin file works without COM", {
   disconnect()
-  field_descriptions <- Hmisc::label(df) # check field descriptions
+  bin_file <- system.file(
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+  )
+  df1 <- read_bin(bin_file)
+  dnames <- read_bin(bin_file, returnDnames = TRUE)
   temp_bin <- tempfile(fileext = ".bin")
-  #write_bin(df, temp_bin, dnames = dnames)
-  #temp_dcb <- gsub(".bin", ".dcb", temp_bin)
-  #con <- file(temp_dcb, method = "r")
-  # on.exit(close(con))
-  # expect_equal(
-  #   readLines(con)[3],
-  #   "\"first\",I,1,4,0,10,0,,\"\",\"first field\",,\"Copy\",\"field_a\""
-  # )
-  # df2 <- read_bin(temp_bin)
-  # expect_equal(df, df2)
+  write_bin(df1, temp_bin, dnames = dnames)
+  df2 <- read_bin(temp_bin)
+  expect_true(all(unlist(lapply(df1, typeof)) == unlist(lapply(df2, typeof))))
+  temp_dcb <- gsub("\\.bin", "\\.dcb", temp_bin)
+  con <- file(temp_dcb, method = "r")
+  on.exit(close(con))
+  expect_equal(
+    readLines(con)[3],
+    "\"first\",I,1,4,0,10,0,,\"\",\"first field\",,\"Copy\",\"field_a\""
+  )
+  close(con)
   try(connect(), silent = TRUE)
 })
