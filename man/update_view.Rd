@@ -14,6 +14,9 @@ update_view(df, view_name, set_name = NULL)
 \item{set_name}{\code{string} Optional selection set name. If provided,
 only the rows within the selection set of \code{view_name} will be updated.}
 }
+\value{
+\code{string} The view name.
+}
 \description{
 Updates an existing Caliper view with data from a data.frame
 }

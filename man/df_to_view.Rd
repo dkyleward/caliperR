@@ -2,12 +2,18 @@
 % Please edit documentation in R/views.R
 \name{df_to_view}
 \alias{df_to_view}
-\title{Converts a data.frame into a view. Updates an existing view or creates
-a new one as needed.}
+\title{Converts a data.frame into a view.}
 \usage{
 df_to_view(df, view_name = NULL, set_name = NULL)
 }
+\arguments{
+\item{df}{\code{data.frame} The data to update the view with.}
+
+\item{view_name}{\code{string} The view to update.}
+
+\item{set_name}{\code{string} Optional selection set name. If provided,
+only the rows within the selection set of \code{view_name} will be updated.}
+}
 \description{
-Converts a data.frame into a view. Updates an existing view or creates
-a new one as needed.
+Updates an existing view or creates a new one as needed.
 }

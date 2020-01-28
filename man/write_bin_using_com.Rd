@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_bin.R
 \name{write_bin_using_com}
 \alias{write_bin_using_com}
-\title{Uses Caliper software over COM to write a bin file, which is much faster.}
+\title{Uses Caliper software over COM to write a bin file.}
 \usage{
 write_bin_using_com(binData, binFilename)
 }
@@ -12,6 +12,6 @@ write_bin_using_com(binData, binFilename)
 \item{binFilename}{\code{string} The file in which to write}
 }
 \description{
-Uses Caliper software over COM to write a bin file, which is much faster.
+When available, this approach is faster than writing line by line from R.
 }
 \keyword{internal}

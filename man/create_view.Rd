@@ -2,12 +2,15 @@
 % Please edit documentation in R/views.R
 \name{create_view}
 \alias{create_view}
-\title{Creates a new Caliper view with data from a data.frame;}
+\title{Creates a new Caliper view with data from a data.frame}
 \usage{
 create_view(df)
 }
 \arguments{
-\item{df}{\code{data.frame} The data to send to a new view}
+\item{df}{\code{data.frame} The data to update the view with.}
+}
+\value{
+\code{string} The name of the view.
 }
 \description{
 The data view is a "MEM" (or memory table), and is not associated with

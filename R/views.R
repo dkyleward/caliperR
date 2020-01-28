@@ -25,11 +25,27 @@ view_to_df <- function(view_name, set_name = NULL) {
   RunFunction("ExportView", viewset, "CSV", csv, NA, list("CSV Header" = "true"))
   df <- data.table::fread(csv, na.strings = "")
   df <- as.data.frame(df)
+  r_types <- vector(mode = "character", length = length(df))
+
+  # Correct field types for any empty fields
+  for (i in 1:length(df)) {
+    field_name <- colnames(df)[[i]]
+    field_spec <- paste0(view_name, ".", field_name)
+    caliper_type <- RunFunction("GetFieldType", field_spec)
+    r_types[[i]] <- TcTypeToRType2(caliper_type)
+  }
+  df <- correct_empty_columns(df, r_types)
+
   return(df)
 }
 
-#' Converts a data.frame into a view. Updates an existing view or creates
-#' a new one as needed.
+#' Converts a data.frame into a view.
+#'
+#' Updates an existing view or creates a new one as needed.
+#' @param df \code{data.frame} The data to update the view with.
+#' @param view_name \code{string} The view to update.
+#' @param set_name \code{string} Optional selection set name. If provided,
+#'   only the rows within the selection set of \code{view_name} will be updated.
 #' @export
 
 df_to_view <- function(df, view_name = NULL, set_name = NULL) {
@@ -42,11 +58,10 @@ df_to_view <- function(df, view_name = NULL, set_name = NULL) {
 }
 
 #' Updates an existing Caliper view with data from a data.frame
-#' @param df \code{data.frame} The data to update the view with.
-#' @param view_name \code{string} The view to update.
-#' @param set_name \code{string} Optional selection set name. If provided,
-#'   only the rows within the selection set of \code{view_name} will be updated.
+#'
+#' @inheritParams df_to_view
 #' @import data.table
+#' @return \code{string} The view name.
 #' @keywords internal
 
 update_view <- function(df, view_name, set_name = NULL) {
@@ -76,12 +91,13 @@ update_view <- function(df, view_name, set_name = NULL) {
   return(view_name)
 }
 
-#' Creates a new Caliper view with data from a data.frame;
+#' Creates a new Caliper view with data from a data.frame
 #'
 #' The data view is a "MEM" (or memory table), and is not associated with
 #' a file.
 #'
-#' @param df \code{data.frame} The data to send to a new view
+#' @inheritParams df_to_view
+#' @return \code{string} The name of the view.
 #' @keywords internal
 
 create_view <- function(df) {
@@ -94,12 +110,13 @@ create_view <- function(df) {
   return(view_name)
 }
 
-#' Creates a view name guaranteed to be unique in the current Caliper session
+#' Creates a view name unique in the current Caliper session
+#' @return \code{string} A unique view name.
 #' @keywords internal
 
 create_unique_view_name <- function() {
   current_views <- RunFunction("GetViews")
-  for (i in 1:100) {
+  for (i in 1:1000) {
     view_name <- paste0("r_view_", i)
     if (!(view_name %in% current_views)) return(view_name)
   }

@@ -63,6 +63,25 @@ TcTypeToRType <- function(typeChar) {
     typeChar)
 }
 
+#' Convert TransCAD type string to R datatype strings
+#'
+#' Unlike \code{\link{TcTypeToRType}}, this function works on the Caliper types
+#' returned by GISDKs \code{GetFieldType}, which are words like "Integer" instead
+#' of characters like "I".
+#'
+#' @inheritParams TcTypeToRType
+#' @return The correponding R type
+#' @keywords internal
+
+TcTypeToRType2 <- function(typeChar) {
+  switch(as.character(typeChar),
+         "String" = "character",
+         "Integer" = "integer",
+         "Real" = "numeric",
+         "DateTime" = "POSIXct",
+         typeChar)
+}
+
 #' Convert R datatype strings to TransCAD type string
 #'
 #' Convert R datatype strings to TransCAD type string
@@ -220,11 +239,13 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
 #' Empty columns read in through various means end up with type = logical.
 #' This function uses the dcbKey to correct them.
 #'
-#' @inheritParams readFfb
+#' @param df \code{data.frame} The data.frame to correct.
+#' @param r_types \code{list/vector} of data type strings.
+#' @keywords internal
 
-correct_empty_columns <- function(df, dcbKey) {
+correct_empty_columns <- function(df, r_types) {
   for (i in 1:ncol(df)) {
-    r_type <- dcbKey$dataType[[i]]
+    r_type <- r_types[[i]]
     if (all(is.na(df[[i]]))) {
       df[[i]] <- switch(
         r_type,
@@ -338,7 +359,7 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
       df <- as.data.frame(df)
     }
 
-    df <- correct_empty_columns(df, dcbKey)
+    df <- correct_empty_columns(df, dcbKey$dataType)
 
     # Create column labels from field descriptions
     descriptions <- setNames(fieldDescrs, dcbNames)
@@ -418,7 +439,7 @@ writeDcbFile <- function(
 #'   are smaller and easier to read. Defaults to \code{TRUE}. Conversion
 #'   does not happen if the column contains decimal values.
 #' @export
-#' @import data.table, stringr
+#' @import data.table stringr
 #' @import Hmisc
 write_bin <- function(
   binData, binFilename, description='', dnames = NA, n2i = TRUE) {

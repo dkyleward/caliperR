@@ -2,11 +2,14 @@
 % Please edit documentation in R/views.R
 \name{create_unique_view_name}
 \alias{create_unique_view_name}
-\title{Creates a view name guaranteed to be unique in the current Caliper session}
+\title{Creates a view name unique in the current Caliper session}
 \usage{
 create_unique_view_name()
 }
+\value{
+\code{string} A unique view name.
+}
 \description{
-Creates a view name guaranteed to be unique in the current Caliper session
+Creates a view name unique in the current Caliper session
 }
 \keyword{internal}
