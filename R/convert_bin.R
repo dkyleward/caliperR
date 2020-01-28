@@ -1,6 +1,3 @@
-# Original code written by Hans Susilo.
-# Support for field descriptions, display names, etc. added by Kyle Ward.
-
 #' Configures the environment for TransCAD
 #'
 #' Sets the error to dump.frames to prevent execution halt
@@ -133,6 +130,10 @@ RNaToTcMiss <- function(value, typeChar) {
         if (is.na(value))
             value <- -1.7976931348623157e+308
         value},
+    "C" = {
+      if (is.na(value))
+        value <- ""
+      value},
     value)
 }
 
@@ -149,7 +150,7 @@ getByteLength <- function(binDataCol) {
     # If the data frame has column labels/descriptions, remove that class
     dataType <- dataType[dataType != "labelled"]
     switch(as.character(dataType),
-    "character" = max(sapply(binDataCol, nchar, type="bytes")),
+    "character" = max(sapply(binDataCol, nchar, type="bytes", keepNA = FALSE)),
     "integer" = 4,
     "numeric" = 8,
     "Date" = 4,
@@ -429,22 +430,23 @@ write_bin <- function(
     class(binData[[i]]) <- setdiff(class(binData[[i]]), 'labelled')
   }
 
-  # Convert numeric columns to integer
-  if (n2i) {
-    shrink_reals <- type.convert(binData, as.is = TRUE)
-  } else {
-    shrink_reals <- binData
-  }
-
-  # If any column in the data frame contains only NA values, the
-  # column type is logical. Convert it to integer.
-  convert_logics <- as.data.frame(lapply(shrink_reals, function(x){
-    if (is.logical(x)) {
-      return(as.integer(x))
-    } else {
-      return(x)
-    }
-  }), stringsAsFactors = FALSE)
+  # # Convert numeric columns to integer
+  # if (n2i) {
+  #   shrink_reals <- type.convert(binData, as.is = TRUE)
+  # } else {
+  #   shrink_reals <- binData
+  # }
+  #
+  # # If any column in the data frame contains only NA values, the
+  # # column type is logical. Convert it to integer.
+  # convert_logics <- as.data.frame(lapply(shrink_reals, function(x){
+  #   if (is.logical(x)) {
+  #     return(as.integer(x))
+  #   } else {
+  #     return(x)
+  #   }
+  # }), stringsAsFactors = FALSE)
+convert_logics <- binData
 
   # Create the dcbKey and write the corresponding .dcb file
   dcbFilename <- paste(substr(binFilename,1,nchar(binFilename)-3),"dcb", sep="")
@@ -476,8 +478,9 @@ write_bin <- function(
       if (dataType != "C" ) {
         writeBin(RNaToTcMiss(convert_logics[[i,j]], dataType), binFile, byteLength)
       } else {
-        # Use readChar() because readBin() doesn't read the correct number of bytes for characters
-        writeChar(convert_logics[[i,j]], binFile, byteLength, eos=NULL)
+        # Use writeChar() because writeBin() doesn't read the correct number of
+        # bytes for characters
+        writeChar(RNaToTcMiss(convert_logics[[i,j]], dataType), binFile, byteLength, eos=NULL)
       }
     }
   }
