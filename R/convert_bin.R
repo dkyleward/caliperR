@@ -226,7 +226,6 @@ readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
             binData[,(i) := sapply(binData[[i]], TcMissToRNa, TcDataType[i])]
         } else {
             binData[,i] <- readChar(binMatrix[range,], rep(byteLength,nRows), useBytes=TRUE)
-            # binData[,i] <- readBin(binMatrix[range,], dataType, nRows, byteLength)
             binData[,(i) := sapply(binData[[i]], trimws)]
             binData[,(i) := ifelse(binData[[i]] == "", NA_character_, binData[[i]])]
         }
@@ -456,33 +455,15 @@ write_bin <- function(
     class(binData[[i]]) <- setdiff(class(binData[[i]]), 'labelled')
   }
 
-  # # Convert numeric columns to integer
-  # if (n2i) {
-  #   shrink_reals <- type.convert(binData, as.is = TRUE)
-  # } else {
-  #   shrink_reals <- binData
-  # }
-  #
-  # # If any column in the data frame contains only NA values, the
-  # # column type is logical. Convert it to integer.
-  # convert_logics <- as.data.frame(lapply(shrink_reals, function(x){
-  #   if (is.logical(x)) {
-  #     return(as.integer(x))
-  #   } else {
-  #     return(x)
-  #   }
-  # }), stringsAsFactors = FALSE)
-convert_logics <- binData
-
   # Create the dcbKey and write the corresponding .dcb file
   dcbFilename <- paste(substr(binFilename,1,nchar(binFilename)-3),"dcb", sep="")
-  dataType <- sapply(sapply(convert_logics, class), RTypeToTcType)
+  dataType <- sapply(sapply(binData, class), RTypeToTcType)
   dataType <- dataType[dataType != "labelled"]
   dcbKey <- data.table(
     colNames = colnames(binData),
     dataType = dataType,
-    byteLength = sapply(convert_logics, getByteLength),
-    displayLength = sapply(convert_logics, getDisplayLength),
+    byteLength = sapply(binData, getByteLength),
+    displayLength = sapply(binData, getDisplayLength),
     fieldDescrs = Hmisc::label(binData)
   )
   writeDcbFile(dcbKey, dcbFilename, description, dnames)
@@ -495,16 +476,16 @@ convert_logics <- binData
   binFile <- file(binFilename, "wb")
   on.exit(close(binFile))
 
-  nRows <- nrow(convert_logics)
-  nCols <- ncol(convert_logics)
+  nRows <- nrow(binData)
+  nCols <- ncol(binData)
   for (i in 1:nRows) {
     for (j in 1:nCols) {
       dataType <- dcbKey[[j,"dataType"]]
       byteLength <- dcbKey[[j,"byteLength"]]
       if (dataType != "C" ) {
-        writeBin(RNaToTcMiss(convert_logics[[i,j]], dataType), binFile, byteLength)
+        writeBin(RNaToTcMiss(binData[[i,j]], dataType), binFile, byteLength)
       } else {
-        value <- RNaToTcMiss(convert_logics[[i,j]], dataType)
+        value <- RNaToTcMiss(binData[[i,j]], dataType)
         value <- stringr::str_pad(value, byteLength, side = "right")
         value <- charToRaw(value)
         writeBin(value, binFile, useBytes = TRUE)
