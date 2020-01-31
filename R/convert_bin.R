@@ -468,35 +468,13 @@ write_bin <- function(
   )
   writeDcbFile(dcbKey, dcbFilename, description, dnames)
 
-  # If connected, COM was used to create the bin file with data, and the
-  # rest of this function isn't needed.
-  if (connected()) return(NULL)
-
-  # Open bin file
-  binFile <- file(binFilename, "wb")
-  on.exit(close(binFile))
-
-  nRows <- nrow(binData)
-  nCols <- ncol(binData)
-  for (i in 1:nRows) {
-    for (j in 1:nCols) {
-      dataType <- dcbKey[[j,"dataType"]]
-      byteLength <- dcbKey[[j,"byteLength"]]
-      if (dataType != "C" ) {
-        writeBin(RNaToTcMiss(binData[[i,j]], dataType), binFile, byteLength)
-      } else {
-        value <- RNaToTcMiss(binData[[i,j]], dataType)
-        value <- stringr::str_pad(value, byteLength, side = "right")
-        value <- charToRaw(value)
-        writeBin(value, binFile, useBytes = TRUE)
-      }
-    }
-  }
+  if (!connected()) write_bin_without_com(binData, binFilename, dcbKey)
 }
 
 #' Uses Caliper software over COM to write a bin file.
 #'
 #' When available, this approach is faster than writing line by line from R.
+#' Helper function for \code{\link{write_bin}}.
 #'
 #' @inheritParams write_bin
 #' @import data.table
@@ -513,4 +491,56 @@ write_bin_using_com <- function(binData, binFilename) {
   viewset <- paste0(view, "|")
   RunFunction("ExportView", viewset, "FFB", binFilename, NA, NA)
   RunFunction("CloseView", view)
+}
+
+#' Write a FFB (.bin) file without a COM connection
+#'
+#' This function allows R to write directly to a FFB file even if Caliper
+#' software is not installed on the machine. Helper function for
+#' \code{\link{write_bin}}.
+#'
+#' @inheritParams write_bin
+#' @param dcbKey The FFB table structure. This is create by \code{\link{write_bin}}
+#' @keywords internal
+
+write_bin_without_com <- function(binData, binFilename, dcbKey) {
+
+  # Iterate over the columns of the data frame and the rows of the
+  # dcbKey to create a matrix of raw bytes that can be written out
+  # one column at a time.
+  result <- mapply(
+    function(x, tc_type, byteLength) {
+      r_type <- TcTypeToRType(as.character(tc_type))
+      nRows <- length(x)
+      y <- sapply(x, caliper:::RNaToTcMiss, tc_type)
+      y <- switch(
+        r_type,
+        integer = as.integer(y),
+        numeric = as.numeric(y),
+        character = as.character(y),
+        POSIXct = as.POSIXct(y),
+        Date = as.Date(y)
+      )
+      if (r_type == "character") {
+        z <- stringr::str_pad(y, byteLength, side = "right")
+        m <- unname(sapply(z, charToRaw))
+      } else {
+        z <- writeBin(y, raw(), byteLength)
+        m <- matrix(z, byteLength, nRows)
+      }
+      m
+    },
+    x = binData,
+    tc_type = dcbKey$dataType,
+    byteLength = dcbKey$byteLength,
+    SIMPLIFY = FALSE
+  )
+  result <- do.call(rbind, result)
+  if (!file.exists(binFilename)) file.create(binFilename)
+  binFile <- file(binFilename, "wb")
+  on.exit(close(binFile))
+  apply(result, 2, function(x, connection = binFile) {
+    writeBin(x, con = connection)
+    return()
+  })
 }

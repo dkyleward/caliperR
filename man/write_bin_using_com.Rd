@@ -13,5 +13,6 @@ write_bin_using_com(binData, binFilename)
 }
 \description{
 When available, this approach is faster than writing line by line from R.
+Helper function for \code{\link{write_bin}}.
 }
 \keyword{internal}
