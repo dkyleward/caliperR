@@ -199,22 +199,23 @@ getDisplayLength <- function(binDataCol) {
     "POSIXct" = 22)
 }
 
-#' Read the bin matrix into a data table
+#' Read the bin matrix into a data table without a COM connection
 #'
-#' Where all the heavy lifting is done
-#' Reads data table column by column after the data is read
-#' into a binary matrix
+#' Helper function to \code{\link{read_bin}}. If Caliper software is not
+#' installed, this function reads and translates the bytes directly.
 #'
-#' @param binData
-#' @param binMatrix
-#' @param dcbKey
-#' @param TcDataType
-#' @param nRows
-#' @param nCols
+#' @param binData Empty matrix with correct dimensions.
+#' @param binMatrix The raw bytes converted to a matrix.
+#' @param dcbKey Data frame of column info.
+#' @param TcDataType The TransCAD data type.
+#' @param nRows Number of rows in the FFB.
+#' @param nCols Number of columns in the FFB.
 #' @return The modified binData data table
 #' @import data.table
 #' @keywords internal
-readFfb <- function(binData, binMatrix, dcbKey, TcDataType, nRows, nCols) {
+
+read_bin_without_com <- function(binData, binMatrix, dcbKey, TcDataType,
+                                 nRows, nCols) {
     for (i in 1:nCols) {
         startByte <- dcbKey[[i,"startByte"]]
         dataType <- dcbKey[[i,"dataType"]]
@@ -355,7 +356,7 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
       binData <- data.table(binData)[1:nRows]
 
       binMatrix <- matrix(rawBinData, nBytesPerRow, nRows)
-      df <- readFfb(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
+      df <- read_bin_without_com(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
       df <- as.data.frame(df)
     }
 
