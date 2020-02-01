@@ -4,23 +4,15 @@
 \alias{read_bin_without_com}
 \title{Read the bin matrix into a data table without a COM connection}
 \usage{
-read_bin_without_com(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
+read_bin_without_com(binFilename, dcbKey, nBytesPerRow)
 }
 \arguments{
-\item{binData}{Empty matrix with correct dimensions.}
+\item{binFilename}{\code{string} Path of bin file to read.}
 
-\item{binMatrix}{The raw bytes converted to a matrix.}
+\item{dcbKey}{\code{data.frame} The FFB table structure df. Created by
+read_bin.}
 
-\item{dcbKey}{Data frame of column info.}
-
-\item{TcDataType}{The TransCAD data type.}
-
-\item{nRows}{Number of rows in the FFB.}
-
-\item{nCols}{Number of columns in the FFB.}
-}
-\value{
-The modified binData data table
+\item{nBytesPerRow}{\code{numeric} The number of bytes per row.}
 }
 \description{
 Helper function to \code{\link{read_bin}}. If Caliper software is not

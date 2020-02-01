@@ -199,41 +199,6 @@ getDisplayLength <- function(binDataCol) {
     "POSIXct" = 22)
 }
 
-#' Read the bin matrix into a data table without a COM connection
-#'
-#' Helper function to \code{\link{read_bin}}. If Caliper software is not
-#' installed, this function reads and translates the bytes directly.
-#'
-#' @param binData Empty matrix with correct dimensions.
-#' @param binMatrix The raw bytes converted to a matrix.
-#' @param dcbKey Data frame of column info.
-#' @param TcDataType The TransCAD data type.
-#' @param nRows Number of rows in the FFB.
-#' @param nCols Number of columns in the FFB.
-#' @return The modified binData data table
-#' @import data.table
-#' @keywords internal
-
-read_bin_without_com <- function(binData, binMatrix, dcbKey, TcDataType,
-                                 nRows, nCols) {
-    for (i in 1:nCols) {
-        startByte <- dcbKey[[i,"startByte"]]
-        dataType <- dcbKey[[i,"dataType"]]
-        byteLength <- dcbKey[[i,"byteLength"]]
-
-        range <- seq(startByte, startByte+byteLength-1)
-        if (dataType != "character") {
-            binData[,i] <- readBin(binMatrix[range,], dataType, nRows, byteLength)
-            binData[,(i) := sapply(binData[[i]], TcMissToRNa, TcDataType[i])]
-        } else {
-            binData[,i] <- readChar(binMatrix[range,], rep(byteLength,nRows), useBytes=TRUE)
-            binData[,(i) := sapply(binData[[i]], trimws)]
-            binData[,(i) := ifelse(binData[[i]] == "", NA_character_, binData[[i]])]
-        }
-    }
-    return(binData)
-}
-
 #' Correct the type for empty columns
 #'
 #' Empty columns read in through various means end up with type = logical.
@@ -272,6 +237,7 @@ correct_empty_columns <- function(df, r_types) {
 #' @export
 #' @import data.table
 #' @import Hmisc
+
 read_bin <- function(binFilename, returnDnames = FALSE) {
     checkIfValidBinFile(binFilename)
 
@@ -311,6 +277,7 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
     # Create a row key and order it by starting byte
     dcbKey <- data.table(
                 index = c(1:nCols),
+                field_name = dcbFile[[1]],
                 startByte = dcbFile[[3]],
                 dataType = sapply(dcbFile[[2]], TcTypeToRType),
                 byteLength = dcbFile[[4]],
@@ -321,51 +288,114 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
     # If not connected to Caliper software over COM, read the bin file in line
     # by line.
     if (!connected()) {
-      # Open binFilename before using nRows - produces clearer error message
-      # if file doesn't exist
-      binFile <- file(binFilename, "rb")
-      on.exit(close(binFile))
-      rawBinData <- readBin(binFile, what="raw", n=binFileSize)
-
-      # Remove any rows marked as deleted
-      del_pattern <- charToRaw('\x91\x8b\x4a\x5c\xbc\xdb\x4f\x14\x63\x23\x7f\x78\xa6\x95\x0d\x27')
-      del_pattern <- del_pattern[1:min(nBytesPerRow, 16)]
-      p <- which(rawBinData %in% del_pattern)
-      p1 <- diff(p)
-      p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
-      p3 <- which(p2 == length(del_pattern) - 1)
-      contains_deleted_records <- length(p3) > 0
-      deleted_rows <- 0
-      while (contains_deleted_records) {
-        start_pos <- p[p3[1]-length(del_pattern) + 2]
-        end_pos <- start_pos + nBytesPerRow - 1
-        rawBinData <- rawBinData[-c(start_pos:end_pos)]
-        deleted_rows <- deleted_rows + 1
-        p <- which(rawBinData %in% del_pattern)
-        p1 <- diff(p)
-        p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
-        p3 <- which(p2 == 15)
-        contains_deleted_records <- length(p3) > 0
-      }
-      nRows <- nRows - deleted_rows
-
-      # Create an empty data.table for the data
-      binData <- data.table(matrix(ncol=nCols, nrow=1))
-      colnames(binData) <- as.character(dcbNames)
-      convertColClasses(binData, t(dcbKey[,"dataType"]))
-      binData <- data.table(binData)[1:nRows]
-
-      binMatrix <- matrix(rawBinData, nBytesPerRow, nRows)
-      df <- read_bin_without_com(binData, binMatrix, dcbKey, TcDataType, nRows, nCols)
-      df <- as.data.frame(df)
+      df <- read_bin_without_com(binFilename, dcbKey, nBytesPerRow)
     }
 
+    # Steps to take whether data was read with or without COM
     df <- correct_empty_columns(df, dcbKey$dataType)
-
-    # Create column labels from field descriptions
     descriptions <- setNames(fieldDescrs, dcbNames)
     Hmisc::label(df) <- as.list(descriptions)
+
     return(df)
+}
+
+#' Read the bin matrix into a data table without a COM connection
+#'
+#' Helper function to \code{\link{read_bin}}. If Caliper software is not
+#' installed, this function reads and translates the bytes directly.
+#'
+#' @param binFilename \code{string} Path of bin file to read.
+#' @param dcbKey \code{data.frame} The FFB table structure df. Created by
+#'   read_bin.
+#' @param nBytesPerRow \code{numeric} The number of bytes per row.
+#' @keywords internal
+
+read_bin_without_com <- function(binFilename, dcbKey, nBytesPerRow) {
+
+  # Read in the raw bytes
+  binFileSize <-file.info(binFilename)$size
+  nRows <- binFileSize / nBytesPerRow
+  binFile <- file(binFilename, "rb")
+  on.exit(close(binFile))
+  rawBinData <- readBin(binFile, what="raw", n=binFileSize)
+
+  # Remove any rows marked as deleted
+  del_pattern <- charToRaw('\x91\x8b\x4a\x5c\xbc\xdb\x4f\x14\x63\x23\x7f\x78\xa6\x95\x0d\x27')
+  del_pattern <- del_pattern[1:min(nBytesPerRow, 16)]
+  p <- which(rawBinData %in% del_pattern)
+  p1 <- diff(p)
+  p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
+  p3 <- which(p2 == length(del_pattern) - 1)
+  contains_deleted_records <- length(p3) > 0
+  deleted_rows <- 0
+  while (contains_deleted_records) {
+    start_pos <- p[p3[1]-length(del_pattern) + 2]
+    end_pos <- start_pos + nBytesPerRow - 1
+    rawBinData <- rawBinData[-c(start_pos:end_pos)]
+    deleted_rows <- deleted_rows + 1
+    p <- which(rawBinData %in% del_pattern)
+    p1 <- diff(p)
+    p2 <- data.table::frollsum(p1, length(del_pattern) - 1)
+    p3 <- which(p2 == 15)
+    contains_deleted_records <- length(p3) > 0
+  }
+  nRows <- nRows - deleted_rows
+
+  binMatrix <- matrix(rawBinData, nBytesPerRow, nRows)
+
+  # create start/stop list from a single vector of byte lenghts
+  end <- cumsum(dcbKey$byteLength)
+  start <- c(1, end + 1)
+  start <- start[-length(start)]
+  row_list <- mapply(
+    function(s, e) {seq(s, e)},
+    s = start, e = end,
+    SIMPLIFY = FALSE
+  )
+  m <- split_matrix(binMatrix, row_list, list(1:nRows))
+
+  l <- mapply(
+    function(m, r_type, nRows) {
+      tc_type <- RTypeToTcType(r_type)
+
+      if (r_type != "character") {
+        converted <- readBin(m, r_type, nRows)
+        converted <- sapply(converted, TcMissToRNa, tc_type)
+      } else {
+        converted <- apply(m, 2, function(x) readChar(x, length(x), useBytes=TRUE))
+        converted <- unname(sapply(converted, trimws))
+        converted <- ifelse(converted == "", NA_character_, converted)
+      }
+
+    },
+    m = m,
+    r_type = dcbKey$dataType,
+    nRows = nRows,
+    SIMPLIFY = FALSE
+  )
+
+  names(l) <- dcbKey$field_name
+  df <- as.data.frame(l, stringsAsFactors = FALSE)
+
+  return(df)
+}
+
+#' Splits a matrix by row and column indices
+#'
+#' Helper matrix to \code{\link{read_bin_without_com}}.
+#'
+#' @param M \code{matrix} A matrix full of raw bytes.
+#' @param list_of_rows \code{list} The indices of rows to split
+#'   (e.g. \code{list(1:4, 5:8)}).
+#' @param list_of_cols \code{list} The indices of columns to split.
+#'   (e.g. \code{list(0:3)}).
+#' @keywords internal
+
+split_matrix <- function(M, list_of_rows, list_of_cols){
+  temp = expand.grid(list_of_rows, list_of_cols)
+  lapply(seq(nrow(temp)), function(i) {
+    M[unlist(temp[i, 1]), unlist(temp[i, 2]) ]
+  })
 }
 
 #' Write data table's dcb file
@@ -377,6 +407,7 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
 #' @inheritParams write_bin
 #' @import data.table
 #' @keywords internal
+
 writeDcbFile <- function(
   dcbKey, dcbFilename, description = "", dnames = NA) {
     dcbFile <- file(dcbFilename, "wb")
@@ -442,6 +473,7 @@ writeDcbFile <- function(
 #' @export
 #' @import data.table stringr
 #' @import Hmisc
+
 write_bin <- function(
   binData, binFilename, description='', dnames = NA, n2i = TRUE) {
   checkIfValidBinFile(binFilename)
