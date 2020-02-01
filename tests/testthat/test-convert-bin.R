@@ -26,7 +26,6 @@ test_that("reading with and without COM give same data", {
   df2 <- read_bin(bin_file)
   expect_true(all(df2 == df1, na.rm = TRUE)) # that all data is the same
   expect_true(all(unlist(lapply(df1, typeof)) == unlist(lapply(df2, typeof))))
-  try(connect(), silent = TRUE)
 })
 
 test_that("reading a bin file works without COM", {

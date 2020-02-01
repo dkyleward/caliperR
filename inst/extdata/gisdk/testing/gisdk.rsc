@@ -54,3 +54,8 @@ endmacro
 Macro "test nested vector"
     return({test: A2V({1, 2, null})})
 endmacro
+
+// This is used to test how long it takes data to make a round trip over COM.
+Macro "round trip" (arg)
+    return(arg)
+endmacro
