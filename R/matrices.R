@@ -94,12 +94,16 @@ summary.CaliperMatrix <- function(object, ...) {
   stopifnot("CaliperMatrix" %in% class(object))
 
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
-
-  list_of_rows <- Map(function(x, name) {
-    df <- as.data.frame(x)
-    df$Core <- name
-    return(df)
-  }, stats, names(stats))
+  list_of_rows <- mapply(
+    function(x, name) {
+      df <- as.data.frame(x)
+      df$Core <- name
+      return(df)
+    },
+    x = stats,
+    name = names(stats),
+    SIMPLIFY = FALSE
+  )
 
   df <- data.table::rbindlist(list_of_rows)
   setcolorder(df, "Core")
