@@ -200,3 +200,31 @@ CaliperMatrix <- R6::R6Class(
     current_column_index = NULL
   )
 )
+
+#' S3 method for calling \code{CaliperMatrix} object methods
+#'
+#' Makes \code{CaliperMatrix} objects smarter about whether you are calling a
+#' method from the R object or the underlying GISDK object over COM.
+#'
+#' @details
+#'
+#' If \code{name} is an attribute of the R object (like \code{$info}), then
+#' the value of that attribute is returned. Otherwise, it looks into the fields
+#' and methods of the underlying GISDK object to determine what to do.
+#'
+#' @param x A \code{CaliperMatrix} object
+#' @param name the method to dispatch
+#' @export
+
+`$.CaliperMatrix` <- function(x, name) {
+  core_names <- names(.subset2(x, "cores"))
+  # If the name references an R method/attribute
+  if (exists(name, envir = x)) {
+    .subset2(x, name)
+  # If the name is a core
+  } else if (name %in% core_names) {
+    .subset2(x, "cores")[[name]]
+  } else {
+    stop(paste0(name, " is not a valid attribute or core name."))
+  }
+}
