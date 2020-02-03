@@ -44,17 +44,16 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' \code{as.matrix(x, core = "second core")}.
 #'
 #' @param x A \code{CaliperMatrix} object
-#' @param ... Additional arguments passed to \code{as.matrix}. An extra argument
-#'   \code{core} can be used to specify which core to convert. See details.
+#' @param ... Additional arguments passed to \code{as.matrix}.
+#' @param core \code{string} Optional name of core to convert. Defaults to
+#'   first core.
 #' @return an R matrix
 #' @export
 
-as.matrix.CaliperMatrix <- function(x, ...) {
+as.matrix.CaliperMatrix <- function(x, ..., core = NULL) {
 
   # Argument checking
-  args <- list(...)
-  if (!is.null(args$core)) {
-    core <- args$core
+  if (!is.null(core)) {
     stopifnot(core %in% names(x$cores))
   } else {
     core <- names(x$cores)[1]
@@ -94,16 +93,20 @@ summary.CaliperMatrix <- function(object, ...) {
   stopifnot("CaliperMatrix" %in% class(object))
 
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
-
-  list_of_rows <- Map(function(x, name) {
-    df <- as.data.frame(x)
-    df$Core <- name
-    return(df)
-  }, stats, names(stats))
+  list_of_rows <- mapply(
+    function(x, name) {
+      df <- as.data.frame(x)
+      df$Core <- name
+      return(df)
+    },
+    x = stats,
+    name = names(stats),
+    SIMPLIFY = FALSE
+  )
 
   df <- data.table::rbindlist(list_of_rows)
   setcolorder(df, "Core")
-  return(df)
+  return(as.data.frame(df))
 }
 
 #' CaliperMatrix class
@@ -157,8 +160,10 @@ CaliperMatrix <- R6::R6Class(
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
       self$create_matrix_cores()
-      indices <- RunFunction("GetMatrixIndexNames", self$handle)
-      indices <- Map(function(x) unlist(x), indices)
+      indices <- RunFunction(
+        "GetMatrixIndexNames", self$handle, process_result = FALSE
+      )
+      indices <- lapply(indices, function(x) unlist(x))
       indices <- setNames(indices, c("row", "column"))
       self$indices <- indices
     },
@@ -200,3 +205,30 @@ CaliperMatrix <- R6::R6Class(
     current_column_index = NULL
   )
 )
+
+#' S3 method for calling \code{CaliperMatrix} object attributes
+#'
+#' Makes it easier to call a matrix core directly using \code{matrix$core_name}.
+#'
+#' @details
+#'
+#' If \code{name} is an attribute of the R object (like \code{$info}), then
+#' the value of that attribute is returned. Otherwise, it looks into the fields
+#' and methods of the underlying GISDK object to determine what to do.
+#'
+#' @param x A \code{CaliperMatrix} object
+#' @param name the method to dispatch
+#' @export
+
+`$.CaliperMatrix` <- function(x, name) {
+  core_names <- names(.subset2(x, "cores"))
+  # If the name references an R method/attribute
+  if (exists(name, envir = x)) {
+    .subset2(x, name)
+  # If the name is a core
+  } else if (name %in% core_names) {
+    .subset2(x, "cores")[[name]]
+  } else {
+    stop(paste0(name, " is not a valid attribute or core name."))
+  }
+}
