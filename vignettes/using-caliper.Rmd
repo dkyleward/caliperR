@@ -199,7 +199,7 @@ head(tbl)
 ```
 
 ```{r}
-as.matrix(matrix, core = "core b")
+as.matrix(matrix, core = "core_b")
 ```
 
 You can also see the various row and column indices defined in the matrix.
@@ -215,9 +215,9 @@ index only contains the first 3 rows and columns of the full matrix.
 ```{r}
 matrix$row_index
 matrix$row_index <- "subset"
-as.matrix(matrix, core = "core b")
+as.matrix(matrix, core = "core_b")
 matrix$column_index <- "subset"
-as.matrix(matrix, core = "core b")
+as.matrix(matrix, core = "core_b")
 ```
 
 To support additional work over COM, pointers to the matrix handle and each
