@@ -106,7 +106,7 @@ summary.CaliperMatrix <- function(object, ...) {
 
   df <- data.table::rbindlist(list_of_rows)
   setcolorder(df, "Core")
-  return(df)
+  return(as.data.frame(df))
 }
 
 #' CaliperMatrix class
