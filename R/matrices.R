@@ -44,17 +44,16 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' \code{as.matrix(x, core = "second core")}.
 #'
 #' @param x A \code{CaliperMatrix} object
-#' @param ... Additional arguments passed to \code{as.matrix}. An extra argument
-#'   \code{core} can be used to specify which core to convert. See details.
+#' @param ... Additional arguments passed to \code{as.matrix}.
+#' @param core \code{string} Optional name of core to convert. Defaults to
+#'   first core.
 #' @return an R matrix
 #' @export
 
-as.matrix.CaliperMatrix <- function(x, ...) {
+as.matrix.CaliperMatrix <- function(x, ..., core = NULL) {
 
   # Argument checking
-  args <- list(...)
-  if (!is.null(args$core)) {
-    core <- args$core
+  if (!is.null(core)) {
     stopifnot(core %in% names(x$cores))
   } else {
     core <- names(x$cores)[1]
@@ -207,10 +206,9 @@ CaliperMatrix <- R6::R6Class(
   )
 )
 
-#' S3 method for calling \code{CaliperMatrix} object methods
+#' S3 method for calling \code{CaliperMatrix} object attributes
 #'
-#' Makes \code{CaliperMatrix} objects smarter about whether you are calling a
-#' method from the R object or the underlying GISDK object over COM.
+#' Makes it easier to call a matrix core directly using \code{matrix$core_name}.
 #'
 #' @details
 #'

@@ -4,13 +4,15 @@
 \alias{as.matrix.CaliperMatrix}
 \title{S3 method for bringing caliper matrices into R matrix format}
 \usage{
-\method{as.matrix}{CaliperMatrix}(x, ...)
+\method{as.matrix}{CaliperMatrix}(x, ..., core = NULL)
 }
 \arguments{
 \item{x}{A \code{CaliperMatrix} object}
 
-\item{...}{Additional arguments passed to \code{as.matrix}. An extra argument
-\code{core} can be used to specify which core to convert. See details.}
+\item{...}{Additional arguments passed to \code{as.matrix}.}
+
+\item{core}{\code{string} Optional name of core to convert. Defaults to
+first core.}
 }
 \value{
 an R matrix
