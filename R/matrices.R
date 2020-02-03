@@ -157,8 +157,10 @@ CaliperMatrix <- R6::R6Class(
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
       self$create_matrix_cores()
-      indices <- RunFunction("GetMatrixIndexNames", self$handle)
-      indices <- Map(function(x) unlist(x), indices)
+      indices <- RunFunction(
+        "GetMatrixIndexNames", self$handle, process_result = FALSE
+      )
+      indices <- lapply(indices, function(x) unlist(x))
       indices <- setNames(indices, c("row", "column"))
       self$indices <- indices
     },
