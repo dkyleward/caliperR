@@ -198,8 +198,10 @@ tbl <- as.data.frame(matrix)
 head(tbl)
 ```
 
+The example below shows the matrix cores being accessed directly.
+
 ```{r}
-as.matrix(matrix, core = "core_b")
+as.matrix(matrix$core_b)
 ```
 
 #### Row and column indices
@@ -226,14 +228,14 @@ the "subset" index to only work with the first 3.
 
 ```{r}
 matrix$row_index <- "subset"
-as.matrix(matrix, core = "core_b")
+as.matrix(matrix$core_b)
 ```
 
 Finally, we can do the same to the column index, which gives us a 3x3 matrix.
 
 ```{r}
 matrix$column_index <- "subset"
-as.matrix(matrix, core = "core_b")
+as.matrix(matrix$core_b)
 ```
 
 To support additional work over COM, pointers to the matrix handle and each
