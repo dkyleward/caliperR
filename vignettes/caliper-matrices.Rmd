@@ -1,0 +1,150 @@
+---
+title: "Caliper matrices"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Caliper matrices}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(caliper)
+```
+
+## Intro
+
+This vignette explains how to work with Caliper matrices from R using the
+`caliper` package. Many of the raw GISDK functions you may be used to have been
+streamlined using the `CaliperMatrix` class. The end result is a more
+intuitive experience.
+
+This vignette assumes you are already familiar with the basics of the `caliper`
+function. If not, see `vignette("using-caliper")`.
+
+Before getting started, I create a temporary copy of this package's matrix file. 
+This is only to ensure that changes made by this vignette are not made to the
+original file. (This is not necessary in normal workflow.)
+
+```{r}
+orig <- system.file(
+  "extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper"
+)
+mtx_file <- tempfile(fileext = ".mtx")
+ok <- file.copy(orig, mtx_file)
+```
+
+## Getting started
+
+Opening a matrix returns a `CaliperMatrix` object with useful attributes and
+methods.
+
+```{r}
+mtx <- RunFunction("OpenMatrix", mtx_file, NA)
+```
+
+Several of R's generic functions can be used on the resulting R6 object.
+
+```{r}
+summary(mtx)
+```
+
+```{r}
+tbl <- as.data.frame(mtx)
+head(tbl)
+```
+
+The function `as.matrix` can be used on a specific core, or on the matrix object
+directly to convert all cores.
+
+```{r}
+as.matrix(mtx$core_b)
+as.matrix(mtx)
+```
+
+You can also send updated data back to your Caliper software. In the code below,
+I update the top left corner of `core_b`. Doing so updates the .mtx file.
+
+```{r}
+new_data <- matrix(seq(1, 4), nrow = 2, ncol = 2, 
+                   dimnames = list(c(1,2), c(1,2)))
+new_data
+mtx$core_b <- new_data
+as.matrix(mtx$core_b)
+```
+
+## Full work flow example
+
+The example below introduces one more function: `AddMatrixCore`. Using it, we
+create a new core (`core_c`) and fill it with the sum of `core_a` and `core_b`.
+
+```{r}
+mtx$AddMatrixCore("core_c")
+data <- as.matrix(mtx)
+data$core_c <- data$core_a + data$core_b
+mtx$core_c <- data$core_c
+as.matrix(mtx$core_c)
+```
+
+## Working with indices
+
+Row and column indices allow you to subset caliper matrices. You can see which 
+indices are availabe in the matrix as shown below.
+
+```{r}
+mtx$indices
+```
+
+The `row_index` and `column_index` active fields allow you to see which index is
+active or switch between available indices. In our example matrix, the `subset`
+index only contains the first 3 rows and columns of the full matrix.
+
+First, we can check what the currently-active row index is:
+
+```{r}
+mtx$row_index
+```
+
+The "all" row index is active, which means all 5 rows. Next, we can change it to 
+the "subset" index to only work with the first 3.
+
+```{r}
+mtx$row_index <- "subset"
+as.matrix(mtx$core_b)
+```
+
+Finally, we can do the same to the column index, which gives us a 3x3 matrix.
+
+```{r}
+mtx$column_index <- "subset"
+as.matrix(mtx$core_b)
+```
+
+## Other details
+
+Certain GISDK functions or macros my require traditional GISDK `handles` and
+`currencies`. These can be provided as shown below.
+
+```{r}
+# A GISDK function requiring a matrix handle
+RunFunction("GetMatrixBaseIndex", mtx$handle)
+
+# A GISDK function requiring a matrix currency
+RunFunction("GetMatrixColumnLabels", mtx$core_a)
+```
+
+Note that the column labels are only 1-3 as opposed to 1-5. The matrix currency
+pointer respects the `subset` column index we set. One of the best things about
+working with Caliper matrices in R is that you never need to create a GISDK
+currency. All of that is handled behind the scenes.
