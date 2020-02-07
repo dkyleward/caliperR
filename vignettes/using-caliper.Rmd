@@ -179,30 +179,52 @@ RunMacro("show array", opts)
 
 ### Example 6: Matrices
 
-Working with matrices in R has been streamlined. Opening a matrix, for example,
-returns an object with several useful attributes and features.
+Before getting started, I create a temporary copy of the package's matrixfile. 
+This is only to ensure that changes made by this script are not made to the
+original version.
 
 ```{r}
-file <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
-matrix <- RunFunction("OpenMatrix", file, NA)
+orig <- system.file(
+  "extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper"
+)
+mtx_file <- tempfile(fileext = ".mtx")
+file.copy(orig, mtx_file)
+```
+
+Working with matrices in R has been streamlined. Opening a matrix, for example,
+returns an object with several useful attributes and methods.
+
+```{r}
+mtx <- RunFunction("OpenMatrix", mtx_file, NA)
 ```
 
 Several generic functions can be used on the resulting R6 object.
 
 ```{r}
-summary(matrix)
+summary(mtx)
 ```
 
 ```{r}
-tbl <- as.data.frame(matrix)
+tbl <- as.data.frame(mtx)
 head(tbl)
 ```
 
-The example below shows the matrix cores being accessed directly.
+The function `as.matrix` can be used on a specific core, or on the matrix object
+directly to convert all cores.
 
 ```{r}
-as.matrix(matrix$core_b)
+as.matrix(mtx$core_b)
+as.matrix(mtx)
 ```
+
+You can also send updated data back to Caliper software.
+
+```{r}
+new_data <- matrix(seq(1, 4), nrow = 2, ncol = 2)
+mtx$core_b <- new_data
+mtx$cores$core_b <- new_data
+```
+
 
 #### Row and column indices
 
@@ -210,7 +232,7 @@ Row and column indices allow you to subset caliper matrices. You can which
 indices are availabe for the matrix as shown below.
 
 ```{r}
-matrix$indices
+mtx$indices
 ```
 
 The `row_index` and `column_index` active fields allow you to see which index is
@@ -220,22 +242,22 @@ index only contains the first 3 rows and columns of the full matrix.
 First, we can check what the currently-active row index is:
 
 ```{r}
-matrix$row_index
+mtx$row_index
 ```
 
 The "all" row index is active, which means all 5 rows. Next, we can change it to 
 the "subset" index to only work with the first 3.
 
 ```{r}
-matrix$row_index <- "subset"
-as.matrix(matrix$core_b)
+mtx$row_index <- "subset"
+as.matrix(mtx$core_b)
 ```
 
 Finally, we can do the same to the column index, which gives us a 3x3 matrix.
 
 ```{r}
-matrix$column_index <- "subset"
-as.matrix(matrix$core_b)
+mtx$column_index <- "subset"
+as.matrix(mtx$core_b)
 ```
 
 To support additional work over COM, pointers to the matrix handle and each
@@ -246,10 +268,10 @@ Some examples:
 
 ```{r}
 # A GISDK function requiring a matrix handle
-RunFunction("GetMatrixBaseIndex", matrix$handle)
+RunFunction("GetMatrixBaseIndex", mtx$handle)
 
 # A GISDK function requiring a matrix currency
-RunFunction("GetMatrixColumnLabels", matrix$core_a)
+RunFunction("GetMatrixColumnLabels", mtx$core_a)
 ```
 
 Note that the column labels are only 1-3 as opposed to 1-5. The matrix currency
