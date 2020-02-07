@@ -34,6 +34,23 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
   return(df)
 }
 
+#' Converts all cores in a CaliperMatrix to R matrices
+#'
+#' To convert individual cores of a \code{CaliperMatrix}, see
+#' \code{\link{as.matrix.MatrixCurrency}}.
+#'
+#' @param x \code{CaliperMatrix}
+#' @param ... other arguments passed to \code{as.matrix()}
+#' @return A named list of R matrices.
+
+as.matrix.CaliperMatrix <- function(x, ...) {
+  sapply(
+    x$cores,
+    function(x, ...) as.matrix(x, ...),
+    USE.NAMES = TRUE, simplify = FALSE
+  )
+}
+
 #' S3 method for summarizing a \code{CaliperMatrix}
 #'
 #' Statistics return include things like sum, mean, min, etc.
@@ -45,6 +62,7 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #'   are always for the full Caliper matrix and do not respect the current
 #'   index.
 #' @import data.table
+#' @return A \code{data.frame} in with a row for each core.
 #' @export
 
 summary.CaliperMatrix <- function(object, ...) {
@@ -207,6 +225,8 @@ setClass("MatrixCurrency", representation(com = "COMIDispatch"))
 #' currency).
 #'
 #' @param x \code{COMIDispatch} Pointer to a GISDK matrix currency.
+#' @return A \code{MatrixCurrency} object.
+#' @keywords internal
 
 make_MatrixCurrency <- function(x) {
   gisdk_type <- RunMacro("get_object_type", x)
@@ -223,6 +243,7 @@ make_MatrixCurrency <- function(x) {
 #' @param x \code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}
 #'   class.
 #' @import data.table
+#' @return An R matrix.
 #' @export
 
 as.matrix.MatrixCurrency <- function(x, ...) {

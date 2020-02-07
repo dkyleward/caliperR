@@ -9,7 +9,11 @@ make_MatrixCurrency(x)
 \arguments{
 \item{x}{\code{COMIDispatch} Pointer to a GISDK matrix currency.}
 }
+\value{
+A \code{MatrixCurrency} object.
+}
 \description{
 This is used to wrap a COMIDispatch pointer (representing a GISDK matrix
 currency).
 }
+\keyword{internal}

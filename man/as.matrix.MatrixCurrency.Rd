@@ -10,6 +10,9 @@ as.matrix.MatrixCurrency(x, ...)
 \item{x}{\code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}
 class.}
 }
+\value{
+An R matrix.
+}
 \description{
 Converts a Caliper matrix into R format allowing it to be worked on in the R
 environment.

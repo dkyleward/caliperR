@@ -16,6 +16,8 @@ function.}
 A \code{data.frame} of summary statistics. These summary statistics
   are always for the full Caliper matrix and do not respect the current
   index.
+
+A \code{data.frame} in with a row for each core.
 }
 \description{
 Statistics return include things like sum, mean, min, etc.

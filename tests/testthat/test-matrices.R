@@ -21,6 +21,7 @@ test_that("matrix generics work", {
   matrix <- open_matrix()
   expect_is(summary(matrix), "data.frame")
   expect_is(as.data.frame(matrix), "data.frame")
+  expect_is(as.matrix(matrix), "list")
   expect_is(as.matrix(matrix$core_a), "matrix")
 })
 
