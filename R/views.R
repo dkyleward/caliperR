@@ -121,3 +121,12 @@ create_unique_view_name <- function() {
     if (!(view_name %in% current_views)) return(view_name)
   }
 }
+
+#' Close all views open in Caliper software
+#' @keywords internal
+
+close_views <- function() {
+  for (view in RunFunction("GetViews")[[1]]) {
+    RunFunction("CloseView", view)
+  }
+}

@@ -217,12 +217,14 @@ as.matrix(mtx$core_b)
 as.matrix(mtx)
 ```
 
-You can also send updated data back to Caliper software.
+You can also send updated data back to Caliper software. In the code below, I
+update the top left corner of `core_b`.
 
 ```{r}
-new_data <- matrix(seq(1, 4), nrow = 2, ncol = 2)
+new_data <- matrix(seq(1, 4), nrow = 2, ncol = 2, 
+                   dimnames = list(c(1,2), c(1,2)))
 mtx$core_b <- new_data
-mtx$cores$core_b <- new_data
+as.matrix(mtx$core_b)
 ```
 
 

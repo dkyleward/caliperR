@@ -12,6 +12,7 @@ test_that("view_to_df works", {
 test_that("df_to_view works", {
   check_connected()
   df <- data.frame("one" = c(1, 2), "two" = c(3, 4), "three" = c(5, 6))
+  if ("r_view_1" %in% RunFunction("GetViews")[[1]]) RunFunction("CloseView", "r_view_1")
   view <- df_to_view(df)
   expect_equal(view, "r_view_1")
   expect_true(view %in% RunFunction("GetViews")[[1]])

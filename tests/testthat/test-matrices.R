@@ -1,7 +1,9 @@
 open_matrix <- function() {
-  file <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
-  matrix <- RunFunction("OpenMatrix", file, NA)
-  return(matrix)
+  orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
+  mtx_file <- tempfile(fileext = ".mtx")
+  file.copy(orig, mtx_file)
+  mtx <- RunFunction("OpenMatrix", mtx_file, NA)
+  return(mtx)
 }
 
 test_that("matrix objects are created", {
@@ -33,4 +35,15 @@ test_that("matrix indices work", {
   expect_equal(c_labels, list("1", "2", "3"))
   df <- as.data.frame(matrix)
   expect_equal(nrow(df), 15)
+})
+
+test_that("updating a matrix works", {
+  check_connected()
+  mtx <- open_matrix()
+  new_data <- matrix(seq(1, 4), nrow = 2, ncol = 2,
+                     dimnames = list(c(1,2), c(1,2)))
+  mtx$core_b <- new_data
+  mtx <- as.matrix(mtx$core_b)
+  expect_equal(as.list(mtx)[1:2], list(1, 2))
+  expect_equal(as.list(mtx)[6:7], list(3, 4))
 })

@@ -41,14 +41,14 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' @param x \code{CaliperMatrix}
 #' @param ... other arguments passed to \code{as.matrix()}
 #' @return A named list of R matrices.
+#' @export
 
 as.matrix.CaliperMatrix <- function(x, ...) {
-  result <- sapply(
+  sapply(
     x$cores,
     function(x, ...) as.matrix(x, ...),
     USE.NAMES = TRUE, simplify = FALSE
   )
-  result
 }
 
 #' S3 method for summarizing a \code{CaliperMatrix}
@@ -156,11 +156,11 @@ CaliperMatrix <- R6::R6Class(
 
       info <- RunFunction("GetMatrixInfo", self$handle)
       ri_pos <- which(self$indices$row == self$row_index)
-      if (info[[6]]$`RowIndex Sizes`[[ri_pos]] > dim(data)[1]) {
+      if (dim(data)[1] > info[[6]]$`RowIndex Sizes`[[ri_pos]]) {
         stop("Your data has more rows than the matrix currency")
       }
       ci_pos <- which(self$indices$column == self$column_index)
-      if (info[[6]]$`ColIndex Sizes`[[ci_pos]] > dim(data)[2]) {
+      if (dim(data)[2] > info[[6]]$`ColIndex Sizes`[[ci_pos]]) {
         stop("Your data has more columns than the matrix currency")
       }
 
