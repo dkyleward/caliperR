@@ -43,11 +43,12 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' @return A named list of R matrices.
 
 as.matrix.CaliperMatrix <- function(x, ...) {
-  sapply(
+  result <- sapply(
     x$cores,
     function(x, ...) as.matrix(x, ...),
     USE.NAMES = TRUE, simplify = FALSE
   )
+  result
 }
 
 #' S3 method for summarizing a \code{CaliperMatrix}
@@ -112,7 +113,7 @@ summary.CaliperMatrix <- function(object, ...) {
 #' matrices. This includes info on S3 methods for bringing them into R formats
 #' like \code{data.frames} and \code{matrices}.
 #'
-#' @import R6
+#' @import R6 tidyverse
 #' @export
 
 CaliperMatrix <- R6::R6Class(
@@ -132,7 +133,7 @@ CaliperMatrix <- R6::R6Class(
       base_indices <- RunFunction("GetMatrixBaseIndex", self$handle)
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
-      self$create_matrix_cores()
+      self$create_core_list()
       indices <- RunFunction(
         "GetMatrixIndexNames", self$handle, process_result = FALSE
       )
@@ -140,7 +141,7 @@ CaliperMatrix <- R6::R6Class(
       indices <- setNames(indices, c("row", "column"))
       self$indices <- indices
     },
-    create_matrix_cores = function () {
+    create_core_list = function () {
       result <- RunFunction(
         "CreateMatrixCurrencies", self$handle, private$current_row_index,
         private$current_column_index, NA
@@ -148,7 +149,57 @@ CaliperMatrix <- R6::R6Class(
       result <- lapply(result, function(x) make_MatrixCurrency(x))
       self$cores <- result
       invisible(self)
+    },
+    update_gisdk_data = function(core_name, data) {
+      stopifnot(core_name %in% names(self$cores))
+      stopifnot("matrix" %in% class(data))
+
+      info <- RunFunction("GetMatrixInfo", self$handle)
+      ri_pos <- which(self$indices$row == self$row_index)
+      if (info[[6]]$`RowIndex Sizes`[[ri_pos]] > dim(data)[1]) {
+        stop("Your data has more rows than the matrix currency")
+      }
+      ci_pos <- which(self$indices$column == self$column_index)
+      if (info[[6]]$`ColIndex Sizes`[[ci_pos]] > dim(data)[2]) {
+        stop("Your data has more columns than the matrix currency")
+      }
+
+      df <- as.data.frame(data) %>%
+        dplyr::mutate(from = rownames(.)) %>%
+        tidyr::pivot_longer(-from, names_to = "to", values_to = "value") %>%
+        dplyr::mutate(core = core_name)
+      temp_csv <- tempfile(fileext = ".bin")
+      data.table::fwrite(df, temp_csv)
+      view <- create_unique_view_name()
+      view <- RunFunction("OpenTable", view, "CSV", list(temp_csv, NA))
+
+      ok <- RunFunction(
+        "VerifyIndex", self$handle, self$row_index, paste0(view, "|"),
+        "from"
+      )
+      if (ok != "Yes") stop(
+        "Your data has row ids that are not found in the matrix"
+      )
+      ok <- RunFunction(
+        "VerifyIndex", self$handle, self$column_index, paste0(view, "|"),
+        "to"
+      )
+      if (ok != "Yes") stop(
+        "Your data has column ids that are not found in the matrix"
+      )
+
+      RunFunction(
+        "UpdateMatrixFromView", self$handle, paste0(view, "|"),
+        "from", "to", "core", list("value"), "Replace", NA
+      )
+      invisible(self)
     }
+
+
+
+
+
+
   ),
   active = list(
     row_index = function (name) {
@@ -160,7 +211,7 @@ CaliperMatrix <- R6::R6Class(
       }
       self$cores <- NULL
       private$current_row_index <- name
-      self$create_matrix_cores()
+      self$create_core_list()
     },
     column_index = function (name) {
       if (missing(name)) return(private$current_column_index)
@@ -171,7 +222,7 @@ CaliperMatrix <- R6::R6Class(
       }
       self$cores <- NULL
       private$current_column_index <- name
-      self$create_matrix_cores()
+      self$create_core_list()
     }
   ),
   private = list(
@@ -205,6 +256,31 @@ CaliperMatrix <- R6::R6Class(
   } else {
     stop(paste0(name, " is not a valid attribute or core name."))
   }
+}
+
+#' Send matrix data back to Caliper software
+#'
+#' Standard assignment would simply overwrite the matrix currency with whatever
+#' data you assigned. This allows for properly formed matrix data to be sent
+#' back to Caliper software and update the matrix currency.
+#'
+#' @param x A \code{CaliperMatrix} object
+#' @param name the attribute to assign
+#' @param value the value to be assigned
+#' @export
+
+`$<-.CaliperMatrix` <- function(x, name, value) {
+  # If the name references an R attribute
+  if (exists(name, envir = x)) {
+    assign(name, value, envir = x)
+    # If the name references a core
+  } else if (name %in% names(x$cores)) {
+    .subset2(x, "update_gisdk_data")(name, value)
+    .subset2(x, "create_core_list")
+  } else {
+    stop(paste0("'", name, "' is not an R attribute or core name"))
+  }
+  invisible(x)
 }
 
 #' The matrix currency class
