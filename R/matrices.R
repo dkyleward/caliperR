@@ -12,7 +12,6 @@
 
 as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
                                         optional = FALSE, ...) {
-
   temp_file <- tempfile(fileext = ".csv")
   core_names <- names(x$cores)
   RunFunction(
@@ -66,9 +65,6 @@ as.matrix.CaliperMatrix <- function(x, ...) {
 #' @export
 
 summary.CaliperMatrix <- function(object, ...) {
-
-  # Argument checking
-  stopifnot("CaliperMatrix" %in% class(object))
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
   list_of_rows <- mapply(
     function(x, name) {
