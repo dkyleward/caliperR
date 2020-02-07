@@ -227,6 +227,19 @@ mtx$core_b <- new_data
 as.matrix(mtx$core_b)
 ```
 
+#### Full work flow example
+
+The example below introduces one more function: `AddMatrixCore`. Using it, we
+create a new core (`core_c`) which is the sum of `core_a` and `core_b`. We also
+send this new data back to the Caliper software, modifying the .mtx file.
+
+```{r}
+mtx$AddMatrixCore("core_c")
+data <- as.matrix(mtx)
+data$core_c <- data$core_a + data$core_b
+mtx$core_c <- data$core_c
+as.matrix(mtx$core_c)
+```
 
 #### Row and column indices
 

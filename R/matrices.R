@@ -193,13 +193,11 @@ CaliperMatrix <- R6::R6Class(
         "from", "to", "core", list("value"), "Replace", NA
       )
       invisible(self)
+    },
+    AddMatrixCore = function(core_name) {
+      RunFunction("AddMatrixCore", self$handle, core_name)
+      self$create_core_list()
     }
-
-
-
-
-
-
   ),
   active = list(
     row_index = function (name) {

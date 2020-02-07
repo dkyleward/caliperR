@@ -47,3 +47,10 @@ test_that("updating a matrix works", {
   expect_equal(as.list(mtx)[1:2], list(1, 2))
   expect_equal(as.list(mtx)[6:7], list(3, 4))
 })
+
+test_that("adding a core works", {
+  check_connected()
+  mtx <- open_matrix()
+  mtx$AddMatrixCore("core_c")
+  expect_equal(length(mtx$cores), 3)
+})
