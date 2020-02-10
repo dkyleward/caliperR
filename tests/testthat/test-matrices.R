@@ -51,14 +51,15 @@ test_that("updating a matrix works", {
 test_that("adding a core works", {
   check_connected()
   mtx <- open_matrix()
-  mtx$AddMatrixCore("core_c")
+  mtx$CreateCore("core_c")
   expect_equal(length(mtx$cores), 3)
 })
 
 test_that("adding a matrix index works", {
   check_connected()
   mtx <- open_matrix()
-  mtx$AddIndex("new", c(1, 2, 3, 4))
+  mtx$CreateIndex("new", c(1, 2, 3, 4))
   expect_equal(length(mtx$indices$row), 3)
+  mtx$row_index <- "new"
   expect_equal(nrow(as.matrix(mtx$core_a)), 4)
 })

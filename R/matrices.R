@@ -197,11 +197,11 @@ CaliperMatrix <- R6::R6Class(
       )
       invisible(self)
     },
-    AddMatrixCore = function(core_name) {
+    CreateCore = function(core_name) {
       RunFunction("AddMatrixCore", self$handle, core_name)
       self$create_core_list()
     },
-    AddIndex = function(index_name, old_ids, new_ids = NULL, index_type = "both") {
+    CreateIndex = function(index_name, old_ids, new_ids = NULL, index_type = "both") {
       stopifnot(typeof(index_type) == "character")
       stopifnot(length(index_type) == 1)
       index_type <- tolower(index_type)
