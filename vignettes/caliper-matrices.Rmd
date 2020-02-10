@@ -84,7 +84,7 @@ mtx$core_b <- new_data
 as.matrix(mtx$core_b)
 ```
 
-## Full work flow example
+### Full work flow example
 
 The example below introduces one more function: `AddMatrixCore`. Using it, we
 create a new core (`core_c`) and fill it with the sum of `core_a` and `core_b`.
@@ -99,8 +99,12 @@ as.matrix(mtx$core_c)
 
 ## Working with indices
 
-Row and column indices allow you to subset caliper matrices. You can see which 
-indices are availabe in the matrix as shown below.
+Row and column indices are how you subset caliper matrices. In the previous
+section, we were able to update a subset of matrix cells directly
+from R without needing to know about matrix indices; however, knowledge of
+indices is valuable when working with more complex GISDK functions.
+
+You can see which indices are availabe in the matrix:
 
 ```{r}
 mtx$indices
@@ -116,7 +120,7 @@ First, we can check what the currently-active row index is:
 mtx$row_index
 ```
 
-The "all" row index is active, which means all 5 rows. Next, we can change it to 
+The "all" row index is active, which means all 5 rows. We can change it to 
 the "subset" index to only work with the first 3.
 
 ```{r}
@@ -124,17 +128,26 @@ mtx$row_index <- "subset"
 as.matrix(mtx$core_b)
 ```
 
-Finally, we can do the same to the column index, which gives us a 3x3 matrix.
+We can do the same to the column index, which gives us a 3x3 matrix.
 
 ```{r}
 mtx$column_index <- "subset"
 as.matrix(mtx$core_b)
 ```
 
-## Other details
+Finally, the `caliper` package makes it simple to add new indices. The example
+below adds the "new" index and gives the IDs of which rows/columns to include.
 
-Certain GISDK functions or macros my require traditional GISDK `handles` and
-`currencies`. These can be provided as shown below.
+```{r}
+mtx$AddIndex("new", c(1, 2, 3, 4))
+mtx$indices
+```
+
+## Handles and currencies
+
+The `caliper` package abstracts away the idea of matrix handles and currencies,
+but certain GISDK functions or macros may require them. They can be provided as
+shown below.
 
 ```{r}
 # A GISDK function requiring a matrix handle

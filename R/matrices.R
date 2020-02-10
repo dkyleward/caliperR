@@ -133,7 +133,10 @@ CaliperMatrix <- R6::R6Class(
       base_indices <- RunFunction("GetMatrixBaseIndex", self$handle)
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
+      self$create_index_info()
       self$create_core_list()
+    },
+    create_index_info = function () {
       indices <- RunFunction(
         "GetMatrixIndexNames", self$handle, process_result = FALSE
       )
@@ -197,6 +200,28 @@ CaliperMatrix <- R6::R6Class(
     AddMatrixCore = function(core_name) {
       RunFunction("AddMatrixCore", self$handle, core_name)
       self$create_core_list()
+    },
+    AddIndex = function(index_name, old_ids, new_ids = NULL, index_type = "both") {
+      stopifnot(typeof(index_type) == "character")
+      stopifnot(length(index_type) == 1)
+      index_type <- tolower(index_type)
+      stopifnot(index_type %in% c("row", "column", "both"))
+      if (!is.null(new_ids)) {
+        stopifnot(length(new_ids) == length(old_ids))
+        df <- data.frame(old_ids = old_ids, new_ids = new_ids)
+        new_id_col <- "new_ids"
+      } else {
+        df <- data.frame(old_ids = old_ids)
+        new_id_col <- NA
+      }
+      old_id_col <- "old_ids"
+      view <- df_to_view(df)
+      viewset <- paste0(view, "|")
+      RunFunction(
+        "CreateMatrixIndex", index_name, self$handle, index_type, viewset,
+        old_id_col, new_id_col
+      )
+      self$create_index_info()
     }
   ),
   active = list(

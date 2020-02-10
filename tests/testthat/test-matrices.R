@@ -54,3 +54,11 @@ test_that("adding a core works", {
   mtx$AddMatrixCore("core_c")
   expect_equal(length(mtx$cores), 3)
 })
+
+test_that("adding a matrix index works", {
+  check_connected()
+  mtx <- open_matrix()
+  mtx$AddIndex("new", c(1, 2, 3, 4))
+  expect_equal(length(mtx$indices$row), 3)
+  expect_equal(nrow(as.matrix(mtx$core_a)), 4)
+})
