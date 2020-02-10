@@ -38,8 +38,11 @@ like \code{data.frames} and \code{matrices}.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{CaliperMatrix$new()}}
+\item \href{#method-create_index_info}{\code{CaliperMatrix$create_index_info()}}
 \item \href{#method-create_core_list}{\code{CaliperMatrix$create_core_list()}}
 \item \href{#method-update_gisdk_data}{\code{CaliperMatrix$update_gisdk_data()}}
+\item \href{#method-CreateCore}{\code{CaliperMatrix$CreateCore()}}
+\item \href{#method-CreateIndex}{\code{CaliperMatrix$CreateIndex()}}
 \item \href{#method-clone}{\code{CaliperMatrix$clone()}}
 }
 }
@@ -48,6 +51,14 @@ like \code{data.frames} and \code{matrices}.
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$new(matrix)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-create_index_info"></a>}}
+\subsection{Method \code{create_index_info()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$create_index_info()}\if{html}{\out{</div>}}
 }
 
 }
@@ -64,6 +75,27 @@ like \code{data.frames} and \code{matrices}.
 \subsection{Method \code{update_gisdk_data()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$update_gisdk_data(core_name, data)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CreateCore"></a>}}
+\subsection{Method \code{CreateCore()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$CreateCore(core_name)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CreateIndex"></a>}}
+\subsection{Method \code{CreateIndex()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$CreateIndex(
+  index_name,
+  old_ids,
+  new_ids = NULL,
+  index_type = "both"
+)}\if{html}{\out{</div>}}
 }
 
 }
