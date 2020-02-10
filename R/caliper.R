@@ -267,6 +267,9 @@ process_gisdk_args <- function(...) {
       } else if (any(class(arg) == "MatrixCurrency")) {
         arg_list[[i]] <- arg@com
         next
+      } else if (any(class(arg) == "CaliperMatrix")) {
+        arg_list[[i]] <- arg$handle
+        next
       } else if (any(class(arg) == "data.frame")) {
         arg <- as.list(arg)
       } else next
