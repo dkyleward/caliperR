@@ -12,7 +12,6 @@
 
 as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
                                         optional = FALSE, ...) {
-
   temp_file <- tempfile(fileext = ".csv")
   core_names <- names(x$cores)
   RunFunction(
@@ -25,53 +24,31 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 
   # CreateTableFromMatrix exports all the data regardless of which index
   # is active. Filter the from/to columns to match the active index.
-  c_labels <- RunFunction("GetMatrixColumnLabels", x$cores[[1]])
+  c_labels <- RunFunction("GetMatrixColumnLabels", x$cores[[1]]@com)
   c_labels <- as.numeric(c_labels)
-  r_labels <- RunFunction("GetMatrixRowLabels", x$cores[[1]])
+  r_labels <- RunFunction("GetMatrixRowLabels", x$cores[[1]]@com)
   r_labels <- as.numeric(r_labels)
   df <- df[df$from %in% r_labels & df$to %in% c_labels, ]
 
   return(df)
 }
 
-#' S3 method for bringing caliper matrices into R matrix format
+#' Converts all cores in a CaliperMatrix to R matrices
 #'
-#' Converts a Caliper matrix into R format allowing it to be worked on in the R
-#' environment.
+#' To convert individual cores of a \code{CaliperMatrix}, see
+#' \code{\link{as.matrix.MatrixCurrency}}.
 #'
-#' By default, the first core of the Caliper matrix is converted into an R
-#' matrix. To select a different one, use the \code{core} argument like so:
-#' \code{as.matrix(x, core = "second core")}.
-#'
-#' @param x A \code{CaliperMatrix} object
-#' @param ... Additional arguments passed to \code{as.matrix}.
-#' @param core \code{string} Optional name of core to convert. Defaults to
-#'   first core.
-#' @return an R matrix
+#' @param x \code{CaliperMatrix}
+#' @param ... other arguments passed to \code{as.matrix()}
+#' @return A named list of R matrices.
 #' @export
 
-as.matrix.CaliperMatrix <- function(x, ..., core = NULL) {
-
-  # Argument checking
-  if (!is.null(core)) {
-    stopifnot(core %in% names(x$cores))
-  } else {
-    core <- names(x$cores)[1]
-  }
-
-  tbl <- as.data.frame.CaliperMatrix(x)
-
-  tbl$from <- factor(x = tbl$from, levels = unique(tbl$from))
-  tbl$to <- factor(x = tbl$to, levels = unique(tbl$to))
-
-  result <- matrix(
-    nrow = nlevels(tbl$from),
-    ncol = nlevels(tbl$to),
-    dimnames = list(levels(tbl$from), levels(tbl$to))
+as.matrix.CaliperMatrix <- function(x, ...) {
+  sapply(
+    x$cores,
+    function(x, ...) as.matrix(x, ...),
+    USE.NAMES = TRUE, simplify = FALSE
   )
-  result[cbind(tbl$from, tbl$to)] <- tbl[, core]
-
-  return(result)
 }
 
 #' S3 method for summarizing a \code{CaliperMatrix}
@@ -85,13 +62,10 @@ as.matrix.CaliperMatrix <- function(x, ..., core = NULL) {
 #'   are always for the full Caliper matrix and do not respect the current
 #'   index.
 #' @import data.table
+#' @return A \code{data.frame} in with a row for each core.
 #' @export
 
 summary.CaliperMatrix <- function(object, ...) {
-
-  # Argument checking
-  stopifnot("CaliperMatrix" %in% class(object))
-
   stats <- RunFunction("MatrixStatistics", object$handle, NA)
   list_of_rows <- mapply(
     function(x, name) {
@@ -139,7 +113,7 @@ summary.CaliperMatrix <- function(object, ...) {
 #' matrices. This includes info on S3 methods for bringing them into R formats
 #' like \code{data.frames} and \code{matrices}.
 #'
-#' @import R6
+#' @import R6 tidyverse
 #' @export
 
 CaliperMatrix <- R6::R6Class(
@@ -159,7 +133,10 @@ CaliperMatrix <- R6::R6Class(
       base_indices <- RunFunction("GetMatrixBaseIndex", self$handle)
       private$current_row_index <- base_indices[[1]]
       private$current_column_index <- base_indices[[2]]
-      self$create_matrix_cores()
+      self$create_index_info()
+      self$create_core_list()
+    },
+    create_index_info = function () {
       indices <- RunFunction(
         "GetMatrixIndexNames", self$handle, process_result = FALSE
       )
@@ -167,13 +144,84 @@ CaliperMatrix <- R6::R6Class(
       indices <- setNames(indices, c("row", "column"))
       self$indices <- indices
     },
-    create_matrix_cores = function () {
+    create_core_list = function () {
       result <- RunFunction(
         "CreateMatrixCurrencies", self$handle, private$current_row_index,
         private$current_column_index, NA
       )
+      result <- lapply(result, function(x) make_MatrixCurrency(x))
       self$cores <- result
       invisible(self)
+    },
+    update_gisdk_data = function(core_name, data) {
+      stopifnot(core_name %in% names(self$cores))
+      stopifnot("matrix" %in% class(data))
+
+      info <- RunFunction("GetMatrixInfo", self$handle)
+      ri_pos <- which(self$indices$row == self$row_index)
+      if (dim(data)[1] > info[[6]]$`RowIndex Sizes`[[ri_pos]]) {
+        stop("Your data has more rows than the matrix currency")
+      }
+      ci_pos <- which(self$indices$column == self$column_index)
+      if (dim(data)[2] > info[[6]]$`ColIndex Sizes`[[ci_pos]]) {
+        stop("Your data has more columns than the matrix currency")
+      }
+
+      df <- as.data.frame(data) %>%
+        dplyr::mutate(from = rownames(.)) %>%
+        tidyr::pivot_longer(-from, names_to = "to", values_to = "value") %>%
+        dplyr::mutate(core = core_name)
+      temp_csv <- tempfile(fileext = ".bin")
+      data.table::fwrite(df, temp_csv)
+      view <- create_unique_view_name()
+      view <- RunFunction("OpenTable", view, "CSV", list(temp_csv, NA))
+
+      ok <- RunFunction(
+        "VerifyIndex", self$handle, self$row_index, paste0(view, "|"),
+        "from"
+      )
+      if (ok != "Yes") stop(
+        "Your data has row ids that are not found in the matrix"
+      )
+      ok <- RunFunction(
+        "VerifyIndex", self$handle, self$column_index, paste0(view, "|"),
+        "to"
+      )
+      if (ok != "Yes") stop(
+        "Your data has column ids that are not found in the matrix"
+      )
+
+      RunFunction(
+        "UpdateMatrixFromView", self$handle, paste0(view, "|"),
+        "from", "to", "core", list("value"), "Replace", NA
+      )
+      invisible(self)
+    },
+    CreateCore = function(core_name) {
+      RunFunction("AddMatrixCore", self$handle, core_name)
+      self$create_core_list()
+    },
+    CreateIndex = function(index_name, old_ids, new_ids = NULL, index_type = "both") {
+      stopifnot(typeof(index_type) == "character")
+      stopifnot(length(index_type) == 1)
+      index_type <- tolower(index_type)
+      stopifnot(index_type %in% c("row", "column", "both"))
+      if (!is.null(new_ids)) {
+        stopifnot(length(new_ids) == length(old_ids))
+        df <- data.frame(old_ids = old_ids, new_ids = new_ids)
+        new_id_col <- "new_ids"
+      } else {
+        df <- data.frame(old_ids = old_ids)
+        new_id_col <- NA
+      }
+      old_id_col <- "old_ids"
+      view <- df_to_view(df)
+      viewset <- paste0(view, "|")
+      RunFunction(
+        "CreateMatrixIndex", index_name, self$handle, index_type, viewset,
+        old_id_col, new_id_col
+      )
+      self$create_index_info()
     }
   ),
   active = list(
@@ -186,7 +234,7 @@ CaliperMatrix <- R6::R6Class(
       }
       self$cores <- NULL
       private$current_row_index <- name
-      self$create_matrix_cores()
+      self$create_core_list()
     },
     column_index = function (name) {
       if (missing(name)) return(private$current_column_index)
@@ -197,7 +245,7 @@ CaliperMatrix <- R6::R6Class(
       }
       self$cores <- NULL
       private$current_column_index <- name
-      self$create_matrix_cores()
+      self$create_core_list()
     }
   ),
   private = list(
@@ -232,3 +280,78 @@ CaliperMatrix <- R6::R6Class(
     stop(paste0(name, " is not a valid attribute or core name."))
   }
 }
+
+#' Send matrix data back to Caliper software
+#'
+#' Standard assignment would simply overwrite the matrix currency with whatever
+#' data you assigned. This allows for properly formed matrix data to be sent
+#' back to Caliper software and update the matrix currency.
+#'
+#' @param x A \code{CaliperMatrix} object
+#' @param name the attribute to assign
+#' @param value the value to be assigned
+#' @export
+
+`$<-.CaliperMatrix` <- function(x, name, value) {
+  # If the name references an R attribute
+  if (exists(name, envir = x)) {
+    assign(name, value, envir = x)
+    # If the name references a core
+  } else if (name %in% names(x$cores)) {
+    .subset2(x, "update_gisdk_data")(name, value)
+    .subset2(x, "create_core_list")
+  } else {
+    stop(paste0("'", name, "' is not an R attribute or core name"))
+  }
+  invisible(x)
+}
+
+#' The matrix currency class
+#'
+#' This is a simple S4 class that wraps the COMIDispatch.
+#'
+#' @keywords internal
+
+setClass("MatrixCurrency", representation(com = "COMIDispatch"))
+
+#' Creates a matrix_currency object
+#'
+#' This is used to wrap a COMIDispatch pointer (representing a GISDK matrix
+#' currency).
+#'
+#' @param x \code{COMIDispatch} Pointer to a GISDK matrix currency.
+#' @return A \code{MatrixCurrency} object.
+#' @keywords internal
+
+make_MatrixCurrency <- function(x) {
+  gisdk_type <- RunMacro("get_object_type", x)
+  if (gisdk_type != "matcurrency") stop("x is not a matrix currency")
+  mc <- new("MatrixCurrency", com = x)
+  return(mc)
+}
+
+#' Generic to convert MatrixCurrency class to an R matrix
+#'
+#' Converts a Caliper matrix into R format allowing it to be worked on in the R
+#' environment.
+#'
+#' @param x \code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}
+#'   class.
+#' @import data.table
+#' @return An R matrix.
+#' @export
+
+as.matrix.MatrixCurrency <- function(x, ...) {
+  com_ptr <- x@com
+  ri <- RunFunction("GetMatrixVector", com_ptr, list("Index" = "Row"))
+  ri <- as.list(as.character(ri))
+  ci <- RunFunction("GetMatrixVector", com_ptr, list("Index" = "Column"))
+  ci <- as.list(as.character(ci))
+  temp_csv <- tempfile(fileext = ".csv")
+  RunFunction("ExportMatrix", com_ptr, ci, "Rows", "CSV", temp_csv, NA)
+  tbl <- data.table::fread(temp_csv)
+  mtx <- as.matrix(tbl, rownames = "V1")
+  colnames(mtx) <- ci
+  return(mtx)
+}
+setMethod("as.matrix", "MatrixCurrency", as.matrix.MatrixCurrency)

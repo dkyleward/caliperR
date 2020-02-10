@@ -99,12 +99,17 @@ connect <- function(software = NULL, silent = FALSE){
 
 disconnect <- function() {
   if (connected()) {
-    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-    try(RunMacro("Exit"), silent = TRUE)
-    remove("CALIPER_DK", envir = caliper_env)
-    remove("CALIPER_SOFTWARE", envir = caliper_env)
-    remove("CALIPER_UI", envir = caliper_env)
-    remove("GISDK_UTILS_UI", envir = caliper_env)
+    try({
+      SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+      RunMacro("Exit")
+    }, silent = TRUE
+    )
+    try({
+      remove("CALIPER_DK", envir = caliper_env)
+      remove("CALIPER_SOFTWARE", envir = caliper_env)
+      remove("CALIPER_UI", envir = caliper_env)
+      remove("GISDK_UTILS_UI", envir = caliper_env)
+    }, silent = TRUE)
   }
 }
 
@@ -258,6 +263,12 @@ process_gisdk_args <- function(...) {
     if (is.object(arg)) {
       if (any(class(arg) == "CaliperClass")) {
         arg_list[[i]] <- arg$ref
+        next
+      } else if (any(class(arg) == "MatrixCurrency")) {
+        arg_list[[i]] <- arg@com
+        next
+      } else if (any(class(arg) == "CaliperMatrix")) {
+        arg_list[[i]] <- arg$handle
         next
       } else if (any(class(arg) == "data.frame")) {
         arg <- as.list(arg)

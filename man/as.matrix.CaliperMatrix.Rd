@@ -2,27 +2,19 @@
 % Please edit documentation in R/matrices.R
 \name{as.matrix.CaliperMatrix}
 \alias{as.matrix.CaliperMatrix}
-\title{S3 method for bringing caliper matrices into R matrix format}
+\title{Converts all cores in a CaliperMatrix to R matrices}
 \usage{
-\method{as.matrix}{CaliperMatrix}(x, ..., core = NULL)
+as.matrix.CaliperMatrix(x, ...)
 }
 \arguments{
-\item{x}{A \code{CaliperMatrix} object}
+\item{x}{\code{CaliperMatrix}}
 
-\item{...}{Additional arguments passed to \code{as.matrix}.}
-
-\item{core}{\code{string} Optional name of core to convert. Defaults to
-first core.}
+\item{...}{other arguments passed to \code{as.matrix()}}
 }
 \value{
-an R matrix
+A named list of R matrices.
 }
 \description{
-Converts a Caliper matrix into R format allowing it to be worked on in the R
-environment.
-}
-\details{
-By default, the first core of the Caliper matrix is converted into an R
-matrix. To select a different one, use the \code{core} argument like so:
-\code{as.matrix(x, core = "second core")}.
+To convert individual cores of a \code{CaliperMatrix}, see
+\code{\link{as.matrix.MatrixCurrency}}.
 }
