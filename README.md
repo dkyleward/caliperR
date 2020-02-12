@@ -16,7 +16,7 @@ RunMacro("G30 Tutorial Folder")
 #> "C:/Users/..."
 ```
 
-See package vignettes for more details. For the basics, start with:
+For more details, see:
 
 ```r
 vignette("using-caliper")
