@@ -4,36 +4,40 @@
 \alias{CaliperMatrix}
 \title{CaliperMatrix class}
 \description{
+CaliperMatrix class
+
+CaliperMatrix class
+}
+\details{
 This class makes it easier to interact with Caliper matrices in R.
-}
-\section{Object fields}{
 
-
-A \code{CaliperMatrix} object has the following fields/attributes of interest:
-\describe{
-  \item{handle}{
-    This is a COM pointer and represents the object in Caliper Software.
-  }
-  \item{cores}{
-    This is a named list of cores. Each element contains a COM pointer to
-    a matrix currency in Caliper software.
-  }
-  \item{indices}{
-    This lists the row and column indices available for the matrix.
-  }
-  \item{row_index}{
-    This can be used to retrieve or set the current row index.
-  }
-  \item{column_index}{
-    This can be used to retrieve or set the current column index.
-  }
-}
-
-See the vignette "Using caliper" for more details on interacting with
+See \code{vignette("caliper-matrices")} for more details on interacting with
 matrices. This includes info on S3 methods for bringing them into R formats
-like \code{data.frames} and \code{matrices}.
+like \code{data.frames} and \code{as.matrix}.
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{handle}}{This is a COM pointer and represents the object in Caliper
+software.}
 
+\item{\code{cores}}{This is a named list of cores. Each element contains a
+\code{\link{MatrixCurrency-class}}.}
+
+\item{\code{indices}}{This lists the row and column indices available for the
+matrix.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{row_index}}{This can be used to retrieve or set the current row index.}
+
+\item{\code{column_index}}{This can be used to retrieve or set the current column index.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -49,14 +53,27 @@ like \code{data.frames} and \code{matrices}.
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
 \subsection{Method \code{new()}}{
+Create a new \code{CaliperMatrix} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$new(matrix)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{matrix}}{Either the file path to the matrix (.mtx) or a COM pointer
+to the matrix handle.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+a new \code{CaliperMatrix} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-create_index_info"></a>}}
 \subsection{Method \code{create_index_info()}}{
+Sets the indices field of the \code{CaliperMatrix}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$create_index_info()}\if{html}{\out{</div>}}
 }
@@ -65,6 +82,7 @@ like \code{data.frames} and \code{matrices}.
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-create_core_list"></a>}}
 \subsection{Method \code{create_core_list()}}{
+Sets the \code{cores} field of the \code{CaliperMatrix}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$create_core_list()}\if{html}{\out{</div>}}
 }
@@ -73,31 +91,66 @@ like \code{data.frames} and \code{matrices}.
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_gisdk_data"></a>}}
 \subsection{Method \code{update_gisdk_data()}}{
+Sends R data back to the matrix in Caliper software.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$update_gisdk_data(core_name, data)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{core_name}}{\code{string} The name of the core to update.}
+
+\item{\code{data}}{\code{matrix} of data.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateCore"></a>}}
 \subsection{Method \code{CreateCore()}}{
+Create a new core in the matrix.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$CreateCore(core_name)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{core_name}}{\code{string} The name of the core to create.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateIndex"></a>}}
 \subsection{Method \code{CreateIndex()}}{
+Create a new index.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CaliperMatrix$CreateIndex(
   index_name,
-  old_ids,
+  current_ids,
   new_ids = NULL,
-  index_type = "both"
+  index_type = c("both", "row", "column")
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{index_name}}{\code{string} The name of the new index.}
+
+\item{\code{current_ids}}{\code{vector} of the row/column IDs to include in new
+index.}
+
+\item{\code{new_ids}}{\code{vector} Use this to assign new IDs to the rows/columns
+of this index if desired.}
+
+\item{\code{index_type}}{\code{string} Whether the index can be applied to rows,
+column, or (the default) both.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

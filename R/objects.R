@@ -20,54 +20,18 @@ CreateObject <- function(class_name, ...) {
 #'
 #' This class simplifies working with GISDK objects over COM from R.
 #'
-#' @section Overview:
-#'
 #' When created, an object of this class contains a COM pointer to a sister
 #' object in Caliper software. In addition to this reference, contained in the
 #' \code{ref} field, there are several other fields and methods to facilitate
 #' object manipulation. Finally, the \code{$} operator has been overloaded for
 #' this class to make code easier to write.
 #'
-#' @section Object fields:
-#'
-#' A \code{CaliperClass} object has the following fields/attributes of interest:
-#' \describe{
-#'   \item{g_class_name}{
-#'     The class name of the underlying GISDK object (e.g. "NLM.Model").
-#'   }
-#'   \item{ref}{
-#'     This is a COM pointer and represents the object created in a Caliper
-#'     program.
-#'   }
-#'   \item{info}{
-#'     This is a simple R list that can be used to see the fields and methods
-#'     of the underlying GISDK object.
-#'   }
-#' }
-#'
-#' @section Object methods:
-#'
-#' A \code{CaliperClass} object has several methods. While they are listed
-#' below for completeness, you likely won't need to use the methods directly
-#' (see examples).
-#'
-#' \describe{
-#'   \item{apply_gisdk_method}{
-#'     Dispatches one of the GISDK object's methods
-#'   }
-#'   \item{get_gisdk_attribute(attribute)}{
-#'     Gets the value of a named attribute of the GISDK object
-#'   }
-#'   \item{set_gisdk_attribute(attribute)}{
-#'     Sets the value of a named attribute of the GISDK object
-#'   }
-#' }
-#'
 #' @import R6
 #' @export
 #' @examples
 #' \dontrun{
-#' # object creation (easier to use caliper::CreateObject())
+#' # object creation (two options)
+#' obj <- CreateObject("NLM.Model")
 #' obj <- CaliperClass$new("NLM.Model")
 #'
 #' # get info about the GISDK object fields and methods
@@ -89,9 +53,24 @@ CreateObject <- function(class_name, ...) {
 
 CaliperClass <- R6::R6Class("CaliperClass",
   public = list(
+
+    #' @field g_class_name The class name of the underlying GISDK object
+    #'   (e.g. "NLM.Model").
     g_class_name = NULL,
+
+    #' @field ref This is a COM pointer and represents the object created in a
+    #'   Caliper program.
     ref = NULL,
+
+    #' @field info This is a simple R list that can be used to see the fields
+    #'   and methods of the underlying GISDK object.
     info = NULL,
+
+    #' @description
+    #' Create a new \code{CaliperClass}
+    #' @param class_name \code{string} The name of the GISDK class to create.
+    #' @param ... Additional arguments to be supplied to GISDK object creation.
+    #' @return A new \code{CaliperClass} object.
     initialize = function(class_name, ...) {
       if (!connected()) stop("Not connected to Caliper software.")
       if (!is.character(class_name)) stop("'class_name' must be a string")
@@ -106,6 +85,11 @@ CaliperClass <- R6::R6Class("CaliperClass",
       flat_info_list <- RunMacro("get_class_info", self$ref)
       self$info <- lapply(flat_info_list, unlist)
     },
+
+    #' @description
+    #' Runs a method of the associated GISDK object.
+    #' @param method \code{string} The name of the method to apply.
+    #' @param ... Additional arguments supplied to the GISDK method.
     apply_gisdk_method = function(method, ...) {
       stopifnot(is.character(method))
       args <- list(...)
@@ -119,6 +103,11 @@ CaliperClass <- R6::R6Class("CaliperClass",
       )
       invisible(self)
     },
+
+    #' @description
+    #' Retrieve an attribute from the GISDK object.
+    #' @param attribute \code{string} The name of the GISDK attribute to get.
+    #' @return The GISDK attribute value.
     get_gisdk_attribute = function(attribute) {
       stopifnot(is.character(attribute))
       args <- list("get_attribute", self$ref, attribute)
@@ -131,6 +120,11 @@ CaliperClass <- R6::R6Class("CaliperClass",
       )
       process_gisdk_result(value)
     },
+
+    #' @description
+    #' Set an attribute of the GISDK object.
+    #' @param attribute \code{string} The name of the GISDK attribute to get.
+    #' @param value The value to assign to the attribute.
     set_gisdk_attribute = function(attribute, value) {
       stopifnot(is.character(attribute))
       value <- process_gisdk_args(value)[[1]]

@@ -87,31 +87,9 @@ summary.CaliperMatrix <- function(object, ...) {
 #'
 #' This class makes it easier to interact with Caliper matrices in R.
 #'
-#' @section Object fields:
-#'
-#' A \code{CaliperMatrix} object has the following fields/attributes of interest:
-#' \describe{
-#'   \item{handle}{
-#'     This is a COM pointer and represents the object in Caliper Software.
-#'   }
-#'   \item{cores}{
-#'     This is a named list of cores. Each element contains a COM pointer to
-#'     a matrix currency in Caliper software.
-#'   }
-#'   \item{indices}{
-#'     This lists the row and column indices available for the matrix.
-#'   }
-#'   \item{row_index}{
-#'     This can be used to retrieve or set the current row index.
-#'   }
-#'   \item{column_index}{
-#'     This can be used to retrieve or set the current column index.
-#'   }
-#' }
-#'
-#' See the vignette "Using caliper" for more details on interacting with
+#' See \code{vignette("caliper-matrices")} for more details on interacting with
 #' matrices. This includes info on S3 methods for bringing them into R formats
-#' like \code{data.frames} and \code{matrices}.
+#' like \code{data.frames} and \code{as.matrix}.
 #'
 #' @import R6 tidyverse
 #' @export
@@ -119,9 +97,24 @@ summary.CaliperMatrix <- function(object, ...) {
 CaliperMatrix <- R6::R6Class(
   "CaliperMatrix",
   public = list(
+
+    #' @field handle This is a COM pointer and represents the object in Caliper
+    #'   software.
     handle = NULL,
+
+    #' @field cores This is a named list of cores. Each element contains a
+    #'   \code{\link{MatrixCurrency-class}}.
     cores = NULL,
+
+    #' @field indices This lists the row and column indices available for the
+    #'   matrix.
     indices = NULL,
+
+    #' @description
+    #' Create a new \code{CaliperMatrix} object.
+    #' @param matrix Either the file path to the matrix (.mtx) or a COM pointer
+    #'   to the matrix handle.
+    #' @return a new \code{CaliperMatrix} object.
     initialize = function (matrix) {
       if (typeof(matrix) == "character") {
         stopifnot(file.exists(matrix))
@@ -136,6 +129,9 @@ CaliperMatrix <- R6::R6Class(
       self$create_index_info()
       self$create_core_list()
     },
+
+    #' @description
+    #' Sets the indices field of the \code{CaliperMatrix}.
     create_index_info = function () {
       indices <- RunFunction(
         "GetMatrixIndexNames", self$handle, process_result = FALSE
@@ -144,6 +140,9 @@ CaliperMatrix <- R6::R6Class(
       indices <- setNames(indices, c("row", "column"))
       self$indices <- indices
     },
+
+    #' @description
+    #' Sets the \code{cores} field of the \code{CaliperMatrix}.
     create_core_list = function () {
       result <- RunFunction(
         "CreateMatrixCurrencies", self$handle, private$current_row_index,
@@ -153,6 +152,11 @@ CaliperMatrix <- R6::R6Class(
       self$cores <- result
       invisible(self)
     },
+
+    #' @description
+    #' Sends R data back to the matrix in Caliper software.
+    #' @param core_name \code{string} The name of the core to update.
+    #' @param data \code{matrix} of data.
     update_gisdk_data = function(core_name, data) {
       stopifnot(core_name %in% names(self$cores))
       stopifnot("matrix" %in% class(data))
@@ -197,24 +201,36 @@ CaliperMatrix <- R6::R6Class(
       )
       invisible(self)
     },
+
+    #' @description
+    #' Create a new core in the matrix.
+    #' @param core_name \code{string} The name of the core to create.
     CreateCore = function(core_name) {
       RunFunction("AddMatrixCore", self$handle, core_name)
       self$create_core_list()
     },
-    CreateIndex = function(index_name, old_ids, new_ids = NULL, index_type = "both") {
-      stopifnot(typeof(index_type) == "character")
-      stopifnot(length(index_type) == 1)
-      index_type <- tolower(index_type)
-      stopifnot(index_type %in% c("row", "column", "both"))
+
+    #' @description
+    #' Create a new index.
+    #' @param index_name \code{string} The name of the new index.
+    #' @param current_ids \code{vector} of the row/column IDs to include in new
+    #'   index.
+    #' @param new_ids \code{vector} Use this to assign new IDs to the rows/columns
+    #'   of this index if desired.
+    #' @param index_type \code{string} Whether the index can be applied to rows,
+    #'   column, or (the default) both.
+    CreateIndex = function(index_name, current_ids, new_ids = NULL,
+                           index_type = c("both", "row", "column")) {
+      index_type <- match.arg(index_type)
       if (!is.null(new_ids)) {
-        stopifnot(length(new_ids) == length(old_ids))
-        df <- data.frame(old_ids = old_ids, new_ids = new_ids)
+        stopifnot(length(new_ids) == length(current_ids))
+        df <- data.frame(current_ids = current_ids, new_ids = new_ids)
         new_id_col <- "new_ids"
       } else {
-        df <- data.frame(old_ids = old_ids)
+        df <- data.frame(current_ids = current_ids)
         new_id_col <- NA
       }
-      old_id_col <- "old_ids"
+      old_id_col <- "current_ids"
       view <- df_to_view(df)
       viewset <- paste0(view, "|")
       RunFunction(
@@ -225,6 +241,8 @@ CaliperMatrix <- R6::R6Class(
     }
   ),
   active = list(
+
+    #' @field row_index This can be used to retrieve or set the current row index.
     row_index = function (name) {
       if (missing(name)) return(private$current_row_index)
       if (!(name %in% self$indices$row)) {
@@ -236,6 +254,8 @@ CaliperMatrix <- R6::R6Class(
       private$current_row_index <- name
       self$create_core_list()
     },
+
+    #' @field column_index This can be used to retrieve or set the current column index.
     column_index = function (name) {
       if (missing(name)) return(private$current_column_index)
       if (!(name %in% self$indices$column)) {
@@ -308,7 +328,8 @@ CaliperMatrix <- R6::R6Class(
 
 #' The matrix currency class
 #'
-#' This is a simple S4 class that wraps the COMIDispatch.
+#' This is a simple S4 class that wraps a COMIDispatch pointer. That pointer
+#' points to a matrix currency in Caliper software.
 #'
 #' @keywords internal
 
