@@ -5,7 +5,7 @@ Interact with Caliper software from R
 
 ```r
 library(devtools)
-devtools::install_github('dkyleward/caliper')
+devtools::install_github('dkyleward/caliper', build_vignettes = TRUE)
 ```
 
 ## Getting Started
@@ -16,4 +16,8 @@ RunMacro("G30 Tutorial Folder")
 #> "C:/Users/..."
 ```
 
-See the package vignette for more details.
+See package vignettes for more details. For the basics, start with:
+
+```r
+vignette("using-caliper")
+```
