@@ -2,9 +2,7 @@
 title: "Working with bin files"
 author: "Kyle Ward"
 date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
-    toc: true
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Working with bin files}
   %\VignetteEncoding{UTF-8}
@@ -13,8 +11,15 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(caliper)
 ```
 
 ## Intro
@@ -38,7 +43,6 @@ bin_file <- system.file(
 Use the `read_bin()` function to bring it into R.
 
 ```{r}
-library(caliper)
 df <- read_bin(bin_file)
 df
 ```
@@ -65,7 +69,7 @@ display_names <- read_bin(bin_file, returnDnames = TRUE)
 display_names
 ```
 
-You can substitute names for field names using `colnames()`.
+You can substitute display names for the field names using `colnames()`.
 
 ```{r}
 df2 <- df
@@ -75,7 +79,8 @@ df2
 
 ## Writing bin data
 
-Use the `write_bin()` function to write the data back out to a bin file.
+Use the `write_bin()` function to write the data back out to a bin file. The
+`descriptions` and `display_names` arguments are optional.
 
 ```{r}
 temp_bin <- tempfile(fileext = ".bin")

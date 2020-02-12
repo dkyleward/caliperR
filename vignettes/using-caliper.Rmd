@@ -94,7 +94,7 @@ directly in the `caliper` package:
   * `RunMacro()` ([example 1](#ex1))
   * `SetAlternateInterface()` ([example 3](#ex3))
   * `GetInterface()` ([example 3](#ex3))
-  * `CreateObject()` ([example 7](#objex))
+  * `CreateObject()` (`vignette("caliper-objects")`)
 
 Trying to call these functions using `RunFunction()` will display a helpful
 error message:
@@ -126,7 +126,8 @@ examples below.
 ### Example 3: First macro {#ex3}
 
 To reference a custom function that you have written and compiled, first use 
-`SetAlternateInterface()` to point to your compiled code.
+`SetAlternateInterface()` to point to your compiled code. The "first macro"
+example simply returns a "Hello World!" message.
 
 ```{r}
 SetAlternateInterface(ui_path)
@@ -175,44 +176,7 @@ the pop up window.
 RunMacro("show array", opts)
 ```
 
-## Advanced
-
-### GISDK objects {#objex}
-
-The `caliper` package provides a straightforward approach to managing GISDK
-objects over COM.
-
-```{r}
-object <- CreateObject("NLM.Model")
-```
-
-The only difference between R and GISDK is syntax: R uses `$` instead of `.` to
-access object attributes and methods. The code below sets the `Label`
-attribute of the `NLM.Model` GISDK object.
-
-```{r}
-object$Label <- "A logit model"
-object$Label
-```
-
-Next, the `Clear()` method of the `NLM.Model` object is called, which removes
-the value of all fields including `Label`.
-
-```{r}
-object$Clear() 
-object$Label
-```
-
-To see the complete list of available fields and methods for the GISDK object,
-simply use `object$info`.
-
-```{r}
-info <- object$info
-head(info$FieldNames)
-head(info$MethodNames)
-```
-
-### Views in R
+## Views in R
 
 Caliper software represents tabular data in "views". Earlier examples showed
 how to use `RunFunction()` to open a view and get the number of rows using
@@ -254,3 +218,19 @@ view <- df_to_view(df2, view)
 view_to_df(view)
 ```
 
+## Advanced topics
+
+For more-advanced topics, see the other package vignettes:
+
+```{r, include=FALSE}
+v_table <- vignette(package = "caliper")$results[, 3]
+v_table <- v_table[v_table != "using-caliper"]
+v_table <- data.frame(Vignettes = v_table)
+```
+
+```{r}
+v_table
+```
+
+For example, learn about working with matrices using
+`vignette("caliper-matrices")`.
