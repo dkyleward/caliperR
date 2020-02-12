@@ -5,6 +5,7 @@
 \alias{MatrixCurrency-class}
 \title{The matrix currency class}
 \description{
-This is a simple S4 class that wraps the COMIDispatch.
+This is a simple S4 class that wraps a COMIDispatch pointer. That pointer
+points to a matrix currency in Caliper software.
 }
 \keyword{internal}
