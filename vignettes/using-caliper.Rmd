@@ -41,49 +41,73 @@ library(caliper)
 ```
 
 It does so using the `connect()` function. If you have multiple
-software applications installed, you can call this directly to specify which you
+software applications installed, you can use `connect()` to specify which you
 want to connect to.
 
-```{r}
-# connect("Maptitude")
+```{r, eval=FALSE}
+connect("Maptitude")
 ```
 
-To close the connection (and the caliper software running in the background),
-use `disconnect()`.
+If you have multiple versions of the same software installed (e.g. TransCAD 7
+and TransCAD 8), the last one installed is the one that will be connected to
+automatically. To connect to a different version, open that application before
+connecting. This can be done manually or from R:
 
-## Basic Macros/Functions
+```{r, eval=FALSE}
+system2(
+  "C:\\Program Files\\TransCAD 9.0\\tcw.exe",
+  wait = FALSE, invisible = FALSE
+)
+connect()
+```
+
+To disconnect (and close the software), use:
+
+```{r, eval=FALSE}
+disconnect()
+```
+
+
+## Macros and Functions
 
 Caliper software comes with a scripting language called GISDK. In this language,
 there is a difference between 'functions' and 'macros'. Functions are written in
 C++ and are called directly in GISDK (e.g. `OpenTable()`). Macros are written in
 GISDK, and are called using `RunMacro("macro name")`.
 
-### Example 1: Running a macro {#ex1}
+### Running a macro
 
 ```{r}
-folder <- RunMacro("G30 Tutorial Folder")
-folder
+RunMacro("G30 Tutorial Folder")
 ```
 
-This is the equivalent of writing `RunMacro("G30 Tutorial Folder")` in GISDK.
+```{r, include=FALSE}
+folder <- RunMacro("G30 Tutorial Folder")
+```
 
-### Example 2: Running a function
+Calling macros from R and GISDK look the same with the `caliper` package.
+
+### Running a function
 
 To run a function from R, the format is slightly different from GISDK. Instead
-of calling `OpenTable()` directly, use `RunFunction("OpenTable")`.
+of calling `OpenTable()` directly, use `RunFunction("OpenTable")`. The example
+below opens a FFB file and counts the number of rows in the table.
 
 ```{r}
-table_name <- RunFunction("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+table_name <- RunFunction(
+  "OpenTable", "airports", "ffb",
+  list(paste0(folder, "airports.bin"))
+)
 num_rows <- RunFunction("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
-# table_name = OpenTable("airports", "ffb", {folder + "airports.bin"}, )
+# table_name = OpenTable("airports", "ffb", {folder + "airports.bin", null}, )
 # num_rows = GetRecordCount(table_name, )
 # ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
 ```
 
-The code above introduces two other important differences:
+The code above introduces two other important differences between R and GISDK:
 
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
@@ -91,10 +115,10 @@ The code above introduces two other important differences:
 To improve integration with R, some GISDK functions have been implemented
 directly in the `caliper` package:
 
-  * `RunMacro()` ([example 1](#ex1))
-  * `SetAlternateInterface()` ([example 3](#ex3))
-  * `GetInterface()` ([example 3](#ex3))
-  * `CreateObject()` (`vignette("caliper-objects")`)
+  * `RunMacro()`
+  * `SetAlternateInterface()`
+  * `GetInterface()`
+  * `CreateObject()`
 
 Trying to call these functions using `RunFunction()` will display a helpful
 error message:
@@ -102,7 +126,6 @@ error message:
 ```{r, error=TRUE}
 RunFunction("RunMacro")
 ```
-
 
 ## Custom Macros
 
@@ -122,8 +145,6 @@ ui_path <- file.path(tempdir, "my_ui.dbd")
 
 The toy functions are simple, but illustrate some important points in the
 examples below.
-
-### Example 3: First macro {#ex3}
 
 To reference a custom function that you have written and compiled, first use 
 `SetAlternateInterface()` to point to your compiled code. The "first macro"
@@ -149,8 +170,6 @@ GetInterface()
 
 ## Named Arrays
 
-### Example 4: Parse opts array
-
 Many GISDK functions and macros take named arrays (aka options arrays) as input.
 `caliper` allows you to pass named lists as an equivalent.
 
@@ -165,16 +184,18 @@ RunMacro("parse opts array", opts)
 
 ## Message Boxes
 
-### Example 5: Show array
-
-If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
-similar, R will wait until you have closed that pop up before continuing. You
-can test the behavior by running the code below. You may have to alt-tab to find
-the pop up window.
+If you call the `ShowArray()` function or a macro that contains `ShowArray()`, R
+will wait until you have closed that pop up before continuing. You can test the
+behavior by running the code below. You may have to alt-tab to find the pop up
+window.
 
 ```{r, eval=FALSE}
-RunMacro("show array", opts)
+RunFunction("ShowArray", list(1, 2, 3))
 ```
+
+This same behavior can be observed for other functions like `ShowMessage()`,
+but only if connected to a program that is already open (i.e. that has a 
+visible window).
 
 ## Views in R
 
@@ -222,15 +243,6 @@ view_to_df(view)
 
 For more-advanced topics, see the other package vignettes:
 
-```{r, include=FALSE}
-v_table <- vignette(package = "caliper")$results[, 3]
-v_table <- v_table[v_table != "using-caliper"]
-v_table <- data.frame(Vignettes = v_table)
-```
-
-```{r}
-v_table
-```
-
-For example, learn about working with matrices using
-`vignette("caliper-matrices")`.
+  * [Matrices](caliper-matrices.html)
+  * [Objects](caliper-objects.html)
+  * [Bin Files](bin-files.html)
