@@ -71,7 +71,8 @@ connect <- function(software = NULL, silent = FALSE){
 
   # Set a package variable that points to gisdk_utils, a gisdk UI with helper
   # functions for this package
-  zip_file <- system.file("extdata", "gisdk", "gisdk_utils", "gisdk_utils.zip", package = "caliper")
+  zip_file <- system.file("extdata", "gisdk", "gisdk_utils",
+                          "gisdk_utils.zip", package = "caliper")
   tempdir <- tempdir()
   unzip(zip_file, exdir = tempdir, setTimes = TRUE)
   ui_path <- file.path(tempdir, "gisdk_utils.dbd")
@@ -88,7 +89,14 @@ connect <- function(software = NULL, silent = FALSE){
   }, silent = TRUE)
 
   if (!silent) {
-    message("Connected to ", software)
+    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+    p_info <- RunMacro("GetProgram")
+    path <- p_info[[1]]
+    software <- p_info[[2]]
+    version <- p_info[[3]]
+    build <- p_info[[4]]
+    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+    message("Connected to ", software, " ", version, " ", build, "\n(", path, ")")
   }
 }
 
