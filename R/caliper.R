@@ -135,6 +135,23 @@ connected <- function() {
     return(FALSE)
 }
 
+#' Shows the Caliper log file
+#'
+#' @import tidyverse
+#' @return Returns the log as a data frame.
+#' @export
+
+show_log <- function() {
+  log_file <- get_package_variable("CALIPER_INFO")$LogFile
+  try({
+    tbl <- read.table(log_file, sep = " ") %>%
+      tidyr::unite(col = "log entries", sep = " ")
+  }, silent = TRUE)
+  if (exists("tbl")) {
+    return(tbl)
+  } else return(NULL)
+}
+
 #' Runs a GISDK macro
 #'
 #' A GISDK macro is a function defined in a GISDK scrip (.rsc). When working in

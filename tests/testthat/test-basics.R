@@ -1,8 +1,30 @@
+test_that("logging works", {
+  RunFunction("ShowMessage", "This is a test.")
+  tbl <- show_log()
+  expect_equal(class(tbl), "data.frame")
+})
+
 test_that("RunMacro works", {
   check_connected()
   SetAlternateInterface(ui_path)
   expect_type(RunMacro("G30 Tutorial Folder"), "character")
   SetAlternateInterface()
+})
+
+test_that("RunFunction works", {
+  check_connected()
+  folder <- RunMacro("G30 Tutorial Folder")
+  expect_equal(
+    RunFunction(
+      "OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA)
+    ),
+    "airports"
+  )
+  expect_error(
+    RunFunction("CreateObject"),
+    "Use caliper::CreateObject()",
+    fixed = TRUE
+  )
 })
 
 test_that("Type conversion works", {
@@ -78,18 +100,4 @@ test_that("A nested list with names converts correctly", {
   )
 })
 
-test_that("RunFunction works", {
-  check_connected()
-  folder <- RunMacro("G30 Tutorial Folder")
-  expect_equal(
-    RunFunction(
-      "OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA)
-    ),
-    "airports"
-  )
-  expect_error(
-    RunFunction("CreateObject"),
-    "Use caliper::CreateObject()",
-    fixed = TRUE
-  )
-})
+

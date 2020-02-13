@@ -182,24 +182,9 @@ opts$two <- 2
 RunMacro("parse opts array", opts)
 ```
 
-## Message Boxes
-
-If you call the `ShowArray()` function or a macro that contains `ShowArray()`, R
-will wait until you have closed that pop up before continuing. You can test the
-behavior by running the code below. You may have to alt-tab to find the pop up
-window.
-
-```{r, eval=FALSE}
-RunFunction("ShowArray", list(1, 2, 3))
-```
-
-This same behavior can be observed for other functions like `ShowMessage()`,
-but only if connected to a program that is already open (i.e. that has a 
-visible window).
-
 ## Views in R
 
-Caliper software represents tabular data in "views". Earlier examples showed
+Caliper software represents tabular data in "views". Earlier examples explained
 how to use `RunFunction()` to open a view and get the number of rows using
 GISDK functions. It can also be helpful to bring that tabular data into R for
 additional processing. Two functions exist to help with this:
@@ -230,13 +215,36 @@ df2 <- view_to_df(view)
 df2
 ```
 
-Finally, the view can be updated with new data. This time, we include the name
-of the view we want to update.
+Finally, the view can be updated with new data. To do so, we include the name
+of the view we want to update in our call to `df_to_view()`.
 
 ```{r}
 df2$one <- 10
 view <- df_to_view(df2, view)
 view_to_df(view)
+```
+
+## Logging and Message Boxes
+
+The behavior of message boxes (errors or otherwise), depends on how Caliper
+software is being run from R. Most often, the software is running in the
+background (there is no icon on the task bar and no associated window). In this
+case, messages are written out to a log file. In the code below, I first write
+something to the log and then use `show_log()` to display it.
+
+```{r}
+RunFunction("ShowMessage", "This is a test.")
+show_log()
+```
+
+If a Caliper program is already open when you connect to it, then it will have a
+visible window and show up on the task bar. In this case, `ShowMessage` and
+related functions will create a window with an OK button. R will wait until you
+have closed that pop up before continuing. You can test the behavior by running
+the code below. You may have to alt-tab to find the pop up window.
+
+```{r, eval=FALSE}
+RunFunction("ShowArray", list(1, 2, 3))
 ```
 
 ## Advanced topics
