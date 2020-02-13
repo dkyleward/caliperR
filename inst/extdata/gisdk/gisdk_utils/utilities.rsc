@@ -194,3 +194,11 @@ Calling Exit directly from R does not work, so this is used.
 Macro "Exit"
   Exit()
 endmacro
+
+/*
+Similar to Exit(), this must be called from a custom UI.
+*/
+
+Macro "GetProgram"
+  return(GetProgram())
+endmacro

@@ -8,7 +8,14 @@ caliper_env <- new.env(parent = emptyenv())
     software <- get_package_variable("CALIPER_SOFTWARE")
   })
   if (exists("software")) {
-    packageStartupMessage("Connected to ", software)
+    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+    p_info <- RunMacro("GetProgram")
+    path <- p_info[[1]]
+    software <- p_info[[2]]
+    version <- p_info[[3]]
+    build <- p_info[[4]]
+    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
+    packageStartupMessage("Connected to ", software, " ", version, " ", build, "\n(", path, ")")
   }
 }
 
