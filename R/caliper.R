@@ -152,6 +152,28 @@ show_log <- function() {
   } else return(NULL)
 }
 
+#' Compiles a GISDK script file into a UI
+#'
+#' @param rsc_file \code{string} Script file path.
+#' @param ui_file \code{string} Optional output location of the compiled code.
+#'   By default, it will use the same file name as the \code{rsc_file}, but with
+#'   a .dbd extension.
+#' @import stringr
+#' @return The file path of the compiled '.dbd' file. Like other Caliper databases,
+#'   the compiled UI is made up of several related files.
+#' @export
+
+compile_gisdk <- function(rsc_file, ui_file = NULL) {
+  if (stringr::str_sub(rsc_file, -4, -1) != ".rsc")
+    stop("'rsc_file' extension must be '.rsc'")
+  if (is.null(ui_file)) {
+    ui_file <- gsub(".rsc", ".dbd", rsc_file, fixed = TRUE)
+  } else if (stringr::str_sub(ui_file, -4, -1) != ".dbd")
+    stop("'ui_file' extension must be '.dbd'")
+
+  RunMacro("compile_file", rsc_file, ui_file)
+}
+
 #' Runs a GISDK macro
 #'
 #' A GISDK macro is a function defined in a GISDK scrip (.rsc). When working in

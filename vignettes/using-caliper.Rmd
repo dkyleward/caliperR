@@ -130,17 +130,13 @@ RunFunction("RunMacro")
 ## Custom Macros
 
 In order to call one of your own GISDK functions from R, it must be compiled
-into an interface/UI. The `caliper` package comes with a toy GISDK script and
-the compiled version of that script as an example.
+into an interface/UI. The `caliper` package comes with a toy GISDK script, which
+can be compiled using the `compile_gisdk()` function. Code compiled using
+Caliper software also works.
 
 ```{r}
 rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
-
-# unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
-tempdir <- tempdir()
-unzip(zip_file, exdir = tempdir, setTimes = TRUE)
-ui_path <- file.path(tempdir, "my_ui.dbd")
+ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
 ```
 
 The toy functions are simple, but illustrate some important points in the

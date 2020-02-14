@@ -100,4 +100,10 @@ test_that("A nested list with names converts correctly", {
   )
 })
 
-
+test_that("compiling gisdk works", {
+  rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
+  ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
+  SetAlternateInterface(ui_path)
+  expect_equal(RunMacro("first macro"), "Hello World!")
+  SetAlternateInterface()
+})
