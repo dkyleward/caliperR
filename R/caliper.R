@@ -141,7 +141,7 @@ connected <- function() {
 #' @return Returns the log as a data frame.
 #' @export
 
-show_log <- function() {
+read_log <- function() {
   log_file <- get_package_variable("CALIPER_INFO")$LogFile
   try({
     tbl <- read.table(log_file, sep = " ") %>%

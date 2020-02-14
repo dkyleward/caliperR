@@ -1,6 +1,6 @@
 test_that("logging works", {
   RunFunction("ShowMessage", "This is a test.")
-  tbl <- show_log()
+  tbl <- read_log()
   expect_equal(class(tbl), "data.frame")
 })
 

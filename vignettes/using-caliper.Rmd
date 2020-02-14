@@ -226,11 +226,11 @@ The behavior of message boxes (errors or otherwise), depends on how Caliper
 software is being run from R. Most often, the software is running in the
 background (there is no icon on the task bar and no associated window). In this
 case, messages are written out to a log file. In the code below, I first write
-something to the log and then use `show_log()` to display it.
+something to the log and then use `read_log()` to display it.
 
 ```{r}
 RunFunction("ShowMessage", "This is a test.")
-show_log()
+read_log()
 ```
 
 If a Caliper program is already open when you connect to it, then it will have a
