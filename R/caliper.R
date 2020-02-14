@@ -92,11 +92,10 @@ connect <- function(software = NULL, silent = FALSE){
     SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
     p_info <- RunMacro("GetProgram")
     path <- p_info[[1]]
-    software <- p_info[[2]]
-    version <- p_info[[3]]
-    build <- p_info[[4]]
+    software <- paste(p_info[[2]], p_info[[5]], "build", p_info[[4]],
+                      paste0("(", p_info[[3]], ")"))
     SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
-    message("Connected to ", software, " ", version, " ", build, "\n(", path, ")")
+    message("Connected to ", software, "\n(", path, ")")
   }
 }
 
@@ -134,6 +133,45 @@ connected <- function() {
     return(TRUE)
   else
     return(FALSE)
+}
+
+#' Shows the Caliper log file
+#'
+#' @import tidyverse
+#' @return Returns the log as a data frame.
+#' @export
+
+read_log <- function() {
+  log_file <- get_package_variable("CALIPER_INFO")$LogFile
+  try({
+    tbl <- read.table(log_file, sep = " ") %>%
+      tidyr::unite(col = "log entries", sep = " ")
+  }, silent = TRUE)
+  if (exists("tbl")) {
+    return(tbl)
+  } else return(NULL)
+}
+
+#' Compiles a GISDK script file into a UI
+#'
+#' @param rsc_file \code{string} Script file path.
+#' @param ui_file \code{string} Optional output location of the compiled code.
+#'   By default, it will use the same file name as the \code{rsc_file}, but with
+#'   a .dbd extension.
+#' @import stringr
+#' @return The file path of the compiled '.dbd' file. Like other Caliper databases,
+#'   the compiled UI is made up of several related files.
+#' @export
+
+compile_gisdk <- function(rsc_file, ui_file = NULL) {
+  if (stringr::str_sub(rsc_file, -4, -1) != ".rsc")
+    stop("'rsc_file' extension must be '.rsc'")
+  if (is.null(ui_file)) {
+    ui_file <- gsub(".rsc", ".dbd", rsc_file, fixed = TRUE)
+  } else if (stringr::str_sub(ui_file, -4, -1) != ".dbd")
+    stop("'ui_file' extension must be '.dbd'")
+
+  RunMacro("compile_file", rsc_file, ui_file)
 }
 
 #' Runs a GISDK macro

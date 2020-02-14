@@ -41,49 +41,73 @@ library(caliper)
 ```
 
 It does so using the `connect()` function. If you have multiple
-software applications installed, you can call this directly to specify which you
+software applications installed, you can use `connect()` to specify which you
 want to connect to.
 
-```{r}
-# connect("Maptitude")
+```{r, eval=FALSE}
+connect("Maptitude")
 ```
 
-To close the connection (and the caliper software running in the background),
-use `disconnect()`.
+If you have multiple versions of the same software installed (e.g. TransCAD 7
+and TransCAD 8), the last one installed is the one that will be connected to
+automatically. To connect to a different version, open that application before
+connecting. This can be done manually or from R:
 
-## Basic Macros/Functions
+```{r, eval=FALSE}
+system2(
+  "C:\\Program Files\\TransCAD 9.0\\tcw.exe",
+  wait = FALSE, invisible = FALSE
+)
+connect()
+```
+
+To disconnect (and close the software), use:
+
+```{r, eval=FALSE}
+disconnect()
+```
+
+
+## Macros and Functions
 
 Caliper software comes with a scripting language called GISDK. In this language,
 there is a difference between 'functions' and 'macros'. Functions are written in
 C++ and are called directly in GISDK (e.g. `OpenTable()`). Macros are written in
 GISDK, and are called using `RunMacro("macro name")`.
 
-### Example 1: Running a macro {#ex1}
+### Running a macro
 
 ```{r}
-folder <- RunMacro("G30 Tutorial Folder")
-folder
+RunMacro("G30 Tutorial Folder")
 ```
 
-This is the equivalent of writing `RunMacro("G30 Tutorial Folder")` in GISDK.
+```{r, include=FALSE}
+folder <- RunMacro("G30 Tutorial Folder")
+```
 
-### Example 2: Running a function
+Calling macros from R and GISDK look the same with the `caliper` package.
+
+### Running a function
 
 To run a function from R, the format is slightly different from GISDK. Instead
-of calling `OpenTable()` directly, use `RunFunction("OpenTable")`.
+of calling `OpenTable()` directly, use `RunFunction("OpenTable")`. The example
+below opens a FFB file and counts the number of rows in the table.
 
 ```{r}
-table_name <- RunFunction("OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA))
+table_name <- RunFunction(
+  "OpenTable", "airports", "ffb",
+  list(paste0(folder, "airports.bin"))
+)
 num_rows <- RunFunction("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
-# table_name = OpenTable("airports", "ffb", {folder + "airports.bin"}, )
+# table_name = OpenTable("airports", "ffb", {folder + "airports.bin", null}, )
 # num_rows = GetRecordCount(table_name, )
 # ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
 ```
 
-The code above introduces two other important differences:
+The code above introduces two other important differences between R and GISDK:
 
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
@@ -91,10 +115,10 @@ The code above introduces two other important differences:
 To improve integration with R, some GISDK functions have been implemented
 directly in the `caliper` package:
 
-  * `RunMacro()` ([example 1](#ex1))
-  * `SetAlternateInterface()` ([example 3](#ex3))
-  * `GetInterface()` ([example 3](#ex3))
-  * `CreateObject()` (`vignette("caliper-objects")`)
+  * `RunMacro()`
+  * `SetAlternateInterface()`
+  * `GetInterface()`
+  * `CreateObject()`
 
 Trying to call these functions using `RunFunction()` will display a helpful
 error message:
@@ -103,27 +127,20 @@ error message:
 RunFunction("RunMacro")
 ```
 
-
 ## Custom Macros
 
 In order to call one of your own GISDK functions from R, it must be compiled
-into an interface/UI. The `caliper` package comes with a toy GISDK script and
-the compiled version of that script as an example.
+into an interface/UI. The `caliper` package comes with a toy GISDK script, which
+can be compiled using the `compile_gisdk()` function. Code compiled using
+Caliper software also works.
 
 ```{r}
 rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
-
-# unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
-tempdir <- tempdir()
-unzip(zip_file, exdir = tempdir, setTimes = TRUE)
-ui_path <- file.path(tempdir, "my_ui.dbd")
+ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
 ```
 
 The toy functions are simple, but illustrate some important points in the
 examples below.
-
-### Example 3: First macro {#ex3}
 
 To reference a custom function that you have written and compiled, first use 
 `SetAlternateInterface()` to point to your compiled code. The "first macro"
@@ -149,8 +166,6 @@ GetInterface()
 
 ## Named Arrays
 
-### Example 4: Parse opts array
-
 Many GISDK functions and macros take named arrays (aka options arrays) as input.
 `caliper` allows you to pass named lists as an equivalent.
 
@@ -163,22 +178,9 @@ opts$two <- 2
 RunMacro("parse opts array", opts)
 ```
 
-## Message Boxes
-
-### Example 5: Show array
-
-If you call a macro that uses `ShowMessage()`, `ShowArray()` or something
-similar, R will wait until you have closed that pop up before continuing. You
-can test the behavior by running the code below. You may have to alt-tab to find
-the pop up window.
-
-```{r, eval=FALSE}
-RunMacro("show array", opts)
-```
-
 ## Views in R
 
-Caliper software represents tabular data in "views". Earlier examples showed
+Caliper software represents tabular data in "views". Earlier examples explained
 how to use `RunFunction()` to open a view and get the number of rows using
 GISDK functions. It can also be helpful to bring that tabular data into R for
 additional processing. Two functions exist to help with this:
@@ -209,8 +211,8 @@ df2 <- view_to_df(view)
 df2
 ```
 
-Finally, the view can be updated with new data. This time, we include the name
-of the view we want to update.
+Finally, the view can be updated with new data. To do so, we include the name
+of the view we want to update in our call to `df_to_view()`.
 
 ```{r}
 df2$one <- 10
@@ -218,19 +220,33 @@ view <- df_to_view(df2, view)
 view_to_df(view)
 ```
 
+## Logging and Message Boxes
+
+The behavior of message boxes (errors or otherwise), depends on how Caliper
+software is being run from R. Most often, the software is running in the
+background (there is no icon on the task bar and no associated window). In this
+case, messages are written out to a log file. In the code below, I first write
+something to the log and then use `read_log()` to display it.
+
+```{r}
+RunFunction("ShowMessage", "This is a test.")
+read_log()
+```
+
+If a Caliper program is already open when you connect to it, then it will have a
+visible window and show up on the task bar. In this case, `ShowMessage` and
+related functions will create a window with an OK button. R will wait until you
+have closed that pop up before continuing. You can test the behavior by running
+the code below. You may have to alt-tab to find the pop up window.
+
+```{r, eval=FALSE}
+RunFunction("ShowArray", list(1, 2, 3))
+```
+
 ## Advanced topics
 
 For more-advanced topics, see the other package vignettes:
 
-```{r, include=FALSE}
-v_table <- vignette(package = "caliper")$results[, 3]
-v_table <- v_table[v_table != "using-caliper"]
-v_table <- data.frame(Vignettes = v_table)
-```
-
-```{r}
-v_table
-```
-
-For example, learn about working with matrices using
-`vignette("caliper-matrices")`.
+  * [Matrices](caliper-matrices.html)
+  * [Objects](caliper-objects.html)
+  * [Bin Files](bin-files.html)
