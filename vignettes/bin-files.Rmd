@@ -19,24 +19,24 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(caliper)
+library(caliperR)
 ```
 
 ## Intro
 
 Caliper software makes use of a number of custom file formats. Tabular data is
 routinely stored in fixed-format binary (FFB) files with extension ".bin". The
-`caliper` package allows you to read and write these files even if you don't
+`caliperR` package allows you to read and write these files even if you don't
 have Caliper software installed on your machine (although it is faster if you
 do).
 
 ## Reading bin data
 
-The `caliper` package comes with a sample bin file for this vignette.
+The `caliperR` package comes with a sample bin file for this vignette.
 
 ```{r}
 bin_file <- system.file(
-  "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+  "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
 )
 ```
 
@@ -61,7 +61,7 @@ descriptions
 
 ### Field display names
 
-Lastly, the `caliper` package can also read and return any display names that
+Lastly, the `caliperR` package can also read and return any display names that
 may be assigned to the FFB table.
 
 ```{r}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/caliper.R
 \name{get_package_variable}
 \alias{get_package_variable}
-\title{Gets the value of a \code{caliper} package-wide variable}
+\title{Gets the value of a \code{caliperR} package-wide variable}
 \usage{
 get_package_variable(package_variable)
 }
@@ -10,5 +10,5 @@ get_package_variable(package_variable)
 \item{package_variable}{The package variable to set}
 }
 \description{
-Gets the value of a \code{caliper} package-wide variable
+Gets the value of a \code{caliperR} package-wide variable
 }

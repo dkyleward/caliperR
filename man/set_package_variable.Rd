@@ -12,7 +12,7 @@ set_package_variable(package_variable, value)
 \item{value}{the value to set with}
 }
 \description{
-\code{caliper} uses several package-wide variables to enable communication
+\code{caliperR} uses several package-wide variables to enable communication
 between functions and simplify function arguments.
 }
 \keyword{internal}

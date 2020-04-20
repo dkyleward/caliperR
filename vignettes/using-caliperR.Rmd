@@ -1,12 +1,12 @@
 ---
-title: "Using caliper"
+title: "Using caliperR"
 author: "Kyle Ward"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Using caliper}
+  %\VignetteIndexEntry{Using caliperR}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-`caliper` makes it easy to work with Caliper software from R. Supported
+`caliperR` makes it easy to work with Caliper software from R. Supported
 software includes:
 
   * [TransCAD](https://www.caliper.com/tcovu.htm)
@@ -33,11 +33,11 @@ The sections below show how to work with the package.
 
 ## Connecting
 
-When you load the library, `caliper` will automatically find and connect to
+When you load the library, `caliperR` will automatically find and connect to
 installed Caliper software.
 
 ```{r}
-library(caliper)
+library(caliperR)
 ```
 
 It does so using the `connect()` function. If you have multiple
@@ -85,7 +85,7 @@ RunMacro("G30 Tutorial Folder")
 folder <- RunMacro("G30 Tutorial Folder")
 ```
 
-Calling macros from R and GISDK look the same with the `caliper` package.
+Calling macros from R and GISDK look the same with the `caliperR` package.
 
 ### Running a function
 
@@ -113,7 +113,7 @@ The code above introduces two other important differences between R and GISDK:
   * Use `NA` in R when you would use `null` in GISDK.
 
 To improve integration with R, some GISDK functions have been implemented
-directly in the `caliper` package:
+directly in the `caliperR` package:
 
   * `RunMacro()`
   * `SetAlternateInterface()`
@@ -130,12 +130,12 @@ RunFunction("RunMacro")
 ## Custom Macros
 
 In order to call one of your own GISDK functions from R, it must be compiled
-into an interface/UI. The `caliper` package comes with a toy GISDK script, which
+into an interface/UI. The `caliperR` package comes with a toy GISDK script, which
 can be compiled using the `compile_gisdk()` function. Code compiled using
 Caliper software also works.
 
 ```{r}
-rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
+rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliperR")
 ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
 ```
 
@@ -167,7 +167,7 @@ GetInterface()
 ## Named Arrays
 
 Many GISDK functions and macros take named arrays (aka options arrays) as input.
-`caliper` allows you to pass named lists as an equivalent.
+`caliperR` allows you to pass named lists as an equivalent.
 
 ```{r}
 SetAlternateInterface(ui_path)

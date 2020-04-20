@@ -1,5 +1,5 @@
 library(testthat)
-library(caliper)
+library(caliperR)
 
 check_connected <- function() {
   if (!connected()) {
@@ -8,13 +8,13 @@ check_connected <- function() {
 }
 
 # unzip the compiled UI file
-zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliper")
+zip_file <- system.file("extdata", "gisdk", "testing", "my_ui.zip", package = "caliperR")
 tempdir <- tempdir()
 unzip(zip_file, exdir = tempdir, setTimes = TRUE)
 ui_path <- file.path(tempdir, "my_ui.dbd")
 
 connect()
-test_check("caliper")
+test_check("caliperR")
 
 # for interactive testing:
 # test_dir(path = "tests/testthat")

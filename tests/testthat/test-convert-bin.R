@@ -4,7 +4,7 @@
 test_that("reading a bin file works over COM", {
   check_connected()
   bin_file <- system.file(
-    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
   )
   df <- read_bin(bin_file)
   dnames <- read_bin(bin_file, returnDnames = TRUE)
@@ -19,7 +19,7 @@ test_that("reading a bin file works over COM", {
 test_that("reading with and without COM give same data", {
   check_connected()
   bin_file <- system.file(
-    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
   )
   df1 <- read_bin(bin_file)
   disconnect()
@@ -31,7 +31,7 @@ test_that("reading with and without COM give same data", {
 test_that("reading a bin file works without COM", {
   disconnect()
   bin_file <- system.file(
-    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
   )
   df <- read_bin(bin_file)
   dnames <- read_bin(bin_file, returnDnames = TRUE)
@@ -46,7 +46,7 @@ test_that("reading a bin file works without COM", {
 test_that("writing a bin file works without COM", {
   disconnect()
   bin_file <- system.file(
-    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliper"
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
   )
   df1 <- read_bin(bin_file)
   dnames <- read_bin(bin_file, returnDnames = TRUE)
