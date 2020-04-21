@@ -17,6 +17,7 @@ NULL
 #'  connection it can.
 #' @param silent \code{boolean} Whether to display a connected message.
 #' @import RDCOMClient
+#' @importFrom utils unzip
 #' @return Nothing. Sets the COM object to a global environment variable
 #'   (\code{CALIPER_DK})
 #' @export
@@ -139,6 +140,7 @@ connected <- function() {
 #'
 #' @import tidyverse
 #' @return Returns the log as a data frame.
+#' @importFrom utils read.table
 #' @export
 
 read_log <- function() {
