@@ -17,6 +17,7 @@ Depends:
   RDCOMClient
 Imports:
   R6,
+  methods,
   data.table,
   Hmisc,
   stringr,

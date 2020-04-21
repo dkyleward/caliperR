@@ -331,6 +331,7 @@ CaliperMatrix <- R6::R6Class(
 #' This is a simple S4 class that wraps a COMIDispatch pointer. That pointer
 #' points to a matrix currency in Caliper software.
 #'
+#' @import methods
 #' @keywords internal
 
 setClass("MatrixCurrency", representation(com = "COMIDispatch"))
@@ -358,6 +359,7 @@ make_MatrixCurrency <- function(x) {
 #'
 #' @param x \code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}
 #'   class.
+#' @param ... Other arguments passed to \code{as.matrix}
 #' @import data.table
 #' @return An R matrix.
 #' @export

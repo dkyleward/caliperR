@@ -9,6 +9,8 @@ as.matrix.MatrixCurrency(x, ...)
 \arguments{
 \item{x}{\code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}
 class.}
+
+\item{...}{Other arguments passed to \code{as.matrix}}
 }
 \value{
 An R matrix.

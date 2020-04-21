@@ -547,7 +547,7 @@ write_bin_without_com <- function(binData, binFilename, dcbKey) {
     function(x, tc_type, byteLength) {
       r_type <- TcTypeToRType(as.character(tc_type))
       nRows <- length(x)
-      y <- sapply(x, caliperR:::RNaToTcMiss, tc_type)
+      y <- sapply(x, RNaToTcMiss, tc_type)
       y <- switch(
         r_type,
         integer = as.integer(y),
