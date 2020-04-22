@@ -21,7 +21,8 @@ Imports:
   data.table,
   Hmisc,
   stringr,
-  tidyverse
+  dplyr,
+  tidyr
 Remotes:
   dkyleward/RDCOMClient
 RoxygenNote: 7.0.2

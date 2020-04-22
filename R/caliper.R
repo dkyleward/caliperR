@@ -138,7 +138,7 @@ connected <- function() {
 
 #' Shows the Caliper log file
 #'
-#' @import tidyverse
+#' @importFrom tidyr unite
 #' @return Returns the log as a data frame.
 #' @importFrom utils read.table
 #' @export

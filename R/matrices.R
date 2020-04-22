@@ -91,7 +91,9 @@ summary.CaliperMatrix <- function(object, ...) {
 #' matrices. This includes info on S3 methods for bringing them into R formats
 #' like \code{data.frames} and \code{as.matrix}.
 #'
-#' @import R6 tidyverse
+#' @import R6
+#' @importFrom dplyr mutate
+#' @importFrom tidyr pivot_longer
 #' @export
 
 CaliperMatrix <- R6::R6Class(
