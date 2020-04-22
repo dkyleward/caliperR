@@ -1,6 +1,6 @@
 ---
 title: "Using caliperR"
-author: "Kyle Ward"
+author: "Caliper Staff"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:

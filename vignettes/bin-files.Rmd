@@ -1,6 +1,6 @@
 ---
 title: "Working with bin files"
-author: "Kyle Ward"
+author: "Caliper Staff"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
