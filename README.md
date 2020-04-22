@@ -4,7 +4,7 @@ Interact with Caliper software from R
 ## Installation
 
 ```r
-library(devtools)
+# install.packages("devtools")
 devtools::install_github('Caliper-Corporation/caliperR', build_vignettes = TRUE)
 ```
 
