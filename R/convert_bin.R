@@ -3,6 +3,7 @@
 #' Sets the error to dump.frames to prevent execution halt
 #' Turns off command echo
 #'
+#' @importFrom utils dump.frames
 #' @keywords internal
 
 setupTcCommandPrompt<- function() {
@@ -235,8 +236,9 @@ correct_empty_columns <- function(df, r_types) {
 #' @param returnDnames \code{bool} To return display names (if present in bin)
 #' @return The data table read from the bin located at binFilename
 #' @export
-#' @import data.table
-#' @import Hmisc
+#' @import data.table Hmisc
+#' @importFrom utils read.csv
+#' @importFrom stats setNames
 
 read_bin <- function(binFilename, returnDnames = FALSE) {
     checkIfValidBinFile(binFilename)
@@ -545,7 +547,7 @@ write_bin_without_com <- function(binData, binFilename, dcbKey) {
     function(x, tc_type, byteLength) {
       r_type <- TcTypeToRType(as.character(tc_type))
       nRows <- length(x)
-      y <- sapply(x, caliper:::RNaToTcMiss, tc_type)
+      y <- sapply(x, RNaToTcMiss, tc_type)
       y <- switch(
         r_type,
         integer = as.integer(y),

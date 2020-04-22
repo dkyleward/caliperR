@@ -1,6 +1,6 @@
 test_that("view_to_df works", {
   check_connected()
-  file <- system.file("extdata", "gisdk", "testing", "toy_table.bin", package = "caliper")
+  file <- system.file("extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR")
   view <- RunFunction("OpenTable", "test", "ffb", list(file, NA))
   df <- view_to_df(view)
   expect_equal(df$field_b, c("a", "b", NA, "d", "e", "g"))

@@ -22,7 +22,7 @@ test_that("RunFunction works", {
   )
   expect_error(
     RunFunction("CreateObject"),
-    "Use caliper::CreateObject()",
+    "Use caliperR::CreateObject()",
     fixed = TRUE
   )
 })
@@ -47,10 +47,10 @@ test_that("Type conversion works", {
     list(list(1, 2), list(3, 4))
   )
   SetAlternateInterface()
-  expect_type(caliper:::convert_nulls_and_slashes(NA), "complex")
+  expect_type(caliperR:::convert_nulls_and_slashes(NA), "complex")
   # Identify and modify file path strings correctly
-  expect_equal(caliper:::convert_nulls_and_slashes("a/b"), "a/b")
-  expect_equal(caliper:::convert_nulls_and_slashes("C:/Users"), "C:\\Users")
+  expect_equal(caliperR:::convert_nulls_and_slashes("a/b"), "a/b")
+  expect_equal(caliperR:::convert_nulls_and_slashes("C:/Users"), "C:\\Users")
 })
 
 test_that("A nested list without names converts correctly", {
@@ -65,7 +65,7 @@ test_that("A nested list without names converts correctly", {
     )
   )
   expect_setequal(
-    caliper:::process_gisdk_args(test1),
+    caliperR:::process_gisdk_args(test1),
     list(list(NA_complex_, "a/b", list(NA_complex_, "c/d", "C:\\Users")))
   )
 })
@@ -76,7 +76,7 @@ test_that("A nested list with names converts correctly", {
     "one" = NA
   )
   expect_setequal(
-    caliper:::process_gisdk_args(test1),
+    caliperR:::process_gisdk_args(test1),
     list(list(list("one", NA_complex_)))
   )
 
@@ -84,7 +84,7 @@ test_that("A nested list with names converts correctly", {
     "one" = list(1, 2, 3)
   )
   expect_setequal(
-    caliper:::process_gisdk_args(test2),
+    caliperR:::process_gisdk_args(test2),
     list(list(list("one", list(1, 2, 3))))
   )
 
@@ -95,13 +95,13 @@ test_that("A nested list with names converts correctly", {
     )
   )
   expect_setequal(
-    caliper:::process_gisdk_args(test3),
+    caliperR:::process_gisdk_args(test3),
     list(list(list("one", NA_complex_), list("two", list("two_b", "C:\\Users"))))
   )
 })
 
 test_that("compiling gisdk works", {
-  rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliper")
+  rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliperR")
   ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
   SetAlternateInterface(ui_path)
   expect_equal(RunMacro("first macro"), "Hello World!")

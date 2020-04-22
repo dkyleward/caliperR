@@ -4,14 +4,14 @@ Interact with Caliper software from R
 ## Installation
 
 ```r
-library(devtools)
-devtools::install_github('dkyleward/caliper', build_vignettes = TRUE)
+# install.packages("devtools")
+devtools::install_github('Caliper-Corporation/caliperR', build_vignettes = TRUE)
 ```
 
 ## Getting Started
 
 ```r
-library(caliper)
+library(caliperR)
 RunMacro("G30 Tutorial Folder")
 #> "C:/Users/..."
 ```
@@ -19,5 +19,5 @@ RunMacro("G30 Tutorial Folder")
 For more details, see:
 
 ```r
-vignette("using-caliper")
+vignette("using-caliperR")
 ```

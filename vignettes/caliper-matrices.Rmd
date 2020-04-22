@@ -20,19 +20,19 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(caliper)
+library(caliperR)
 ```
 
 ## Intro
 
 This vignette explains how to work with Caliper matrices from R using the
-`caliper` package. Many of the relevant GISDK functions have been streamlined
+`caliperR` package. Many of the relevant GISDK functions have been streamlined
 using the `CaliperMatrix` R6 class and concepts such as matrix "handles" and
 "currencies" are resolved behind the scenes. The end result is a more intuitive
 experience.
 
-This vignette assumes you are already familiar with the basics of the `caliper`
-package. If not, see `vignette("using-caliper")`.
+This vignette assumes you are already familiar with the basics of the `caliperR`
+package. If not, see `vignette("using-caliperR")`.
 
 Before getting started, I create a temporary copy of this package's matrix file. 
 This is only to ensure that changes made by this vignette are not made to the
@@ -40,7 +40,7 @@ original file (and is not necessary in normal workflow).
 
 ```{r}
 orig <- system.file(
-  "extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper"
+  "extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR"
 )
 mtx_file <- tempfile(fileext = ".mtx")
 ok <- file.copy(orig, mtx_file)
@@ -99,7 +99,7 @@ as.matrix(mtx$core_c)
 
 ## Working with indices
 
-Row and column indices are how you subset caliper matrices. In the previous
+Row and column indices are how you subset Caliper matrices. In the previous
 section, we were able to update a subset of matrix cells directly
 from R without needing to know about matrix indices; however, knowledge of
 indices is valuable when working with more complex GISDK functions.
@@ -136,7 +136,7 @@ mtx$column_index <- "subset"
 as.matrix(mtx$core_b)
 ```
 
-Finally, the `caliper` package makes it simple to add new indices. The example
+Finally, the `caliperR` package makes it simple to add new indices. The example
 below creates an index named "new" and gives the IDs of the rows/columns to
 include.
 
@@ -148,7 +148,7 @@ mtx$indices
 ## Handles and currencies
 
 Note that none of the examples above required that you know what a matrix handle
-or currency was. The `caliper` package handles this behind the scenes, but some
+or currency was. The `caliperR` package handles this behind the scenes, but some
 GISDK functions require handles or currencies as arguments.
 
 If a function requires the matrix handle, simply pass in the entire matrix

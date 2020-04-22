@@ -1,4 +1,4 @@
-Package: caliper
+Package: caliperR
 Type: Package
 Title: Interacct with Caliper Software from R
 Version: 0.1.0
@@ -17,9 +17,14 @@ Depends:
   RDCOMClient
 Imports:
   R6,
-  data.table
+  methods,
+  data.table,
+  Hmisc,
+  stringr,
+  dplyr,
+  tidyr
 Remotes:
-  dkyleward/RDCOMClient
+  Caliper-Corporation/RDCOMClient
 RoxygenNote: 7.0.2
 Suggests: 
     knitr,

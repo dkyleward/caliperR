@@ -1,5 +1,5 @@
 open_matrix <- function() {
-  orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliper")
+  orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR")
   mtx_file <- tempfile(fileext = ".mtx")
   file.copy(orig, mtx_file)
   mtx <- RunFunction("OpenMatrix", mtx_file, NA)

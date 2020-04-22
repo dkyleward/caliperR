@@ -1,10 +1,10 @@
-#' caliper: Communicate with Caliper software from R
+#' caliperR: Communicate with Caliper software from R
 #'
-#' The caliper package provides functions to make it easier to communicate
+#' The caliperR package provides functions to make it easier to communicate
 #' with Caliper software over COM.
 #'
 #' @docType package
-#' @name caliper
+#' @name caliperR
 NULL
 
 #'Create a connection to a Caliper software product
@@ -17,6 +17,7 @@ NULL
 #'  connection it can.
 #' @param silent \code{boolean} Whether to display a connected message.
 #' @import RDCOMClient
+#' @importFrom utils unzip
 #' @return Nothing. Sets the COM object to a global environment variable
 #'   (\code{CALIPER_DK})
 #' @export
@@ -29,14 +30,14 @@ connect <- function(software = NULL, silent = FALSE){
     if (!(software %in% valid_software_values)) {
       stop(
         paste0(
-          "(caliper::connect) Invalid value for 'software'. Valid values are: ",
+          "(caliperR::connect) Invalid value for 'software'. Valid values are: ",
           paste(valid_software_values, collapse = ", ")
         )
       )
     }
   }
   if (!is.logical(silent)) {
-    stop("(caliper::connect) 'silent' must be logical (true/false)")
+    stop("(caliperR::connect) 'silent' must be logical (true/false)")
   }
 
   # To prevent orphan processes, disconnect previous connections if the user
@@ -72,7 +73,7 @@ connect <- function(software = NULL, silent = FALSE){
   # Set a package variable that points to gisdk_utils, a gisdk UI with helper
   # functions for this package
   zip_file <- system.file("extdata", "gisdk", "gisdk_utils",
-                          "gisdk_utils.zip", package = "caliper")
+                          "gisdk_utils.zip", package = "caliperR")
   tempdir <- tempdir()
   unzip(zip_file, exdir = tempdir, setTimes = TRUE)
   ui_path <- file.path(tempdir, "gisdk_utils.dbd")
@@ -137,8 +138,9 @@ connected <- function() {
 
 #' Shows the Caliper log file
 #'
-#' @import tidyverse
+#' @importFrom tidyr unite
 #' @return Returns the log as a data frame.
+#' @importFrom utils read.table
 #' @export
 
 read_log <- function() {
@@ -240,7 +242,7 @@ RunFunction <- function(macro_name, ..., process_result = TRUE) {
   )
   if (macro_name %in% invalid_macro_names) {
     stop(paste0(
-      "Use caliper::", macro_name, "()"
+      "Use caliperR::", macro_name, "()"
     ))
   }
   dk <- get_package_variable("CALIPER_DK")
@@ -270,7 +272,7 @@ SetAlternateInterface <- function(ui_file = NULL) {
   } else {
     ui_file <- gsub("/", "\\", ui_file, fixed = TRUE)
     if (!file.exists(ui_file)){
-      stop("(caliper::SetAlternateInterface) 'ui_file' not found")
+      stop("(caliperR::SetAlternateInterface) 'ui_file' not found")
     }
   }
   set_package_variable("CALIPER_UI", ui_file)
@@ -468,7 +470,7 @@ process_gisdk_result <- function(result) {
 
 #' Sets the value of a package-wide variable
 #'
-#' \code{caliper} uses several package-wide variables to enable communication
+#' \code{caliperR} uses several package-wide variables to enable communication
 #' between functions and simplify function arguments.
 #'
 #' @param package_variable The package variable to set
@@ -517,7 +519,7 @@ set_package_variable <- function(package_variable, value) {
   assign(package_variable, value, envir = caliper_env)
 }
 
-#' Gets the value of a \code{caliper} package-wide variable
+#' Gets the value of a \code{caliperR} package-wide variable
 #'
 #' @inheritParams set_package_variable
 #' @export
