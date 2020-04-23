@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 #' Creates an R object that reprents a GISDK object
 #'
 #' A simple function that merely abstracts Rs creation language for R6 objects

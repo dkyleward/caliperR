@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 #' Converts a Caliper view into an R data.frame
 #'
 #' @param view_name The name of the view open in Caliper software.

@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 #' S3 method for converting a \code{CaliperMatrix} into a \code{data.frame}
 #'
 #' @param x \code{CaliperMatrix}

@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 #' caliperR: Communicate with Caliper software from R
 #'
 #' The caliperR package provides functions to make it easier to communicate

@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 #' Configures the environment for TransCAD
 #'
 #' Sets the error to dump.frames to prevent execution halt
