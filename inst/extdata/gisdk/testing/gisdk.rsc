@@ -1,3 +1,5 @@
+// © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 // Most basic
 Macro "first macro"
     return("Hello World!")

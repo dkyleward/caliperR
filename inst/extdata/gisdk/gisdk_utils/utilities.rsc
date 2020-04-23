@@ -1,6 +1,7 @@
-/*doc
-Adds a field.  Replacement for hidden "TCB Add View Fields", which has
-some odd behavior.  Takes the same field info array.  See ModifyTable()
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
+/*
+Adds a field.
 for the 12 potential elements.
 
   * view
