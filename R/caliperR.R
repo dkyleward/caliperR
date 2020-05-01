@@ -214,7 +214,7 @@ RunMacro <- function(macro_name, ..., process_result = TRUE) {
 
 #' Runs a GISDK function
 #'
-#' A GISDK function are core functions (like \code{OpenTable()}) that are called
+#' GISDK functions are core functions (like \code{OpenTable()}) that are called
 #' in Caliper software without using \code{RunMacro()}.
 #'
 #' To run GISDK macros (like \code{RunMacro("G30 Tutorial Folder")}) see
@@ -225,6 +225,7 @@ RunMacro <- function(macro_name, ..., process_result = TRUE) {
 #'   result into a native R format.
 #' @param ... Used to pass arguments to the GISDK function
 #' @export
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' # These won't work unless Caliper software is installed.

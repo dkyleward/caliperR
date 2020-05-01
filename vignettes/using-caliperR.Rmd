@@ -96,7 +96,7 @@ below opens a FFB file and counts the number of rows in the table.
 ```{r}
 table_name <- RunFunction(
   "OpenTable", "airports", "ffb",
-  list(paste0(folder, "airports.bin"))
+  list(paste0(folder, "\\airports.bin"))
 )
 num_rows <- RunFunction("GetRecordCount", table_name, NA)
 paste0("The table '", table_name, "' has ", num_rows, " rows.")
