@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(caliperR)
+dk <- connect()
 ```
 
 ## Intro
@@ -51,7 +52,7 @@ Next, the `Clear()` method of the `NLM.Model` object is called, which removes
 the value of all fields including `Label`.
 
 ```{r}
-object$Clear() 
+object$Clear()
 object$Label
 ```
 
