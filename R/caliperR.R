@@ -100,6 +100,8 @@ connect <- function(software = NULL, silent = FALSE){
     SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
     message("Connected to ", software, "\n(", path, ")")
   }
+
+  return(CaliperR$new())
 }
 
 #' Close the COM connection to Caliper software and kills the process
