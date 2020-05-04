@@ -9,20 +9,44 @@
 
 CaliperR <- R6::R6Class("CaliperR",
   public = list(
+
+    #' @description
+    #' On creation, attempts to connect to Caliper software if not
+    #' already connected.
+    #' @return A new \code{CaliperR} object.
     initialize = function() {
       if (!connected()) {
         connect()
       }
     },
+
+    #' @description
+    #' Class implementation of \code{caliperR::RunMacro()}.
+    #' @param macro_name \code{string} The GISDK macro name to run.
+    #' @param ... The arguments to pass to the GISDK macro.
+    #' @param process_result \code{boolean} Whether to attempt to convert GISDK
+    #' data types to R. Defaults to true.
     RunMacro = function(macro_name, ..., process_result = TRUE) {
       caliperR::RunMacro(macro_name, ..., process_result)
     },
+
+    #' @description
+    #' Class implementation of \code{caliperR::CreateObject()}.
+    #' @param class_name \code{string} The name of the GISDK object to create.
+    #' @param ... Any arguments to be passed to the object during creation.
     CreateObject = function(class_name, ...) {
       caliperR::CreateObject(class_name, ...)
     },
+
+    #' @description
+    #' Class implementation of \code{caliperR::SetAlternateInterface()}.
+    #' @param ui_file \code{string} File path to the compiled UI file.
     SetAlternateInterface = function(ui_file = NULL) {
       caliperR::SetAlternateInterface(ui_file)
     },
+
+    #' @description
+    #' Class implementation of \code{caliperR::GetInterface()}.
     GetInterface = function() {
       caliperR::GetInterface()
     }
@@ -40,7 +64,9 @@ CaliperR <- R6::R6Class("CaliperR",
 #' it tries to execute a GISDK function of the same name.
 #'
 #' @param x A \code{CaliperR} object
-#' @param name the method to dispatch
+#' @param name The method to dispatch
+#' @param ... The arguments to pass to the method.
+#' @inheritParams RunMacro
 #' @export
 
 `$.CaliperR` <- function(x, name, ..., process_result = TRUE) {

@@ -9,7 +9,12 @@
 \arguments{
 \item{x}{A \code{CaliperR} object}
 
-\item{name}{the method to dispatch}
+\item{name}{The method to dispatch}
+
+\item{...}{The arguments to pass to the method.}
+
+\item{process_result}{\code{boolean} Whether to attempt to process the
+result into a native R format.}
 }
 \description{
 Makes \code{CaliperR} objects smarter about whether you are calling a
