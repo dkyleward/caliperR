@@ -130,14 +130,12 @@ disconnect <- function() {
 #' @export
 
 connected <- function() {
-  try(
-    dk <- get_package_variable("CALIPER_DK"),
-    silent = TRUE
+  check <- tryCatch(
+    error = function(cnd) FALSE,
+    get_package_variable("CALIPER_DK")
   )
-  if (exists("dk"))
-    return(TRUE)
-  else
-    return(FALSE)
+  if (class(check) == "COMIDispatch") return(TRUE)
+  return(FALSE)
 }
 
 #' Shows the Caliper log file
