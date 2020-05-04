@@ -8,7 +8,7 @@
 #' @import data.table
 #' @export
 
-view_to_df <- function(view_name, set_name = NULL) {
+df_from_view <- function(view_name, set_name = NULL) {
   # Make sure view_name is an open view
   current_views <- RunFunction("GetViews")[[1]]
   if (!(view_name %in% current_views)){
