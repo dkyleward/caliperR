@@ -23,7 +23,7 @@ setupTcCommandPrompt<- function() {
 checkIfValidBinFile <- function(binFilename) {
     binFilenameLength <- nchar(binFilename)
     binFilenameExtension <- substr(binFilename,binFilenameLength-3,binFilenameLength)
-    if (!binFilenameExtension %in% c(".bin", ".BIN")) {
+    if (tolower(binFilenameExtension) != ".bin") {
         stop("Filename does not have the .bin extension")
     }
 }

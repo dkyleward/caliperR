@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(caliperR)
+dk <- connect()
 ```
 
 ## Intro

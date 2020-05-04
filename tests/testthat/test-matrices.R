@@ -2,7 +2,7 @@ open_matrix <- function() {
   orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR")
   mtx_file <- tempfile(fileext = ".mtx")
   file.copy(orig, mtx_file)
-  mtx <- RunFunction("OpenMatrix", mtx_file, NA)
+  mtx <- dk$OpenMatrix(mtx_file, NA)
   return(mtx)
 }
 
@@ -31,7 +31,7 @@ test_that("matrix indices work", {
   check_connected()
   matrix <- open_matrix()
   matrix$column_index <- "subset"
-  c_labels <- RunFunction("GetMatrixColumnLabels", matrix$core_a)
+  c_labels <- dk$GetMatrixColumnLabels(matrix$core_a)
   expect_equal(c_labels, list("1", "2", "3"))
   df <- as.data.frame(matrix)
   expect_equal(nrow(df), 15)
