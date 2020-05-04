@@ -1,7 +1,15 @@
-test_that("logging works", {
-  RunFunction("ShowMessage", "This is a test.")
-  tbl <- read_log()
-  expect_equal(class(tbl), "data.frame")
+test_that("GISDK functions work", {
+  check_connected()
+  folder <- RunMacro("G30 Tutorial Folder")
+  expect_equal(
+    dk$OpenTable("airports", "ffb", list(paste0(folder, "airports.bin"), NA)),
+    "airports"
+  )
+  expect_error(
+    RunFunction("CreateObject"),
+    "Use caliperR::CreateObject()",
+    fixed = TRUE
+  )
 })
 
 test_that("RunMacro works", {
@@ -11,20 +19,10 @@ test_that("RunMacro works", {
   SetAlternateInterface()
 })
 
-test_that("RunFunction works", {
-  check_connected()
-  folder <- RunMacro("G30 Tutorial Folder")
-  expect_equal(
-    RunFunction(
-      "OpenTable", "airports", "ffb", list(paste0(folder, "airports.bin"), NA)
-    ),
-    "airports"
-  )
-  expect_error(
-    RunFunction("CreateObject"),
-    "Use caliperR::CreateObject()",
-    fixed = TRUE
-  )
+test_that("logging works", {
+  dk$ShowMessage("This is a test.")
+  tbl <- read_log()
+  expect_equal(class(tbl), "data.frame")
 })
 
 test_that("Type conversion works", {

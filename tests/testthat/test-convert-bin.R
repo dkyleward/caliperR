@@ -57,4 +57,4 @@ test_that("writing a bin file works without COM", {
   temp_dcb <- gsub("\\.bin", "\\.dcb", temp_bin)
 })
 
-connect()
+dk <- connect()
