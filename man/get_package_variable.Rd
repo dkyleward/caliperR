@@ -12,3 +12,4 @@ get_package_variable(package_variable)
 \description{
 Gets the value of a \code{caliperR} package-wide variable
 }
+\keyword{internal}
