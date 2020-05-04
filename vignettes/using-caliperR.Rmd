@@ -1,6 +1,6 @@
 ---
 title: "Using caliperR"
-author: "Kyle Ward"
+author: "Caliper Staff"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -33,32 +33,34 @@ The sections below show how to work with the package.
 
 ## Connecting
 
-When you load the library, `caliperR` will automatically find and connect to
-installed Caliper software.
+Connecting to Caliper software is accomplished by calling the `connect()`
+function. This will display a helpful message detailing which software package
+was connected to R. It also returns a helpful object that we will use later.
 
 ```{r}
 library(caliperR)
+dk <- connect()
 ```
 
-It does so using the `connect()` function. If you have multiple
-software applications installed, you can use `connect()` to specify which you
-want to connect to.
+If you have multiple software applications installed, you can use `connect()` to
+specify which you want to connect to.
 
 ```{r, eval=FALSE}
-connect("Maptitude")
+dk <- connect("Maptitude")
 ```
 
-If you have multiple versions of the same software installed (e.g. TransCAD 7
-and TransCAD 8), the last one installed is the one that will be connected to
-automatically. To connect to a different version, open that application before
-connecting. This can be done manually or from R:
+The only part of connecting that can be tricky is if you have multiple versions
+of the same software installed (e.g. TransCAD 7 and TransCAD 8). By default,
+`caliperR` selects the last one installed. To connect to a different version,
+you must open that application before connecting. This can be done from R (but
+manual works, too):
 
 ```{r, eval=FALSE}
 system2(
   "C:\\Program Files\\TransCAD 9.0\\tcw.exe",
   wait = FALSE, invisible = FALSE
 )
-connect()
+dk <- connect()
 ```
 
 To disconnect (and close the software), use:
@@ -67,15 +69,16 @@ To disconnect (and close the software), use:
 disconnect()
 ```
 
-
 ## Macros and Functions
 
-Caliper software comes with a scripting language called GISDK. In this language,
-there is a difference between 'functions' and 'macros'. Functions are written in
-C++ and are called directly in GISDK (e.g. `OpenTable()`). Macros are written in
-GISDK, and are called using `RunMacro("macro name")`.
+Caliper software comes with a scripting language called GISDK. Users write custom
+macros in this language for various applications, but it also comes with a large
+number of built-in functions.
 
 ### Running a macro
+
+Running a GISDK macro that you or someone else has written in easy. And looks
+just like it would in GISDK.
 
 ```{r}
 RunMacro("G30 Tutorial Folder")
@@ -85,26 +88,20 @@ RunMacro("G30 Tutorial Folder")
 folder <- RunMacro("G30 Tutorial Folder")
 ```
 
-Calling macros from R and GISDK look the same with the `caliperR` package.
-
 ### Running a function
 
-To run a function from R, the format is slightly different from GISDK. Instead
-of calling `OpenTable()` directly, use `RunFunction("OpenTable")`. The example
-below opens a FFB file and counts the number of rows in the table.
+To access the library of native GISDK functions, use the `dk` object returned by
+`connect()`.
 
 ```{r}
-table_name <- RunFunction(
-  "OpenTable", "airports", "ffb",
-  list(paste0(folder, "airports.bin"))
-)
-num_rows <- RunFunction("GetRecordCount", table_name, NA)
-paste0("The table '", table_name, "' has ", num_rows, " rows.")
+view = dk$OpenTable("airports", "ffb", list(paste0(folder, "\\airports.bin")))
+num_rows <- dk$GetRecordCount(view, NA)
+paste0("The table '", view, "' has ", num_rows, " rows.")
 
 # Equivalent in GISDK
-# table_name = OpenTable("airports", "ffb", {folder + "airports.bin", null}, )
-# num_rows = GetRecordCount(table_name, )
-# ShowMessage("The table '" + table_name + "' has " + String(num_rows) + " rows.")
+# view = OpenTable("airports", "ffb", {folder + "airports.bin", null}, )
+# num_rows = GetRecordCount(view, )
+# ShowMessage("The table '" + view + "' has " + String(num_rows) + " rows.")
 ```
 
 The code above introduces two other important differences between R and GISDK:
@@ -112,7 +109,7 @@ The code above introduces two other important differences between R and GISDK:
   * Use a `list` in R when you would use an `array` in GISDK.
   * Use `NA` in R when you would use `null` in GISDK.
 
-To improve integration with R, some GISDK functions have been implemented
+To improve integration with R, select GISDK functions have been implemented
 directly in the `caliperR` package:
 
   * `RunMacro()`
@@ -120,23 +117,24 @@ directly in the `caliperR` package:
   * `GetInterface()`
   * `CreateObject()`
 
-Trying to call these functions using `RunFunction()` will display a helpful
-error message:
+These functions behave the same whether called directly or using the `dk`
+object.
 
 ```{r, error=TRUE}
-RunFunction("RunMacro")
+GetInterface()
+dk$GetInterface()
 ```
 
 ## Custom Macros
 
 In order to call one of your own GISDK functions from R, it must be compiled
-into an interface/UI. The `caliperR` package comes with a toy GISDK script, which
-can be compiled using the `compile_gisdk()` function. Code compiled using
-Caliper software also works.
+into an interface/UI. The `caliperR` package comes with the utility function
+`compile_gisdk()` to make this easy and a toy script to test it on. Code
+compiled using Caliper software also works.
 
 ```{r}
-rsc_file <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliperR")
-ui_path <- compile_gisdk(rsc_file, tempfile(fileext = ".dbd"))
+toy_script <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliperR")
+ui_path <- compile_gisdk(toy_script, tempfile(fileext = ".dbd"))
 ```
 
 The toy functions are simple, but illustrate some important points in the
@@ -144,14 +142,14 @@ examples below.
 
 To reference a custom function that you have written and compiled, first use 
 `SetAlternateInterface()` to point to your compiled code. The "first macro"
-example simply returns a "Hello World!" message.
+example in the compiled toy script simply returns a "Hello World!" message.
 
 ```{r}
 SetAlternateInterface(ui_path)
 RunMacro("first macro")
 ```
 
-You can see the current interface using
+You can always check the current interface using
 
 ```{r}
 GetInterface()
@@ -180,18 +178,20 @@ RunMacro("parse opts array", opts)
 
 ## Views in R
 
-Caliper software represents tabular data in "views". Earlier examples explained
-how to use `RunFunction()` to open a view and get the number of rows using
-GISDK functions. It can also be helpful to bring that tabular data into R for
-additional processing. Two functions exist to help with this:
+Caliper software represents tabular data in "views". An earlier example
+explained how to use `dk$OpenTable()` to open a view and get the number of rows
+using GISDK functions. It can also be helpful to bring that tabular data into R
+for additional processing. Two functions exist to help with this:
 
   * `view_to_df()`: convert a Caliper view into an R data frame
-  * `df_to_view()`: convert a data frame into a Caliper view
+  * `df_to_view()`: convert a data frame into a Caliper view (or update an
+    existing view)
 
 In the code below, a data.frame is sent to a view. A new view is created, and
 it's name is returned.
   
 ```{r}
+SetAlternateInterface() # reset to default
 df <- data.frame("one" = c(1, 2), "two" = c(3, 4), "three" = c(5, 6))
 df
 view <- df_to_view(df)
@@ -201,7 +201,7 @@ view
 GISDK functions will now operate on that view as seen in previous examples.
 
 ```{r}
-RunFunction("GetRecordCount", view, NA)
+dk$GetRecordCount(view, NA)
 ```
 
 The view can be brought back into a new data.frame.
@@ -229,7 +229,7 @@ case, messages are written out to a log file. In the code below, I first write
 something to the log and then use `read_log()` to display it.
 
 ```{r}
-RunFunction("ShowMessage", "This is a test.")
+dk$ShowMessage("This is a test.")
 read_log()
 ```
 
@@ -240,12 +240,12 @@ have closed that pop up before continuing. You can test the behavior by running
 the code below. You may have to alt-tab to find the pop up window.
 
 ```{r, eval=FALSE}
-RunFunction("ShowArray", list(1, 2, 3))
+dk$ShowArray(list(1, 2, 3))
 ```
 
 ## Advanced topics
 
-For more-advanced topics, see the other package vignettes:
+For advanced topics, see the other package vignettes:
 
   * [Matrices](caliper-matrices.html)
   * [Objects](caliper-objects.html)

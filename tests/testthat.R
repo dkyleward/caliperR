@@ -13,7 +13,7 @@ tempdir <- tempdir()
 unzip(zip_file, exdir = tempdir, setTimes = TRUE)
 ui_path <- file.path(tempdir, "my_ui.dbd")
 
-connect()
+dk <- connect()
 test_check("caliperR")
 
 # for interactive testing:

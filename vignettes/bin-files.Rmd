@@ -1,6 +1,6 @@
 ---
 title: "Working with bin files"
-author: "Kyle Ward"
+author: "Caliper Staff"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(caliperR)
+dk <- connect()
 ```
 
 ## Intro
