@@ -248,7 +248,7 @@ read_bin <- function(binFilename, returnDnames = FALSE) {
     # If connected to Caliper software over COM, use it to read faster
     if (connected()) {
       view <- RunFunction("OpenTable", "temp", "FFB", list(binFilename, NA))
-      df <- view_to_df(view)
+      df <- df_from_view(view)
       RunFunction("CloseView", view)
     }
 

@@ -183,7 +183,7 @@ explained how to use `dk$OpenTable()` to open a view and get the number of rows
 using GISDK functions. It can also be helpful to bring that tabular data into R
 for additional processing. Two functions exist to help with this:
 
-  * `view_to_df()`: convert a Caliper view into an R data frame
+  * `df_from_view()`: convert a Caliper view into an R data frame
   * `df_to_view()`: convert a data frame into a Caliper view (or update an
     existing view)
 
@@ -207,7 +207,7 @@ dk$GetRecordCount(view, NA)
 The view can be brought back into a new data.frame.
 
 ```{r}
-df2 <- view_to_df(view)
+df2 <- df_from_view(view)
 df2
 ```
 
@@ -217,7 +217,7 @@ of the view we want to update in our call to `df_to_view()`.
 ```{r}
 df2$one <- 10
 view <- df_to_view(df2, view)
-view_to_df(view)
+df_from_view(view)
 ```
 
 ## Logging and Message Boxes
