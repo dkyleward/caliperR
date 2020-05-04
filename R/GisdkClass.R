@@ -4,16 +4,21 @@
 #'
 #' This class makes it easy to call any arbitrary GISDK function from R.
 #'
+#' Performs multiple dispatch based on the name of the method called. If the
+#' named is one of a few caliperR functions, those are executed. If not, then
+#' then the name is assumed to represent a GISDK function and is called over
+#' COM.
+#'
 #' @import R6
 #' @export
 
-CaliperR <- R6::R6Class("CaliperR",
+GisdkClass <- R6::R6Class("GisdkClass",
   public = list(
 
     #' @description
     #' On creation, attempts to connect to Caliper software if not
     #' already connected.
-    #' @return A new \code{CaliperR} object.
+    #' @return A new \code{GisdkClass} object.
     initialize = function() {
       if (!connected()) {
         connect()
@@ -53,9 +58,9 @@ CaliperR <- R6::R6Class("CaliperR",
   )
 )
 
-#' S3 method for calling \code{CaliperR} object methods
+#' S3 method for calling \code{GisdkClass} object methods
 #'
-#' Makes \code{CaliperR} objects smarter about whether you are calling a
+#' Makes \code{GisdkClass} objects smarter about whether you are calling a
 #' method from the R object or the underlying GISDK library.
 #'
 #' @details
@@ -63,13 +68,13 @@ CaliperR <- R6::R6Class("CaliperR",
 #' If \code{name} is a method of the R object, then it is executed. Otherwise,
 #' it tries to execute a GISDK function of the same name.
 #'
-#' @param x A \code{CaliperR} object
+#' @param x A \code{GisdkClass} object
 #' @param name The method to dispatch
 #' @param ... The arguments to pass to the method.
 #' @inheritParams RunMacro
 #' @export
 
-`$.CaliperR` <- function(x, name, ..., process_result = TRUE) {
+`$.GisdkClass` <- function(x, name, ..., process_result = TRUE) {
   args <- list(...)
   # If the name references an R method/attribute
   if (exists(name, envir = x)) {

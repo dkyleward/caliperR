@@ -101,7 +101,7 @@ connect <- function(software = NULL, silent = FALSE){
     message("Connected to ", software, "\n(", path, ")")
   }
 
-  return(CaliperR$new())
+  return(GisdkClass$new())
 }
 
 #' Close the COM connection to Caliper software and kills the process
