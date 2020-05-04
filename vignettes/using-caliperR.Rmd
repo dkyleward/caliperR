@@ -94,7 +94,7 @@ To access the library of native GISDK functions, use the `dk` object returned by
 `connect()`.
 
 ```{r}
-view = dk$OpenTable("airports", "ffb", list(paste0(folder, "\\airports.bin")))
+view <- dk$OpenTable("airports", "ffb", list(paste0(folder, "\\airports.bin")))
 num_rows <- dk$GetRecordCount(view, NA)
 paste0("The table '", view, "' has ", num_rows, " rows.")
 
