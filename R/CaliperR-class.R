@@ -77,13 +77,7 @@ CaliperR <- R6::R6Class("CaliperR",
   # Otherwise, it must reference a GISDK function
   } else {
     function(...) {
-      caliperR:::RunFunction(name, ...)
+      caliperR::RunFunction(name, ...)
     }
   }
 }
-
-# dk <- connect()
-# folder <- dk$RunMacro("G30 Tutorial Folder")
-# view = dk$OpenTable("airports", "ffb", list(paste0(folder, "\\airports.bin")))
-# dk$ShowArray(list("a", "b"))
-# obj <- dk$CreateObject("NLM.Model")
