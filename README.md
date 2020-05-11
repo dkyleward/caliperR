@@ -1,5 +1,5 @@
 # caliper
-Interact with Caliper software from R
+Use Caliper software from R
 
 ## Installation
 
@@ -12,6 +12,7 @@ devtools::install_github('Caliper-Corporation/caliperR', build_vignettes = TRUE)
 
 ```r
 library(caliperR)
+dk <- connect()
 RunMacro("G30 Tutorial Folder")
 #> "C:/Users/..."
 ```

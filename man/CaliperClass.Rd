@@ -66,6 +66,7 @@ and methods of the underlying GISDK object.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{CaliperClass}
 \subsection{Usage}{
@@ -87,6 +88,7 @@ A new \code{CaliperClass} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-apply_gisdk_method"></a>}}
+\if{latex}{\out{\hypertarget{method-apply_gisdk_method}{}}}
 \subsection{Method \code{apply_gisdk_method()}}{
 Runs a method of the associated GISDK object.
 \subsection{Usage}{
@@ -105,6 +107,7 @@ Runs a method of the associated GISDK object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-get_gisdk_attribute"></a>}}
+\if{latex}{\out{\hypertarget{method-get_gisdk_attribute}{}}}
 \subsection{Method \code{get_gisdk_attribute()}}{
 Retrieve an attribute from the GISDK object.
 \subsection{Usage}{
@@ -124,6 +127,7 @@ The GISDK attribute value.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set_gisdk_attribute"></a>}}
+\if{latex}{\out{\hypertarget{method-set_gisdk_attribute}{}}}
 \subsection{Method \code{set_gisdk_attribute()}}{
 Set an attribute of the GISDK object.
 \subsection{Usage}{
@@ -142,6 +146,7 @@ Set an attribute of the GISDK object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

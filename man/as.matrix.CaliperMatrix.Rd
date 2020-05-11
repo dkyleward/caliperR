@@ -2,9 +2,9 @@
 % Please edit documentation in R/matrices.R
 \name{as.matrix.CaliperMatrix}
 \alias{as.matrix.CaliperMatrix}
-\title{Converts all cores in a CaliperMatrix to R matrices}
+\title{S3 method to convert all cores in a CaliperMatrix to R matrices}
 \usage{
-as.matrix.CaliperMatrix(x, ...)
+\method{as.matrix}{CaliperMatrix}(x, ...)
 }
 \arguments{
 \item{x}{\code{CaliperMatrix}}
