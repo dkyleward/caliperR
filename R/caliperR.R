@@ -29,7 +29,11 @@ connect <- function(software = NULL, silent = FALSE){
   # Argument checking
   valid_software_values <- c("TransCAD", "TransModeler", "Maptitude")
   if (!is.null(software)){
-    if (!(software %in% valid_software_values)) {
+    if (any(tolower(software) == tolower(valid_software_values))) {
+      pos <- which(tolower(software) == tolower(valid_software_values))
+      software <- valid_software_values[pos]
+
+    } else {
       stop(
         paste0(
           "(caliperR::connect) Invalid value for 'software'. Valid values are: ",
