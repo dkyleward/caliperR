@@ -50,7 +50,7 @@ dk <- connect("Maptitude")
 ```
 
 The only part of connecting that can be tricky is if you have multiple versions
-of the same software installed (e.g. TransCAD 7 and TransCAD 8). By default,
+of the same software installed (e.g. TransCAD 8 and TransCAD 9). By default,
 `caliperR` selects the last one installed. To connect to a different version,
 you must open that application before connecting. This can be done from R (but
 manual works, too):
@@ -77,7 +77,7 @@ number of built-in functions.
 
 ### Running a macro
 
-Running a GISDK macro that you or someone else has written in easy. And looks
+Running a GISDK macro that you or someone else has written in easy and looks
 just like it would in GISDK.
 
 ```{r}
@@ -127,10 +127,10 @@ dk$GetInterface()
 
 ## Custom Macros
 
-In order to call one of your own GISDK functions from R, it must be compiled
-into an interface/UI. The `caliperR` package comes with the utility function
-`compile_gisdk()` to make this easy and a toy script to test it on. Code
-compiled using Caliper software also works.
+In order to call one of your own GISDK functions from R, it must be compiled.
+The `caliperR` package comes with the utility function `compile_gisdk()` to make
+this easy and a toy script to test it on. Code compiled using Caliper software
+also works.
 
 ```{r}
 toy_script <- system.file("extdata", "gisdk", "testing", "gisdk.rsc", package = "caliperR")

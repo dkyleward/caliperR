@@ -35,7 +35,7 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
   return(df)
 }
 
-#' Converts all cores in a CaliperMatrix to R matrices
+#' S3 method to convert all cores in a CaliperMatrix to R matrices
 #'
 #' To convert individual cores of a \code{CaliperMatrix}, see
 #' \code{\link{as.matrix.MatrixCurrency}}.
@@ -43,6 +43,7 @@ as.data.frame.CaliperMatrix <- function(x, row.names = NULL,
 #' @param x \code{CaliperMatrix}
 #' @param ... other arguments passed to \code{as.matrix()}
 #' @return A named list of R matrices.
+#' @method as.matrix CaliperMatrix
 #' @export
 
 as.matrix.CaliperMatrix <- function(x, ...) {
@@ -366,6 +367,7 @@ make_MatrixCurrency <- function(x) {
 #' @param ... Other arguments passed to \code{as.matrix}
 #' @import data.table
 #' @return An R matrix.
+#' @method as.matrix MatrixCurrency
 #' @export
 
 as.matrix.MatrixCurrency <- function(x, ...) {

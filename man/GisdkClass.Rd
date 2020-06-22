@@ -29,6 +29,7 @@ COM.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 On creation, attempts to connect to Caliper software if not
 already connected.
@@ -42,6 +43,7 @@ A new \code{GisdkClass} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-RunMacro"></a>}}
+\if{latex}{\out{\hypertarget{method-RunMacro}{}}}
 \subsection{Method \code{RunMacro()}}{
 Class implementation of \code{caliperR::RunMacro()}.
 \subsection{Usage}{
@@ -63,6 +65,7 @@ data types to R. Defaults to true.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateObject"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateObject}{}}}
 \subsection{Method \code{CreateObject()}}{
 Class implementation of \code{caliperR::CreateObject()}.
 \subsection{Usage}{
@@ -81,6 +84,7 @@ Class implementation of \code{caliperR::CreateObject()}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-SetAlternateInterface"></a>}}
+\if{latex}{\out{\hypertarget{method-SetAlternateInterface}{}}}
 \subsection{Method \code{SetAlternateInterface()}}{
 Class implementation of \code{caliperR::SetAlternateInterface()}.
 \subsection{Usage}{
@@ -97,6 +101,7 @@ Class implementation of \code{caliperR::SetAlternateInterface()}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GetInterface"></a>}}
+\if{latex}{\out{\hypertarget{method-GetInterface}{}}}
 \subsection{Method \code{GetInterface()}}{
 Class implementation of \code{caliperR::GetInterface()}.
 \subsection{Usage}{
@@ -106,6 +111,7 @@ Class implementation of \code{caliperR::GetInterface()}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

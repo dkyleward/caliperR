@@ -40,9 +40,7 @@ This is only to ensure that changes made by this vignette are not made to the
 original file (and is not necessary in normal workflow).
 
 ```{r}
-orig <- system.file(
-  "extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR"
-)
+orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR")
 mtx_file <- tempfile(fileext = ".mtx")
 ok <- file.copy(orig, mtx_file)
 ```

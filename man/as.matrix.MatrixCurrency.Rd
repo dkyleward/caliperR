@@ -4,7 +4,7 @@
 \alias{as.matrix.MatrixCurrency}
 \title{Generic to convert MatrixCurrency class to an R matrix}
 \usage{
-as.matrix.MatrixCurrency(x, ...)
+\method{as.matrix}{MatrixCurrency}(x, ...)
 }
 \arguments{
 \item{x}{\code{MatrixCurrency} One of the cores of the \code{CaliperMatrix}

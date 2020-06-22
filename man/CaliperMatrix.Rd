@@ -52,6 +52,7 @@ matrix.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{CaliperMatrix} object.
 \subsection{Usage}{
@@ -72,6 +73,7 @@ a new \code{CaliperMatrix} object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-create_index_info"></a>}}
+\if{latex}{\out{\hypertarget{method-create_index_info}{}}}
 \subsection{Method \code{create_index_info()}}{
 Sets the indices field of the \code{CaliperMatrix}.
 \subsection{Usage}{
@@ -81,6 +83,7 @@ Sets the indices field of the \code{CaliperMatrix}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-create_core_list"></a>}}
+\if{latex}{\out{\hypertarget{method-create_core_list}{}}}
 \subsection{Method \code{create_core_list()}}{
 Sets the \code{cores} field of the \code{CaliperMatrix}.
 \subsection{Usage}{
@@ -90,6 +93,7 @@ Sets the \code{cores} field of the \code{CaliperMatrix}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-update_gisdk_data"></a>}}
+\if{latex}{\out{\hypertarget{method-update_gisdk_data}{}}}
 \subsection{Method \code{update_gisdk_data()}}{
 Sends R data back to the matrix in Caliper software.
 \subsection{Usage}{
@@ -108,6 +112,7 @@ Sends R data back to the matrix in Caliper software.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateCore"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateCore}{}}}
 \subsection{Method \code{CreateCore()}}{
 Create a new core in the matrix.
 \subsection{Usage}{
@@ -124,6 +129,7 @@ Create a new core in the matrix.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CreateIndex"></a>}}
+\if{latex}{\out{\hypertarget{method-CreateIndex}{}}}
 \subsection{Method \code{CreateIndex()}}{
 Create a new index.
 \subsection{Usage}{
@@ -154,6 +160,7 @@ column, or (the default) both.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
