@@ -1,5 +1,5 @@
 # caliper
-Use Caliper software from R
+Interact with Caliper software from R
 
 ## Installation
 
