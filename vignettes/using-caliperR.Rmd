@@ -228,7 +228,7 @@ background (there is no icon on the task bar and no associated window). In this
 case, messages are written out to a log file. In the code below, I first write
 something to the log and then use `read_log()` to display it.
 
-```{r}
+```{r, eval=FALSE}
 dk$ShowMessage("This is a test.")
 read_log()
 ```
