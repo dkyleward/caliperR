@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 test_that("reading a bin file works without COM", {
   disconnect()
   bin_file <- system.file(

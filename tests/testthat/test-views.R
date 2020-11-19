@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 test_that("df_from_view works", {
   check_connected()
   file <- system.file("extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR")

@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 # to reduce test time, I grouped all the COM test and non-COM tests together.
 # This eliminates repeated connecting/disconnecting.
 

@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 test_that("GISDK functions work", {
   check_connected()
   folder <- RunMacro("G30 Tutorial Folder")
