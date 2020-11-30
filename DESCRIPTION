@@ -23,7 +23,7 @@ Imports:
   dplyr,
   tidyr
 Remotes:
-  Caliper-Corporation/RDCOMClient
+  dkyleward/RDCOMClient
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
