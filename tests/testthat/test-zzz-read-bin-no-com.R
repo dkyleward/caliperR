@@ -1,5 +1,17 @@
 # © Copyright Caliper Corporation. Licensed under Apache License 2.0.
 
+test_that("reading with and without COM give same data", {
+  check_connected()
+  bin_file <- system.file(
+    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
+  )
+  df1 <- read_bin(bin_file)
+  disconnect()
+  df2 <- read_bin(bin_file)
+  expect_true(all(df2 == df1, na.rm = TRUE)) # that all data is the same
+  expect_true(all(unlist(lapply(df1, typeof)) == unlist(lapply(df2, typeof))))
+})
+
 test_that("reading a bin file works without COM", {
   disconnect()
   bin_file <- system.file(

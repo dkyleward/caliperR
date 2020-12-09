@@ -17,15 +17,3 @@ test_that("reading a bin file works over COM", {
   expect_equal(nrow(df), 6) # make sure the deleted record isn't read in.
   expect_equal(Hmisc::label(df)[[1]], "first field") # field descriptions
 })
-
-test_that("reading with and without COM give same data", {
-  check_connected()
-  bin_file <- system.file(
-    "extdata", "gisdk", "testing", "toy_table.bin", package = "caliperR"
-  )
-  df1 <- read_bin(bin_file)
-  disconnect()
-  df2 <- read_bin(bin_file)
-  expect_true(all(df2 == df1, na.rm = TRUE)) # that all data is the same
-  expect_true(all(unlist(lapply(df1, typeof)) == unlist(lapply(df2, typeof))))
-})
