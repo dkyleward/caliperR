@@ -485,7 +485,10 @@ write_bin <- function(
   # If connected to Caliper software over COM, use it for faster file creation.
   # The remaining code will overwrite the dcb file to respect the display names,
   # descriptions, etc.
-  if (connected()) write_bin_using_com(binData, binFilename)
+  if (connected()) {
+    write_bin_using_com(binData, binFilename)
+    return()
+  }
 
   # Remove the 'labelled' class from columns if it exists
   for (i in 1:length(binData)) {
@@ -496,7 +499,7 @@ write_bin <- function(
   dcbFilename <- paste(substr(binFilename,1,nchar(binFilename)-3),"dcb", sep="")
   dataType <- sapply(sapply(binData, class), RTypeToTcType)
   dataType <- dataType[dataType != "labelled"]
-  dcbKey <- data.table(
+  dcbKey <- data.table::data.table(
     colNames = colnames(binData),
     dataType = dataType,
     byteLength = sapply(binData, getByteLength),
@@ -505,7 +508,7 @@ write_bin <- function(
   )
   writeDcbFile(dcbKey, dcbFilename, description, dnames)
 
-  if (!connected()) write_bin_without_com(binData, binFilename, dcbKey)
+  write_bin_without_com(binData, binFilename, dcbKey)
 }
 
 #' Uses Caliper software over COM to write a bin file.
