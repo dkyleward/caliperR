@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 open_matrix <- function() {
   orig <- system.file("extdata", "gisdk", "testing", "toy_matrix.mtx", package = "caliperR")
   mtx_file <- tempfile(fileext = ".mtx")

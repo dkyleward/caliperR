@@ -9,7 +9,7 @@ Maintainer: Caliper Staff <github@caliper.com>
 Description: Provides access to the Caliper API. Use this to run GISDK
     functions including core functions like \code{OpenTable()} or
     custom functions compiled to a user interface (\code{.dbd}).
-License: Apache License (== 2.0)
+License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends:
@@ -23,8 +23,8 @@ Imports:
   dplyr,
   tidyr
 Remotes:
-  Caliper-Corporation/RDCOMClient
-RoxygenNote: 7.1.0
+  dkyleward/RDCOMClient
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,

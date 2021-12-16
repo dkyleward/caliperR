@@ -84,16 +84,13 @@ just like it would in GISDK.
 RunMacro("G30 Tutorial Folder")
 ```
 
-```{r, include=FALSE}
-folder <- RunMacro("G30 Tutorial Folder")
-```
-
 ### Running a function
 
 To access the library of native GISDK functions, use the `dk` object returned by
 `connect()`.
 
 ```{r}
+folder <- RunMacro("G30 Tutorial Folder")
 view <- dk$OpenTable("airports", "ffb", list(paste0(folder, "\\airports.bin")))
 num_rows <- dk$GetRecordCount(view, NA)
 paste0("The table '", view, "' has ", num_rows, " rows.")
@@ -228,7 +225,7 @@ background (there is no icon on the task bar and no associated window). In this
 case, messages are written out to a log file. In the code below, I first write
 something to the log and then use `read_log()` to display it.
 
-```{r}
+```{r, eval=FALSE}
 dk$ShowMessage("This is a test.")
 read_log()
 ```

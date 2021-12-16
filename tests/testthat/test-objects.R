@@ -1,3 +1,5 @@
+# © Copyright Caliper Corporation. Licensed under Apache License 2.0.
+
 test_that("Objects work", {
   check_connected()
   expect_type(CreateObject("NLM.Model"), "environment")

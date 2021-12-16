@@ -54,10 +54,11 @@ connect <- function(software = NULL, silent = FALSE){
     if (software != current_software) disconnect()
   }
 
-  if (is.null(software))
+  if (is.null(software)) {
     software_to_try <- valid_software_values
-  else
+  } else {
     software_to_try <- software
+  }
   for (software in software_to_try) {
     suppressWarnings(
       try(
@@ -101,7 +102,6 @@ connect <- function(software = NULL, silent = FALSE){
     path <- p_info[[1]]
     software <- paste(p_info[[2]], p_info[[5]], "build", p_info[[4]],
                       paste0("(", p_info[[3]], ")"))
-    SetAlternateInterface(get_package_variable("GISDK_UTILS_UI"))
     message("Connected to ", software, "\n(", path, ")")
   }
 

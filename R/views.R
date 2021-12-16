@@ -31,7 +31,7 @@ df_from_view <- function(view_name, set_name = NULL) {
 
   # Correct field types for any empty fields
   for (i in 1:length(df)) {
-    field_name <- colnames(df)[[i]]
+    field_name <- bracket_field(colnames(df)[[i]])
     field_spec <- paste0(view_name, ".", field_name)
     caliper_type <- RunFunction("GetFieldType", field_spec)
     r_types[[i]] <- TcTypeToRType2(caliper_type)
@@ -131,4 +131,21 @@ close_views <- function() {
   for (view in RunFunction("GetViews")[[1]]) {
     RunFunction("CloseView", view)
   }
+}
+
+#' Check for special characters and return 'clean' field name
+#'
+#' Caliper functions require square brackets [] around fields with
+#' characters like spaces, periods, and others. This function checks
+#' for those special characters and adds brackets if needed.
+#' @keywords internal
+
+bracket_field <- function(field_name) {
+
+  # does the string contain a punctuation character, space, or begin
+  # with a number?
+  if (stringr::str_detect(string = field_name, pattern = "[[:punct:]]| |^\\d")) {
+    field_name = paste0("[", field_name, "]")
+  }
+  return(field_name)
 }
