@@ -14,6 +14,17 @@ NULL
 #'Will create a connection over COM to one of Caliper's installed software
 #'products. (The software must be installed with a valid license.)
 #'
+#'@details The connected software is asked to close itself when this R session
+#'  ends. This covers the cases \code{\link{disconnect}} cannot: an R session
+#'  that crashes, gets killed, or is closed without disconnecting used to leave
+#'  the software running and holding a license for about twelve minutes. Use
+#'  \code{\link{disconnect}} to close the software while R keeps running.
+#'
+#'  Software that was already open before R connected to it is left alone. Only a
+#'  session that R started is closed this way, so connecting from R cannot close
+#'  work somebody has open. This needs software built after dev ticket 187460;
+#'  against an earlier build the connection behaves as it always did.
+#'
 #' @param software One of either "TransCAD", "TransModeler", or "Maptitude". If
 #'  left \code{NULL}, the function will search (in that order) and create the first
 #'  connection it can.
@@ -76,6 +87,15 @@ connect <- function(software = NULL, silent = FALSE){
   if (!exists("dk")) stop(
     "Could not connect to Caliper software. Check that it is installed."
   )
+
+  # Ask the software to close itself when this R session ends. Without this, an
+  # R session that ends without calling disconnect() (a crash, a killed
+  # terminal, a stopped notebook) leaves the software running with no window and
+  # holding a license until COM notices the dead connection on its own, which
+  # takes about twelve minutes. Wrapped in try() for two reasons, neither of
+  # them an error: builds before dev ticket 187460 do not have the method, and
+  # the software declines to register when a person opened it rather than R.
+  try(dk$RegisterClientProcess(Sys.getpid()), silent = TRUE)
 
   # Set a package variable that points to gisdk_utils, a gisdk UI with helper
   # functions for this package

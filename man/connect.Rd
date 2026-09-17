@@ -21,3 +21,15 @@ Nothing. Sets the COM object to a global environment variable
 Will create a connection over COM to one of Caliper's installed software
 products. (The software must be installed with a valid license.)
 }
+\details{
+The connected software is asked to close itself when this R session
+ends. This covers the cases \code{\link{disconnect}} cannot: an R session
+that crashes, gets killed, or is closed without disconnecting used to leave
+the software running and holding a license for about twelve minutes. Use
+\code{\link{disconnect}} to close the software while R keeps running.
+
+Software that was already open before R connected to it is left alone. Only a
+session that R started is closed this way, so connecting from R cannot close
+work somebody has open. This needs software built after dev ticket 187460;
+against an earlier build the connection behaves as it always did.
+}
