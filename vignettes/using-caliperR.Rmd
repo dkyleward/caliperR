@@ -69,6 +69,13 @@ To disconnect (and close the software), use:
 disconnect()
 ```
 
+You do not have to remember to do this. When R connects, it tells the software to
+close itself once the R session ends, so a crashed script or a closed terminal no
+longer leaves the software running and holding a license. Call `disconnect()` when
+you want the software closed while R keeps working, or when you want to connect to
+a different one. Software that was already open before R connected to it is left
+alone, so this cannot close work somebody has open.
+
 ## Macros and Functions
 
 Caliper software comes with a scripting language called GISDK. Users write custom
